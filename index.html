@@ -501,6 +501,60 @@
     color: var(--black);
   }
 
+  /* Session name totals breakdown */
+  .name-totals {
+    margin-top: 0.75rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .name-totals-label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-400);
+    margin-bottom: 0.4rem;
+  }
+
+  .name-total-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.3rem 0;
+  }
+
+  .name-total-name {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--black);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .name-total-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+  }
+
+  .name-total-count {
+    font-size: 0.68rem;
+    color: var(--gray-400);
+    margin-left: 0.25rem;
+    font-weight: 400;
+  }
+
+  .name-total-time {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--black);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* Daily + Weekly totals */
   .totals-row {
     display: flex;
@@ -776,6 +830,7 @@
       <span class="section-meta" id="sessionCount"></span>
     </div>
     <ul class="session-list" id="sessionList"></ul>
+    <div class="name-totals" id="nameTotals"></div>
     <div class="daily-total">
       <div class="totals-row">
         <div class="total-block">
@@ -839,6 +894,7 @@
   const weekLabel = document.getElementById('weekLabel');
   const weekPrev = document.getElementById('weekPrev');
   const weekNext = document.getElementById('weekNext');
+  const nameTotalsEl = document.getElementById('nameTotals');
 
   // Constants
   const ONE_HOUR = 3600; // seconds
@@ -1189,6 +1245,31 @@
     // Weekly total (current week Mon–Sun)
     const weekTotalSec = getWeekSessions(0).reduce((sum, s) => sum + s.duration, 0);
     weeklyTotalEl.textContent = fmtTotal(weekTotalSec);
+
+    // Name totals breakdown
+    const nameMap = {};
+    todaySessions.forEach(s => {
+      const n = s.name || 'Deep Work';
+      if (!nameMap[n]) nameMap[n] = { total: 0, count: 0 };
+      nameMap[n].total += s.duration;
+      nameMap[n].count++;
+    });
+    const uniqueNames = Object.keys(nameMap);
+    if (uniqueNames.length > 1 || (uniqueNames.length === 1 && nameMap[uniqueNames[0]].count > 1)) {
+      const sorted = uniqueNames.sort((a, b) => nameMap[b].total - nameMap[a].total);
+      nameTotalsEl.style.display = '';
+      nameTotalsEl.innerHTML = '<div class="name-totals-label">By activity</div>' +
+        sorted.map(n =>
+          '<div class="name-total-row">' +
+            '<span class="name-total-name"><span class="name-total-dot"></span>' + n +
+              '<span class="name-total-count">&times;' + nameMap[n].count + '</span></span>' +
+            '<span class="name-total-time">' + fmtTotal(nameMap[n].total) + '</span>' +
+          '</div>'
+        ).join('');
+    } else {
+      nameTotalsEl.style.display = 'none';
+      nameTotalsEl.innerHTML = '';
+    }
 
     // Wire delete buttons
     sessionList.querySelectorAll('.session-delete').forEach(btn => {
