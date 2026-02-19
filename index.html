@@ -105,7 +105,7 @@
     margin-bottom: 2.5rem;
   }
 
-  /* Circle timer */
+  /* Minee-style disc timer */
   .timer-wrap {
     position: relative;
     width: 280px;
@@ -113,53 +113,43 @@
     margin-bottom: 2rem;
   }
 
-  .timer-wrap svg {
+  .timer-body {
     width: 100%;
     height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .track {
-    fill: none;
-    stroke: var(--gray-200);
-    stroke-width: 4;
-  }
-
-  .arc {
-    fill: none;
-    stroke: var(--orange);
-    stroke-width: 4;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.4s ease;
-  }
-
-  /* Orbiting dot */
-  .dot {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: var(--orange);
     border-radius: 50%;
-    border: 3px solid var(--white);
-    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    transform-origin: 50% 50%;
-    z-index: 2;
-    transition: opacity 0.3s;
+    background: var(--gray-100);
+    box-shadow:
+      0 8px 32px rgba(0,0,0,0.10),
+      0 2px 8px rgba(0,0,0,0.06),
+      inset 0 2px 4px rgba(255,255,255,0.8),
+      inset 0 -1px 2px rgba(0,0,0,0.04);
+    position: relative;
+    overflow: hidden;
   }
 
-  .dot.hidden { opacity: 0; }
-
-  .dot.pulse {
-    animation: dotPulse 2s ease-in-out infinite;
+  .timer-fill {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    background: conic-gradient(
+      var(--orange) 0deg,
+      var(--orange) 0deg,
+      var(--gray-200) 0deg
+    );
+    transition: background 0.3s ease;
   }
 
-  @keyframes dotPulse {
-    0%, 100% { box-shadow: 0 1px 4px rgba(255,102,0,0.2); }
-    50% { box-shadow: 0 0 12px rgba(255,102,0,0.5); }
+  .timer-fill-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    /* Subtle inner ring for depth */
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.06);
   }
+
+  /* Hide old SVG elements */
+  .timer-wrap svg { display: none; }
+  .dot { display: none; }
 
   .time-display {
     position: absolute;
@@ -168,16 +158,34 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1;
+    z-index: 2;
   }
 
   .time-digits {
-    font-size: 3.2rem;
+    font-size: 2.8rem;
     font-weight: 300;
     letter-spacing: -0.02em;
-    color: var(--black);
+    color: var(--white);
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .time-digits.visible {
+    opacity: 1;
+  }
+
+  .timer-wrap:hover .time-digits,
+  .timer-wrap.active .time-digits {
+    opacity: 1;
+  }
+
+  /* When timer is idle (no fill), digits should be dark */
+  .time-digits.idle {
+    color: var(--gray-400);
+    text-shadow: none;
   }
 
   .time-label {
@@ -185,12 +193,29 @@
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--gray-400);
-    margin-top: 0.5rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 0.4rem;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: opacity 0.4s ease;
   }
 
-  .time-label.running-label { color: var(--orange); }
-  .time-label.paused-label { color: var(--gray-400); }
+  .time-label.idle-label {
+    color: var(--gray-400);
+    text-shadow: none;
+  }
+
+  .time-label.running-label { color: rgba(255,255,255,0.9); }
+  .time-label.paused-label { color: rgba(255,255,255,0.6); }
+
+  /* Pulse glow when running */
+  .timer-body.running {
+    animation: discPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes discPulse {
+    0%, 100% { box-shadow: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.8); }
+    50% { box-shadow: 0 8px 40px rgba(255,102,0,0.15), 0 2px 8px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.8); }
+  }
 
   /* Controls */
   .controls {
@@ -410,8 +435,8 @@
     background: var(--black);
   }
 
-  .baker-street-mode .track {
-    stroke: #2d2d2d;
+  .baker-street-mode .timer-body {
+    background: #2d2d2d;
   }
 
   .baker-street-mode body,
@@ -702,7 +727,7 @@
     }
 
     .timer-wrap { width: 240px; height: 240px; }
-    .time-digits { font-size: 2.6rem; }
+    .time-digits { font-size: 2.2rem; }
   }
 </style>
 </head>
@@ -721,14 +746,14 @@
     <div class="timer-heading">Focus Session</div>
 
     <div class="timer-wrap" id="timerWrap">
-      <svg viewBox="0 0 280 280">
-        <circle class="track" cx="140" cy="140" r="130" />
-        <circle class="arc" id="arc" cx="140" cy="140" r="130" />
-      </svg>
-      <div class="dot hidden" id="dot"></div>
-      <div class="time-display">
-        <div class="time-digits" id="display">00:00</div>
-        <div class="time-label" id="statusLabel">Ready</div>
+      <div class="timer-body" id="timerBody">
+        <div class="timer-fill" id="timerFill">
+          <div class="timer-fill-inner"></div>
+        </div>
+        <div class="time-display">
+          <div class="time-digits idle" id="display">00:00</div>
+          <div class="time-label idle-label" id="statusLabel">Ready</div>
+        </div>
       </div>
     </div>
 
@@ -795,9 +820,9 @@
 <script>
   // Elements
   const display = document.getElementById('display');
-  const arc = document.getElementById('arc');
-  const dot = document.getElementById('dot');
   const timerWrap = document.getElementById('timerWrap');
+  const timerBody = document.getElementById('timerBody');
+  const timerFill = document.getElementById('timerFill');
   const startPauseBtn = document.getElementById('startPauseBtn');
   const resetBtn = document.getElementById('resetBtn');
   const playIcon = document.getElementById('playIcon');
@@ -816,10 +841,6 @@
   const weekNext = document.getElementById('weekNext');
 
   // Constants
-  const RADIUS = 130;
-  const CX = 140;
-  const CY = 140;
-  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
   const ONE_HOUR = 3600; // seconds
 
   // State
@@ -829,9 +850,14 @@
   let sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
   let weekOffset = 0; // 0 = current week, -1 = last week, etc.
 
-  // Init arc
-  arc.style.strokeDasharray = CIRCUMFERENCE;
-  arc.style.strokeDashoffset = CIRCUMFERENCE;
+  // Init disc fill
+  function updateDiscFill(fraction) {
+    const degrees = fraction * 360;
+    timerFill.style.background = fraction === 0
+      ? 'var(--gray-200)'
+      : 'conic-gradient(var(--orange) ' + degrees + 'deg, var(--gray-200) ' + degrees + 'deg)';
+  }
+  updateDiscFill(0);
 
   // Set today's date in nav
   navDate.textContent = new Date().toLocaleDateString('en-US', {
@@ -864,30 +890,22 @@
     return new Date(dateStr).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   }
 
-  // Position dot on circle
-  function positionDot(fraction) {
-    const angle = fraction * 2 * Math.PI - Math.PI / 2; // start at top
-    const r = RADIUS;
-    // SVG viewbox is 280x280, but we need to map to the actual element size
-    const wrapSize = timerWrap.offsetWidth;
-    const scale = wrapSize / 280;
-    const x = (CX + r * Math.cos(angle)) * scale;
-    const y = (CY + r * Math.sin(angle)) * scale;
-    dot.style.left = x + 'px';
-    dot.style.top = y + 'px';
-    dot.style.transform = 'translate(-50%, -50%)';
-  }
-
   function updateDisplay() {
     display.textContent = fmt(elapsed);
 
     const fraction = Math.min(elapsed / ONE_HOUR, 1);
 
-    // Arc progress
-    arc.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+    // Update disc fill
+    updateDiscFill(fraction);
 
-    // Dot position
-    positionDot(fraction);
+    // Toggle digit styling based on fill
+    if (fraction > 0) {
+      display.classList.remove('idle');
+      display.classList.add('visible');
+    } else {
+      display.classList.add('idle');
+      display.classList.remove('visible');
+    }
 
     // Title
     document.title = running
@@ -1084,15 +1102,16 @@
       startPauseBtnNew.className = 'btn btn-primary';
       statusLabel.textContent = 'Paused';
       statusLabel.className = 'time-label paused-label';
-      dot.classList.remove('pulse');
+      timerBody.classList.remove('running');
+      timerWrap.classList.add('active');
     } else {
       running = true;
       btnTextNew.textContent = 'Pause';
       playIconNew.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       statusLabel.textContent = runningLabels[Math.floor(Math.random() * runningLabels.length)];
       statusLabel.className = 'time-label running-label';
-      dot.classList.remove('hidden');
-      dot.classList.add('pulse');
+      timerBody.classList.add('running');
+      timerWrap.classList.add('active');
       interval = setInterval(tick, 1000);
     }
   });
@@ -1118,9 +1137,11 @@
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
     startPauseBtnNew.className = 'btn btn-primary';
     statusLabel.textContent = 'Ready';
-    statusLabel.className = 'time-label';
-    dot.classList.add('hidden');
-    dot.classList.remove('pulse');
+    statusLabel.className = 'time-label idle-label';
+    timerBody.classList.remove('running');
+    timerWrap.classList.remove('active');
+    display.classList.add('idle');
+    display.classList.remove('visible');
 
     updateDisplay();
     renderSessions();
@@ -1337,7 +1358,6 @@
 
   // Init
   updateDisplay();
-  positionDot(0);
   renderSessions();
   renderHistory();
 
