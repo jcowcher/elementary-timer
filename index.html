@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elementary Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange: #FF6600;
+    --orange-light: #FF8533;
+    --orange-bg: rgba(255, 102, 0, 0.06);
+    --orange-bg-hover: rgba(255, 102, 0, 0.10);
+    --black: #1a1a1a;
+    --gray-900: #2d2d2d;
+    --gray-700: #555;
+    --gray-500: #888;
+    --gray-400: #aaa;
+    --gray-300: #ccc;
+    --gray-200: #e5e5e5;
+    --gray-100: #f5f5f5;
+    --white: #ffffff;
+    --radius: 8px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Nav */
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--black);
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--orange);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  nav .nav-date {
+    font-size: 0.82rem;
+    color: var(--gray-500);
+    font-weight: 400;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 3.5rem 2rem 4rem;
+    display: flex;
+    gap: 5rem;
+    align-items: flex-start;
+  }
+
+  .timer-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timer-heading {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gray-400);
+    margin-bottom: 2.5rem;
+  }
+
+  /* Circle timer */
+  .timer-wrap {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    margin-bottom: 2rem;
+  }
+
+  .timer-wrap svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .track {
+    fill: none;
+    stroke: var(--gray-200);
+    stroke-width: 4;
+  }
+
+  .arc {
+    fill: none;
+    stroke: var(--orange);
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.4s ease;
+  }
+
+  /* Orbiting dot */
+  .dot {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: var(--orange);
+    border-radius: 50%;
+    border: 3px solid var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: 50% 50%;
+    z-index: 2;
+    transition: opacity 0.3s;
+  }
+
+  .dot.hidden { opacity: 0; }
+
+  .dot.pulse {
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { box-shadow: 0 1px 4px rgba(255,102,0,0.2); }
+    50% { box-shadow: 0 0 12px rgba(255,102,0,0.5); }
+  }
+
+  .time-display {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+
+  .time-digits {
+    font-size: 3.2rem;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .time-label {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray-400);
+    margin-top: 0.5rem;
+  }
+
+  .time-label.running-label { color: var(--orange); }
+  .time-label.paused-label { color: var(--gray-400); }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn {
+    height: 44px;
+    padding: 0 1.75rem;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .btn-primary {
+    background: var(--orange);
+    color: var(--white);
+  }
+
+  .btn-primary:hover {
+    background: var(--orange-light);
+  }
+
+  .btn-secondary {
+    background: var(--gray-100);
+    color: var(--gray-700);
+  }
+
+  .btn-secondary:hover {
+    background: var(--gray-200);
+  }
+
+  .btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  /* Session panel */
+  .session-section {
+    width: 300px;
+    flex-shrink: 0;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--black);
+  }
+
+  .section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  .section-meta {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    font-weight: 400;
+  }
+
+  .session-list {
+    list-style: none;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .session-list::-webkit-scrollbar { width: 3px; }
+  .session-list::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 3px; }
+
+  .session-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .session-item:last-child { border-bottom: none; }
+
+  .session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .session-duration {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--black);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .session-timestamp {
+    font-size: 0.72rem;
+    color: var(--gray-500);
+  }
+
+  .session-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--orange);
+    flex-shrink: 0;
+    margin-right: 0.75rem;
+  }
+
+  .session-left {
+    display: flex;
+    align-items: center;
+  }
+
+  .session-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--gray-300);
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s;
+    opacity: 0;
+  }
+
+  .session-item:hover .session-delete {
+    opacity: 1;
+  }
+
+  .session-delete:hover {
+    color: #e55;
+    background: rgba(238,85,85,0.08);
+  }
+
+  .session-delete svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .empty-state {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 0.82rem;
+    font-style: italic;
+  }
+
+  /* Easter egg: quote overlay */
+  .quote-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,26,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+
+  .quote-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .quote-box {
+    max-width: 520px;
+    text-align: center;
+    padding: 3rem;
+  }
+
+  .quote-box .quote-text {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--white);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .quote-box .quote-attr {
+    font-size: 0.78rem;
+    color: var(--orange);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .quote-box .quote-dismiss {
+    margin-top: 2rem;
+    font-size: 0.7rem;
+    color: var(--gray-500);
+    letter-spacing: 0.05em;
+  }
+
+  /* Easter egg: 221B mode */
+  .baker-street-mode nav {
+    border-bottom-color: var(--orange);
+  }
+
+  .baker-street-mode .logo-mark {
+    background: var(--black);
+  }
+
+  .baker-street-mode .track {
+    stroke: #2d2d2d;
+  }
+
+  .baker-street-mode body,
+  .baker-street-mode {
+    background: #faf8f5;
+  }
+
+  /* Daily total */
+  .daily-total {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--black);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .total-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-500);
+  }
+
+  .total-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--black);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.25rem; }
+
+    .main {
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+      padding: 2.5rem 1.25rem 3rem;
+    }
+
+    .session-section {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .timer-wrap { width: 240px; height: 240px; }
+    .time-digits { font-size: 2.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="logo-mark">ET</div>
+    <span class="logo-text">Elementary Timer</span>
+  </a>
+  <span class="nav-date" id="navDate"></span>
+</nav>
+
+<div class="main">
+  <div class="timer-section">
+    <div class="timer-heading">Focus Session</div>
+
+    <div class="timer-wrap" id="timerWrap">
+      <svg viewBox="0 0 280 280">
+        <circle class="track" cx="140" cy="140" r="130" />
+        <circle class="arc" id="arc" cx="140" cy="140" r="130" />
+      </svg>
+      <div class="dot hidden" id="dot"></div>
+      <div class="time-display">
+        <div class="time-digits" id="display">00:00</div>
+        <div class="time-label" id="statusLabel">Ready</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-primary" id="startPauseBtn">
+        <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <span id="btnText">Start</span>
+      </button>
+      <button class="btn btn-secondary" id="resetBtn">
+        <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        <span>Save &amp; Reset</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="session-section">
+    <div class="section-header">
+      <span class="section-title">Today's Sessions</span>
+      <span class="section-meta" id="sessionCount"></span>
+    </div>
+    <ul class="session-list" id="sessionList"></ul>
+    <div class="daily-total">
+      <span class="total-label">Total today</span>
+      <span class="total-value" id="totalTime">0m</span>
+    </div>
+  </div>
+</div>
+
+<!-- Easter egg: quote overlay -->
+<div class="quote-overlay" id="quoteOverlay">
+  <div class="quote-box">
+    <div class="quote-text" id="quoteText"></div>
+    <div class="quote-attr" id="quoteAttr"></div>
+    <div class="quote-dismiss">click anywhere to dismiss</div>
+  </div>
+</div>
+
+<script>
+  // Elements
+  const display = document.getElementById('display');
+  const arc = document.getElementById('arc');
+  const dot = document.getElementById('dot');
+  const timerWrap = document.getElementById('timerWrap');
+  const startPauseBtn = document.getElementById('startPauseBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const playIcon = document.getElementById('playIcon');
+  const btnText = document.getElementById('btnText');
+  const statusLabel = document.getElementById('statusLabel');
+  const sessionList = document.getElementById('sessionList');
+  const totalTimeEl = document.getElementById('totalTime');
+  const sessionCount = document.getElementById('sessionCount');
+  const navDate = document.getElementById('navDate');
+
+  // Constants
+  const RADIUS = 130;
+  const CX = 140;
+  const CY = 140;
+  const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+  const ONE_HOUR = 3600; // seconds
+
+  // State
+  let elapsed = 0;
+  let interval = null;
+  let running = false;
+  let sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+
+  // Init arc
+  arc.style.strokeDasharray = CIRCUMFERENCE;
+  arc.style.strokeDashoffset = CIRCUMFERENCE;
+
+  // Set today's date in nav
+  navDate.textContent = new Date().toLocaleDateString('en-US', {
+    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+  });
+
+  // Format helpers
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+  }
+
+  function fmtTotal(totalSec) {
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    if (h > 0) return h + 'h ' + m + 'm';
+    return m + 'm';
+  }
+
+  function fmtDuration(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    if (m === 0) return s + 's';
+    if (s === 0) return m + 'm';
+    return m + 'm ' + s + 's';
+  }
+
+  function fmtTime(dateStr) {
+    return new Date(dateStr).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  // Position dot on circle
+  function positionDot(fraction) {
+    const angle = fraction * 2 * Math.PI - Math.PI / 2; // start at top
+    const r = RADIUS;
+    // SVG viewbox is 280x280, but we need to map to the actual element size
+    const wrapSize = timerWrap.offsetWidth;
+    const scale = wrapSize / 280;
+    const x = (CX + r * Math.cos(angle)) * scale;
+    const y = (CY + r * Math.sin(angle)) * scale;
+    dot.style.left = x + 'px';
+    dot.style.top = y + 'px';
+    dot.style.transform = 'translate(-50%, -50%)';
+  }
+
+  function updateDisplay() {
+    display.textContent = fmt(elapsed);
+
+    const fraction = Math.min(elapsed / ONE_HOUR, 1);
+
+    // Arc progress
+    arc.style.strokeDashoffset = CIRCUMFERENCE * (1 - fraction);
+
+    // Dot position
+    positionDot(fraction);
+
+    // Title
+    document.title = running
+      ? fmt(elapsed) + ' \u2014 Elementary Timer'
+      : 'Elementary Timer';
+  }
+
+  function tick() {
+    elapsed++;
+    updateDisplay();
+  }
+
+  // ── Easter Eggs ──────────────────────────────────────
+
+  const quoteOverlay = document.getElementById('quoteOverlay');
+  const quoteText = document.getElementById('quoteText');
+  const quoteAttr = document.getElementById('quoteAttr');
+
+  // Sherlock / Elementary quotes pool
+  const quotes = [
+    { text: '"The game is afoot."', attr: 'Sherlock Holmes' },
+    { text: '"Elementary, my dear Watson."', attr: 'Sherlock Holmes' },
+    { text: '"You see, but you do not observe. The distinction is clear."', attr: 'A Scandal in Bohemia' },
+    { text: '"I am a brain, Watson. The rest of me is a mere appendix."', attr: 'The Adventure of the Mazarin Stone' },
+    { text: '"The world is full of obvious things which nobody ever observes."', attr: 'The Hound of the Baskervilles' },
+    { text: '"There is nothing more deceptive than an obvious fact."', attr: 'The Boscombe Valley Mystery' },
+    { text: '"Every puzzle has an answer."', attr: 'Elementary, CBS' },
+    { text: '"I\'m not a psychopath. I\'m a high-functioning sociopath. Do your research."', attr: 'Sherlock, BBC' },
+    { text: '"My mind rebels at stagnation. Give me problems, give me work."', attr: 'The Sign of the Four' },
+    { text: '"Data! Data! Data! I can\'t make bricks without clay."', attr: 'The Adventure of the Copper Beeches' },
+    { text: '"When you have eliminated the impossible, whatever remains, however improbable, must be the truth."', attr: 'The Sign of the Four' },
+    { text: '"The work is its own reward."', attr: 'Elementary, CBS' },
+  ];
+
+  // Empty state quotes (rotate each load)
+  const emptyQuotes = [
+    'The game is afoot\u2026 start a session',
+    'The needle awaits the haystack',
+    'No data yet. Even Holmes needs evidence.',
+    'Begin your deductions',
+    '221B reasons to start focusing',
+  ];
+
+  function getRandomQuote() {
+    return quotes[Math.floor(Math.random() * quotes.length)];
+  }
+
+  function showQuoteOverlay(q) {
+    if (!q) q = getRandomQuote();
+    quoteText.textContent = q.text;
+    quoteAttr.textContent = '\u2014 ' + q.attr;
+    quoteOverlay.classList.add('visible');
+  }
+
+  quoteOverlay.addEventListener('click', () => {
+    quoteOverlay.classList.remove('visible');
+  });
+
+  // Easter egg 1: Type "221b" anywhere to trigger quote
+  let secretBuffer = '';
+  document.addEventListener('keydown', (e) => {
+    secretBuffer += e.key.toLowerCase();
+    if (secretBuffer.length > 10) secretBuffer = secretBuffer.slice(-10);
+
+    if (secretBuffer.includes('221b')) {
+      secretBuffer = '';
+      document.documentElement.classList.toggle('baker-street-mode');
+      showQuoteOverlay({
+        text: '"You know my methods, Watson."',
+        attr: '221B Baker Street'
+      });
+    }
+
+    // Easter egg: Type "watson" for a quote
+    if (secretBuffer.includes('watson')) {
+      secretBuffer = '';
+      showQuoteOverlay({
+        text: '"I am lost without my Boswell."',
+        attr: 'A Scandal in Bohemia'
+      });
+    }
+
+    // Easter egg: Type "moriarty"
+    if (secretBuffer.includes('moriarty')) {
+      secretBuffer = '';
+      showQuoteOverlay({
+        text: '"The Napoleon of crime, Watson."',
+        attr: 'The Final Problem'
+      });
+    }
+  });
+
+  // Easter egg 2: Click logo 7 times (The Seven Percent Solution)
+  let logoClicks = 0;
+  let logoClickTimer = null;
+  document.querySelector('.logo').addEventListener('click', (e) => {
+    e.preventDefault();
+    logoClicks++;
+    clearTimeout(logoClickTimer);
+    logoClickTimer = setTimeout(() => { logoClicks = 0; }, 2000);
+
+    if (logoClicks === 7) {
+      logoClicks = 0;
+      showQuoteOverlay({
+        text: '"Which is it today? Morphine or cocaine?"',
+        attr: 'The Seven Percent Solution'
+      });
+    }
+  });
+
+  // Easter egg 3: Special status text when running
+  const runningLabels = [
+    'The game is afoot',
+    'Focusing',
+    'Deducing',
+    'Observing',
+    'On the case',
+  ];
+
+  // Override the start label with a random Holmes-flavored one
+  const origStartPause = startPauseBtn.onclick;
+  const origStartClick = startPauseBtn.cloneNode(true);
+
+  // Patch the start handler to use themed labels
+  const _origBtnClick = startPauseBtn.addEventListener;
+
+  // Easter egg 4: Time-based title Easter eggs
+  const timeTriggers = {
+    420: 'The Seven Percent Solution',   // 7 minutes
+    1021: 'A Study in Scarlet',          // ~17 min (1887 publication)
+    1260: 'The Sign of the Four',        // 21 minutes
+    1800: 'The Halfway Mark, Watson',    // 30 min
+    2210: '221B Baker Street',           // 22:10 on the clock = 22m10s, close to 221
+    3600: 'The Final Problem',           // full hour
+  };
+
+  // Override tick to check for time triggers
+  const _origTick = tick;
+
+  function tick() {
+    elapsed++;
+    updateDisplay();
+
+    // Check time-based Easter eggs
+    if (timeTriggers[elapsed]) {
+      statusLabel.textContent = timeTriggers[elapsed];
+      statusLabel.className = 'time-label running-label';
+    }
+
+    // At exactly 2:21 (141 seconds) flash the status
+    if (elapsed === 141) {
+      statusLabel.textContent = '2:21 \u2014 Baker St.';
+      statusLabel.className = 'time-label running-label';
+    }
+  }
+
+  // Patch start to use themed status labels
+  const origClickHandler = startPauseBtn.onclick;
+  startPauseBtn.addEventListener = _origBtnClick; // restore
+
+  // We need to re-override the start/pause to inject themed labels
+  // Remove old listener and re-add with Easter eggs
+  const newStartPauseBtn = startPauseBtn.cloneNode(true);
+  startPauseBtn.parentNode.replaceChild(newStartPauseBtn, startPauseBtn);
+
+  // Re-grab references
+  const startPauseBtnNew = newStartPauseBtn;
+  const playIconNew = startPauseBtnNew.querySelector('svg');
+  const btnTextNew = startPauseBtnNew.querySelector('span');
+
+  startPauseBtnNew.addEventListener('click', () => {
+    if (running) {
+      clearInterval(interval);
+      interval = null;
+      running = false;
+      btnTextNew.textContent = 'Resume';
+      playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      startPauseBtnNew.className = 'btn btn-primary';
+      statusLabel.textContent = 'Paused';
+      statusLabel.className = 'time-label paused-label';
+      dot.classList.remove('pulse');
+    } else {
+      running = true;
+      btnTextNew.textContent = 'Pause';
+      playIconNew.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      statusLabel.textContent = runningLabels[Math.floor(Math.random() * runningLabels.length)];
+      statusLabel.className = 'time-label running-label';
+      dot.classList.remove('hidden');
+      dot.classList.add('pulse');
+      interval = setInterval(tick, 1000);
+    }
+  });
+
+  // Patch reset button too
+  const newResetBtn = resetBtn.cloneNode(true);
+  resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
+
+  newResetBtn.addEventListener('click', () => {
+    if (elapsed >= 5) {
+      sessions.push({ duration: elapsed, date: new Date().toISOString() });
+      localStorage.setItem('et_sessions', JSON.stringify(sessions));
+    }
+
+    clearInterval(interval);
+    interval = null;
+    running = false;
+    elapsed = 0;
+
+    btnTextNew.textContent = 'Start';
+    playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    startPauseBtnNew.className = 'btn btn-primary';
+    statusLabel.textContent = 'Ready';
+    statusLabel.className = 'time-label';
+    dot.classList.add('hidden');
+    dot.classList.remove('pulse');
+
+    updateDisplay();
+    renderSessions();
+  });
+
+  // Easter egg 5: Themed empty state messages
+  function renderSessions() {
+    const today = new Date().toDateString();
+    const todaySessions = sessions.filter(s => new Date(s.date).toDateString() === today);
+
+    sessionList.innerHTML = '';
+
+    if (todaySessions.length === 0) {
+      const randomEmpty = emptyQuotes[Math.floor(Math.random() * emptyQuotes.length)];
+      sessionList.innerHTML = '<li class="empty-state">' + randomEmpty + '</li>';
+      sessionCount.textContent = '';
+    } else {
+      sessionCount.textContent = todaySessions.length + ' session' + (todaySessions.length !== 1 ? 's' : '');
+      todaySessions.forEach((s, i) => {
+        const li = document.createElement('li');
+        li.className = 'session-item';
+        const globalIndex = sessions.indexOf(s);
+
+        li.innerHTML =
+          '<div class="session-left">' +
+            '<div class="session-dot"></div>' +
+            '<div class="session-info">' +
+              '<span class="session-duration">' + fmtDuration(s.duration) + '</span>' +
+              '<span class="session-timestamp">' + fmtTime(s.date) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<button class="session-delete" data-idx="' + globalIndex + '" title="Delete session">' +
+            '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
+          '</button>';
+
+        sessionList.appendChild(li);
+      });
+    }
+
+    const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+    totalTimeEl.textContent = fmtTotal(totalSec);
+
+    // Wire delete buttons
+    sessionList.querySelectorAll('.session-delete').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.idx);
+        sessions.splice(idx, 1);
+        localStorage.setItem('et_sessions', JSON.stringify(sessions));
+        renderSessions();
+      });
+    });
+
+    // Easter egg: Show a quote when reaching certain session counts
+    if (todaySessions.length === 3) {
+      statusLabel.textContent = 'Three-pipe problem';
+      statusLabel.className = 'time-label';
+    }
+    if (todaySessions.length === 5) {
+      statusLabel.textContent = 'Most formidable';
+      statusLabel.className = 'time-label';
+    }
+  }
+
+  // Init
+  updateDisplay();
+  positionDot(0);
+  renderSessions();
+
+  // Console Easter egg for curious devs
+  console.log('%c 221B ', 'background: #FF6600; color: white; font-size: 14px; font-weight: bold; border-radius: 3px;',
+    'You know my methods. Type "221b" for a surprise.');
+</script>
+
+</body>
+</html>
