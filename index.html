@@ -444,6 +444,247 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Session name input */
+  .session-input {
+    width: 100%;
+    max-width: 280px;
+    height: 40px;
+    padding: 0 0.85rem;
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.82rem;
+    color: var(--black);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .session-input:focus {
+    border-color: var(--orange);
+  }
+
+  .session-input::placeholder {
+    color: var(--gray-400);
+    font-style: italic;
+  }
+
+  /* Session name in today's list */
+  .session-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  /* Daily + Weekly totals */
+  .totals-row {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .total-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  /* History section */
+  .history-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .history-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .history-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--black);
+  }
+
+  /* Week navigation */
+  .week-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .week-nav-btn {
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-700);
+    transition: all 0.15s;
+  }
+
+  .week-nav-btn:hover {
+    background: var(--gray-100);
+    border-color: var(--gray-300);
+  }
+
+  .week-nav-btn svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
+
+  .week-label {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    font-weight: 500;
+    min-width: 100px;
+    text-align: center;
+  }
+
+  /* Weekly bar chart */
+  .week-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .chart-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 22px;
+  }
+
+  .chart-day {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    width: 28px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .chart-bar-wrap {
+    flex: 1;
+    height: 14px;
+    background: var(--gray-100);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .chart-bar {
+    height: 100%;
+    background: var(--orange);
+    border-radius: 3px;
+    min-width: 0;
+    transition: width 0.3s ease;
+  }
+
+  .chart-bar.today-bar {
+    background: var(--orange-light);
+  }
+
+  .chart-value {
+    font-size: 0.68rem;
+    color: var(--gray-500);
+    font-variant-numeric: tabular-nums;
+    width: 32px;
+    flex-shrink: 0;
+  }
+
+  /* History date groups */
+  .history-group {
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .history-group:last-child {
+    border-bottom: none;
+  }
+
+  .history-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .history-group-header:hover {
+    color: var(--orange);
+  }
+
+  .history-group-date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: inherit;
+  }
+
+  .history-group-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .history-group-total {
+    font-size: 0.75rem;
+    color: var(--gray-500);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-group-arrow {
+    font-size: 0.65rem;
+    color: var(--gray-400);
+    transition: transform 0.2s;
+  }
+
+  .history-group.expanded .history-group-arrow {
+    transform: rotate(90deg);
+  }
+
+  .history-group-sessions {
+    display: none;
+    padding-bottom: 0.5rem;
+  }
+
+  .history-group.expanded .history-group-sessions {
+    display: block;
+  }
+
+  .history-session {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0 0.35rem 1rem;
+  }
+
+  .history-session-name {
+    font-size: 0.78rem;
+    color: var(--gray-700);
+  }
+
+  .history-session-detail {
+    font-size: 0.72rem;
+    color: var(--gray-500);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-empty {
+    padding: 1rem 0;
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 0.78rem;
+    font-style: italic;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     nav { padding: 1rem 1.25rem; }
@@ -501,6 +742,7 @@
         <span>Save &amp; Reset</span>
       </button>
     </div>
+    <input type="text" class="session-input" id="sessionInput" placeholder="What are you working on?" maxlength="60">
   </div>
 
   <div class="session-section">
@@ -510,8 +752,33 @@
     </div>
     <ul class="session-list" id="sessionList"></ul>
     <div class="daily-total">
-      <span class="total-label">Total today</span>
-      <span class="total-value" id="totalTime">0m</span>
+      <div class="totals-row">
+        <div class="total-block">
+          <span class="total-label">Today</span>
+          <span class="total-value" id="totalTime">0m</span>
+        </div>
+        <div class="total-block">
+          <span class="total-label">This week</span>
+          <span class="total-value" id="weeklyTotal">0m</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="history-section" id="historySection">
+      <div class="history-header">
+        <span class="history-title">History</span>
+        <div class="week-nav">
+          <button class="week-nav-btn" id="weekPrev" title="Previous week">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+          </button>
+          <span class="week-label" id="weekLabel"></span>
+          <button class="week-nav-btn" id="weekNext" title="Next week">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="week-chart" id="weekChart"></div>
+      <div id="historyGroups"></div>
     </div>
   </div>
 </div>
@@ -538,8 +805,15 @@
   const statusLabel = document.getElementById('statusLabel');
   const sessionList = document.getElementById('sessionList');
   const totalTimeEl = document.getElementById('totalTime');
+  const weeklyTotalEl = document.getElementById('weeklyTotal');
   const sessionCount = document.getElementById('sessionCount');
   const navDate = document.getElementById('navDate');
+  const sessionInput = document.getElementById('sessionInput');
+  const weekChart = document.getElementById('weekChart');
+  const historyGroups = document.getElementById('historyGroups');
+  const weekLabel = document.getElementById('weekLabel');
+  const weekPrev = document.getElementById('weekPrev');
+  const weekNext = document.getElementById('weekNext');
 
   // Constants
   const RADIUS = 130;
@@ -553,6 +827,7 @@
   let interval = null;
   let running = false;
   let sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+  let weekOffset = 0; // 0 = current week, -1 = last week, etc.
 
   // Init arc
   arc.style.strokeDasharray = CIRCUMFERENCE;
@@ -645,6 +920,9 @@
     { text: '"Data! Data! Data! I can\'t make bricks without clay."', attr: 'The Adventure of the Copper Beeches' },
     { text: '"When you have eliminated the impossible, whatever remains, however improbable, must be the truth."', attr: 'The Sign of the Four' },
     { text: '"The work is its own reward."', attr: 'Elementary, CBS' },
+    { text: '"Is there any point to which you would wish to draw my attention?" "To the curious incident of the dog in the night-time." "The dog did nothing in the night-time." "That was the curious incident."', attr: 'Silver Blaze' },
+    { text: '"I follow my own methods, and tell as much or as little as I choose. That is the advantage of being unofficial."', attr: 'Silver Blaze' },
+    { text: '"See the value of imagination. We imagined what might have happened, acted upon the supposition, and find ourselves justified."', attr: 'Silver Blaze' },
   ];
 
   // Empty state quotes (rotate each load)
@@ -654,6 +932,7 @@
     'No data yet. Even Holmes needs evidence.',
     'Begin your deductions',
     '221B reasons to start focusing',
+    'The dog did nothing\u2026 curious, isn\u2019t it?',
   ];
 
   function getRandomQuote() {
@@ -674,8 +953,9 @@
   // Easter egg 1: Type "221b" anywhere to trigger quote
   let secretBuffer = '';
   document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     secretBuffer += e.key.toLowerCase();
-    if (secretBuffer.length > 10) secretBuffer = secretBuffer.slice(-10);
+    if (secretBuffer.length > 20) secretBuffer = secretBuffer.slice(-20);
 
     if (secretBuffer.includes('221b')) {
       secretBuffer = '';
@@ -692,6 +972,15 @@
       showQuoteOverlay({
         text: '"I am lost without my Boswell."',
         attr: 'A Scandal in Bohemia'
+      });
+    }
+
+    // Easter egg: Type "silver" (Silver Blaze)
+    if (secretBuffer.includes('silver')) {
+      secretBuffer = '';
+      showQuoteOverlay({
+        text: '"The dog did nothing in the night-time." "That was the curious incident."',
+        attr: 'Silver Blaze'
       });
     }
 
@@ -730,6 +1019,7 @@
     'Deducing',
     'Observing',
     'On the case',
+    'The dog is silent',
   ];
 
   // Override the start label with a random Holmes-flavored one
@@ -746,6 +1036,7 @@
     1260: 'The Sign of the Four',        // 21 minutes
     1800: 'The Halfway Mark, Watson',    // 30 min
     2210: '221B Baker Street',           // 22:10 on the clock = 22m10s, close to 221
+    2700: 'The dog did nothing',         // 45 min — Silver Blaze
     3600: 'The Final Problem',           // full hour
   };
 
@@ -812,7 +1103,8 @@
 
   newResetBtn.addEventListener('click', () => {
     if (elapsed >= 5) {
-      sessions.push({ duration: elapsed, date: new Date().toISOString() });
+      const name = sessionInput.value.trim() || 'Deep Work';
+      sessions.push({ duration: elapsed, date: new Date().toISOString(), name: name });
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
     }
 
@@ -820,6 +1112,7 @@
     interval = null;
     running = false;
     elapsed = 0;
+    sessionInput.value = '';
 
     btnTextNew.textContent = 'Start';
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
@@ -831,6 +1124,7 @@
 
     updateDisplay();
     renderSessions();
+    renderHistory();
   });
 
   // Easter egg 5: Themed empty state messages
@@ -850,13 +1144,14 @@
         const li = document.createElement('li');
         li.className = 'session-item';
         const globalIndex = sessions.indexOf(s);
+        const sessionName = s.name || 'Deep Work';
 
         li.innerHTML =
           '<div class="session-left">' +
             '<div class="session-dot"></div>' +
             '<div class="session-info">' +
-              '<span class="session-duration">' + fmtDuration(s.duration) + '</span>' +
-              '<span class="session-timestamp">' + fmtTime(s.date) + '</span>' +
+              '<span class="session-name">' + sessionName + '</span>' +
+              '<span class="session-duration">' + fmtDuration(s.duration) + ' · ' + fmtTime(s.date) + '</span>' +
             '</div>' +
           '</div>' +
           '<button class="session-delete" data-idx="' + globalIndex + '" title="Delete session">' +
@@ -870,6 +1165,10 @@
     const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
+    // Weekly total (current week Mon–Sun)
+    const weekTotalSec = getWeekSessions(0).reduce((sum, s) => sum + s.duration, 0);
+    weeklyTotalEl.textContent = fmtTotal(weekTotalSec);
+
     // Wire delete buttons
     sessionList.querySelectorAll('.session-delete').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -877,6 +1176,7 @@
         sessions.splice(idx, 1);
         localStorage.setItem('et_sessions', JSON.stringify(sessions));
         renderSessions();
+        renderHistory();
       });
     });
 
@@ -891,10 +1191,155 @@
     }
   }
 
+  // ── History helpers ──────────────────────────────────
+  function getMonday(d) {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    date.setHours(0, 0, 0, 0);
+    date.setDate(diff);
+    return date;
+  }
+
+  function getWeekSessions(offset) {
+    const monday = getMonday(new Date());
+    monday.setDate(monday.getDate() + offset * 7);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 7);
+    return sessions.filter(s => {
+      const d = new Date(s.date);
+      return d >= monday && d < sunday;
+    });
+  }
+
+  function getWeekDays(offset) {
+    const monday = getMonday(new Date());
+    monday.setDate(monday.getDate() + offset * 7);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  }
+
+  function fmtShortDate(d) {
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function fmtWeekLabel(offset) {
+    const days = getWeekDays(offset);
+    if (offset === 0) return 'This Week';
+    if (offset === -1) return 'Last Week';
+    return fmtShortDate(days[0]) + ' – ' + fmtShortDate(days[6]);
+  }
+
+  const DAY_NAMES = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  function renderHistory() {
+    const days = getWeekDays(weekOffset);
+    const today = new Date().toDateString();
+
+    // Week label
+    weekLabel.textContent = fmtWeekLabel(weekOffset);
+
+    // Disable next if on current week
+    weekNext.disabled = weekOffset >= 0;
+    weekNext.style.opacity = weekOffset >= 0 ? '0.3' : '1';
+
+    // Build per-day totals
+    const dayTotals = days.map(d => {
+      const ds = d.toDateString();
+      return sessions
+        .filter(s => new Date(s.date).toDateString() === ds)
+        .reduce((sum, s) => sum + s.duration, 0);
+    });
+
+    const maxTotal = Math.max(...dayTotals, 1);
+
+    // Render bar chart
+    weekChart.innerHTML = days.map((d, i) => {
+      const pct = (dayTotals[i] / maxTotal) * 100;
+      const isToday = d.toDateString() === today;
+      const barClass = isToday ? 'chart-bar today-bar' : 'chart-bar';
+      return '<div class="chart-row">' +
+        '<span class="chart-day">' + DAY_NAMES[i] + '</span>' +
+        '<div class="chart-bar-wrap"><div class="' + barClass + '" style="width:' + pct + '%"></div></div>' +
+        '<span class="chart-value">' + (dayTotals[i] > 0 ? fmtTotal(dayTotals[i]) : '—') + '</span>' +
+      '</div>';
+    }).join('');
+
+    // Render date groups (only days with sessions, excluding today)
+    const groupDays = days
+      .filter(d => d.toDateString() !== today)
+      .reverse();
+
+    let groupsHtml = '';
+    let hasAny = false;
+
+    groupDays.forEach(d => {
+      const ds = d.toDateString();
+      const daySessions = sessions.filter(s => new Date(s.date).toDateString() === ds);
+      if (daySessions.length === 0) return;
+      hasAny = true;
+
+      const dayTotal = daySessions.reduce((sum, s) => sum + s.duration, 0);
+      const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+      groupsHtml += '<div class="history-group">' +
+        '<div class="history-group-header">' +
+          '<span class="history-group-date">' + dateLabel + '</span>' +
+          '<div class="history-group-meta">' +
+            '<span class="history-group-total">' + fmtTotal(dayTotal) + ' · ' + daySessions.length + ' session' + (daySessions.length !== 1 ? 's' : '') + '</span>' +
+            '<span class="history-group-arrow">▶</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="history-group-sessions">' +
+          daySessions.map(s =>
+            '<div class="history-session">' +
+              '<span class="history-session-name">' + (s.name || 'Deep Work') + '</span>' +
+              '<span class="history-session-detail">' + fmtDuration(s.duration) + ' · ' + fmtTime(s.date) + '</span>' +
+            '</div>'
+          ).join('') +
+        '</div>' +
+      '</div>';
+    });
+
+    if (!hasAny && weekOffset !== 0) {
+      groupsHtml = '<div class="history-empty">No sessions this week</div>';
+    } else if (!hasAny) {
+      groupsHtml = '<div class="history-empty">Past sessions will appear here</div>';
+    }
+
+    historyGroups.innerHTML = groupsHtml;
+
+    // Wire collapsible groups
+    historyGroups.querySelectorAll('.history-group-header').forEach(header => {
+      header.addEventListener('click', () => {
+        header.parentElement.classList.toggle('expanded');
+      });
+    });
+  }
+
+  // Week navigation
+  weekPrev.addEventListener('click', () => {
+    weekOffset--;
+    renderHistory();
+  });
+
+  weekNext.addEventListener('click', () => {
+    if (weekOffset < 0) {
+      weekOffset++;
+      renderHistory();
+    }
+  });
+
   // Init
   updateDisplay();
   positionDot(0);
   renderSessions();
+  renderHistory();
 
   // Console Easter egg for curious devs
   console.log('%c 221B ', 'background: #FF6600; color: white; font-size: 14px; font-weight: bold; border-radius: 3px;',
