@@ -25,6 +25,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script
+  async
+  crossorigin="anonymous"
+  data-clerk-publishable-key="pk_test_cmF0aW9uYWwtbWFydGVuLTMzLmNsZXJrLmFjY291bnRzLmRldiQ"
+  src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@5/dist/clerk.browser.js"
+  type="text/javascript"
+></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -56,9 +64,10 @@
 
   /* Nav */
   nav {
+    position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 1.25rem 2.5rem;
     border-bottom: 1px solid var(--gray-200);
   }
@@ -83,9 +92,71 @@
   }
 
   nav .nav-date {
-    font-size: 0.82rem;
+    font-size: 0.8rem;
+    color: var(--gray-400);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .nav-auth {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .auth-btn {
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    padding: 0.35rem 0.85rem;
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .auth-btn:hover {
+    border-color: var(--gray-400);
+    color: var(--black);
+  }
+
+  .auth-user {
+    font-size: 0.75rem;
     color: var(--gray-500);
     font-weight: 400;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .nav-logo-btn {
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #0000FF;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 100px;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .nav-logo-btn:hover {
+    background: #0000CC;
   }
 
   /* Main layout */
@@ -775,7 +846,9 @@
 
   /* Responsive */
   @media (max-width: 768px) {
-    nav { padding: 1rem 1.25rem; }
+    nav { padding: 1rem 1.25rem; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .nav-auth { position: static; transform: none; order: -1; width: 100%; text-align: center; }
+    .nav-logo-btn { position: static; transform: none; order: 1; margin-top: 0.25rem; }
 
     .main {
       flex-direction: column;
@@ -797,10 +870,9 @@
 <body>
 
 <nav>
-  <a class="logo" href="/">
-    <div class="logo-mark">Elementary Timer</div>
-  </a>
+  <div class="nav-auth" id="authArea"></div>
   <span class="nav-date" id="navDate"></span>
+  <a class="nav-logo-btn logo" href="/">Elementary Timer</a>
 </nav>
 
 <div class="main">
@@ -906,6 +978,8 @@
 
   // Constants
   const ONE_HOUR = 3600; // seconds
+  const SUPABASE_URL = 'https://mrphkxragldfngrkkuqs.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_C9Xjj5FztinEUw_ZVmFSnQ_qg09jxeE';
 
   // State
   let elapsed = 0;
@@ -915,6 +989,149 @@
   let elapsedBeforePause = 0;  // seconds accumulated before last pause
   let sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
   let weekOffset = 0; // 0 = current week, -1 = last week, etc.
+  let currentUser = null;
+  let supabaseClient = null;
+
+  // ── Auth & Supabase ──────────────────────────────────
+  function initSupabase() {
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  }
+
+  async function initAuth() {
+    try {
+      await window.Clerk.load();
+      window.Clerk.addListener(async ({ user }) => {
+        currentUser = user;
+        updateAuthUI();
+        if (user) {
+          initSupabase();
+          await loadAndMergeFromSupabase();
+        } else {
+          sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+          renderSessions();
+          renderHistory();
+        }
+      });
+      updateAuthUI();
+    } catch (e) {
+      console.error('Auth init failed:', e);
+      updateAuthUI();
+    }
+  }
+
+  function updateAuthUI() {
+    const authArea = document.getElementById('authArea');
+    if (!authArea) return;
+    if (currentUser) {
+      const name = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
+      authArea.innerHTML = '<span class="auth-user">' + name + '</span><button class="auth-btn" id="signOutBtn">Sign out</button>';
+      document.getElementById('signOutBtn').addEventListener('click', () => window.Clerk.signOut());
+    } else {
+      authArea.innerHTML = '<button class="auth-btn" id="signInBtn">Sign in</button>';
+      document.getElementById('signInBtn').addEventListener('click', () => {
+        if (window.Clerk) window.Clerk.openSignIn();
+      });
+    }
+  }
+
+  async function loadAndMergeFromSupabase() {
+    if (!currentUser || !supabaseClient) return;
+    try {
+      const { data, error } = await supabaseClient
+        .from('timer_history')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('date', { ascending: true });
+      if (error) throw error;
+
+      const localSessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+      if (localSessions.length > 0 && data.length === 0) {
+        await migrateLocalToSupabase(localSessions);
+        return; // migrateLocalToSupabase will re-call this
+      }
+
+      if (data && data.length > 0) {
+        sessions = data.map(row => ({
+          _sb_id: row.id,
+          duration: row.duration,
+          date: row.date,
+          name: row.name || 'Deep Work'
+        }));
+        localStorage.setItem('et_sessions', JSON.stringify(sessions));
+      }
+      renderSessions();
+      renderHistory();
+    } catch (e) {
+      console.error('Failed to load from Supabase:', e);
+    }
+  }
+
+  async function migrateLocalToSupabase(localSessions) {
+    if (!currentUser || !supabaseClient) return;
+    try {
+      const rows = localSessions.map(s => ({
+        user_id: currentUser.id,
+        duration: s.duration,
+        name: s.name || 'Deep Work',
+        date: s.date
+      }));
+      const { error } = await supabaseClient
+        .from('timer_history')
+        .insert(rows);
+      if (!error) {
+        localStorage.removeItem('et_sessions');
+        await loadAndMergeFromSupabase();
+      }
+    } catch (e) {
+      console.error('Migration failed:', e);
+    }
+  }
+
+  async function saveSessionToSupabase(session) {
+    if (!currentUser || !supabaseClient) return null;
+    try {
+      const { data, error } = await supabaseClient
+        .from('timer_history')
+        .insert({
+          user_id: currentUser.id,
+          duration: session.duration,
+          name: session.name,
+          date: session.date
+        })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      console.error('Failed to save to Supabase:', e);
+      return null;
+    }
+  }
+
+  async function deleteSessionFromSupabase(sbId) {
+    if (!currentUser || !supabaseClient || !sbId) return;
+    try {
+      await supabaseClient
+        .from('timer_history')
+        .delete()
+        .eq('id', sbId)
+        .eq('user_id', currentUser.id);
+    } catch (e) {
+      console.error('Failed to delete from Supabase:', e);
+    }
+  }
+
+  // Init auth when Clerk script loads
+  if (document.querySelector('script[data-clerk-publishable-key]')) {
+    const checkClerk = setInterval(() => {
+      if (window.Clerk) {
+        clearInterval(checkClerk);
+        initAuth();
+      }
+    }, 100);
+  }
 
   // Init disc fill
   function updateDiscFill(fraction) {
@@ -925,10 +1142,14 @@
   }
   updateDiscFill(0);
 
-  // Set today's date in nav
-  navDate.textContent = new Date().toLocaleDateString('en-US', {
-    weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
-  });
+  // Set live date + time in nav
+  function tickNav(){
+    var d=new Date();
+    var date=d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});
+    var time=d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    navDate.innerHTML=date+'&emsp;&emsp;'+time;
+  }
+  tickNav();setInterval(tickNav,1000);
 
   // Format helpers
   function fmt(s) {
@@ -1190,11 +1411,19 @@
   const newResetBtn = resetBtn.cloneNode(true);
   resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
 
-  newResetBtn.addEventListener('click', () => {
+  newResetBtn.addEventListener('click', async () => {
     if (elapsed >= 5) {
       const name = sessionInput.value.trim() || 'Deep Work';
-      sessions.push({ duration: elapsed, date: new Date().toISOString(), name: name });
+      const session = { duration: elapsed, date: new Date().toISOString(), name: name };
+      sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
+      if (currentUser && supabaseClient) {
+        const saved = await saveSessionToSupabase(session);
+        if (saved) {
+          session._sb_id = saved.id;
+          localStorage.setItem('et_sessions', JSON.stringify(sessions));
+        }
+      }
     }
 
     clearInterval(interval);
@@ -1289,10 +1518,14 @@
 
     // Wire delete buttons
     sessionList.querySelectorAll('.session-delete').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const idx = parseInt(btn.dataset.idx);
+        const removed = sessions[idx];
         sessions.splice(idx, 1);
         localStorage.setItem('et_sessions', JSON.stringify(sessions));
+        if (removed && removed._sb_id && currentUser && supabaseClient) {
+          await deleteSessionFromSupabase(removed._sb_id);
+        }
         renderSessions();
         renderHistory();
       });
