@@ -73,22 +73,7 @@
   }
 
   .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     text-decoration: none;
-    color: var(--black);
-  }
-
-  .logo-mark {
-    background: var(--orange);
-    border-radius: 6px;
-    padding: 0.35rem 0.65rem;
-    color: white;
-    font-weight: 700;
-    font-size: 0.85rem;
-    letter-spacing: -0.02em;
-    white-space: nowrap;
   }
 
   nav .nav-date {
@@ -132,10 +117,17 @@
     font-size: 0.75rem;
     color: var(--gray-500);
     font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .auth-user-full {
     max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
+  }
+
+  .auth-user-short {
+    display: none;
   }
 
   .nav-logo-btn {
@@ -511,10 +503,6 @@
     border-bottom-color: var(--orange);
   }
 
-  .baker-street-mode .logo-mark {
-    background: var(--black);
-  }
-
   .baker-street-mode .timer-body {
     background: #2d2d2d;
   }
@@ -846,10 +834,12 @@
 
   /* Responsive */
   @media (max-width: 768px) {
-    nav { padding: 0.75rem 1rem; justify-content: space-between; }
-    .nav-auth { position: static; transform: none; }
+    nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
+    .nav-auth { position: static; transform: none; gap: 0.3rem; }
     .nav-date { position: static; transform: none; }
     .nav-logo-btn { position: static; transform: none; font-size: 0.7rem; padding: 0.3rem 0.6rem; }
+    .auth-user-full { display: none; }
+    .auth-user-short { display: inline; }
 
     .main {
       flex-direction: column;
@@ -944,6 +934,14 @@
   </div>
 </div>
 
+<!-- Clerk sign-in overlay -->
+<div id="clerkOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="position:relative;">
+    <button id="clerkClose" style="position:absolute;top:-12px;right:-12px;width:28px;height:28px;border-radius:50%;border:none;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:1;color:#555;">&times;</button>
+    <div id="clerkMount"></div>
+  </div>
+</div>
+
 <!-- Easter egg: quote overlay -->
 <div class="quote-overlay" id="quoteOverlay">
   <div class="quote-box">
@@ -1006,7 +1004,13 @@
       window.Clerk.addListener(async ({ user }) => {
         currentUser = user;
         updateAuthUI();
+        // Auto-close sign-in overlay on successful auth
         if (user) {
+          const overlay = document.getElementById('clerkOverlay');
+          if (overlay.style.display !== 'none') {
+            overlay.style.display = 'none';
+            window.Clerk.unmountSignIn(document.getElementById('clerkMount'));
+          }
           initSupabase();
           await loadAndMergeFromSupabase();
         } else {
@@ -1026,13 +1030,19 @@
     const authArea = document.getElementById('authArea');
     if (!authArea) return;
     if (currentUser) {
-      const name = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
-      authArea.innerHTML = '<span class="auth-user">' + name + '</span><button class="auth-btn" id="signOutBtn">Sign out</button>';
+      const fullName = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
+      const initial = fullName.charAt(0).toUpperCase();
+      authArea.innerHTML = '<span class="auth-user auth-user-full">' + fullName + '</span><span class="auth-user auth-user-short">' + initial + '</span><button class="auth-btn" id="signOutBtn">Sign out</button>';
       document.getElementById('signOutBtn').addEventListener('click', () => window.Clerk.signOut());
     } else {
       authArea.innerHTML = '<button class="auth-btn" id="signInBtn">Sign in</button>';
       document.getElementById('signInBtn').addEventListener('click', () => {
-        if (window.Clerk) window.Clerk.openSignIn();
+        if (window.Clerk) {
+          document.getElementById('clerkOverlay').style.display = 'flex';
+          window.Clerk.mountSignIn(document.getElementById('clerkMount'), {
+            appearance: { variables: { colorPrimary: '#0000FF' } }
+          });
+        }
       });
     }
   }
@@ -1134,6 +1144,18 @@
     }, 100);
   }
 
+  // Close Clerk overlay
+  document.getElementById('clerkClose').addEventListener('click', () => {
+    document.getElementById('clerkOverlay').style.display = 'none';
+    if (window.Clerk) window.Clerk.unmountSignIn(document.getElementById('clerkMount'));
+  });
+  document.getElementById('clerkOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) {
+      document.getElementById('clerkOverlay').style.display = 'none';
+      if (window.Clerk) window.Clerk.unmountSignIn(document.getElementById('clerkMount'));
+    }
+  });
+
   // Init disc fill
   function updateDiscFill(fraction) {
     const degrees = fraction * 360;
@@ -1199,11 +1221,6 @@
     document.title = running
       ? fmt(elapsed) + ' \u2014 Elementary Timer'
       : 'Elementary Timer';
-  }
-
-  function tick() {
-    elapsed++;
-    updateDisplay();
   }
 
   // ── Easter Eggs ──────────────────────────────────────
@@ -1328,12 +1345,7 @@
     'The dog is silent',
   ];
 
-  // Override the start label with a random Holmes-flavored one
-  const origStartPause = startPauseBtn.onclick;
-  const origStartClick = startPauseBtn.cloneNode(true);
-
-  // Patch the start handler to use themed labels
-  const _origBtnClick = startPauseBtn.addEventListener;
+  // (Easter eggs patched below via cloneNode)
 
   // Easter egg 4: Time-based title Easter eggs
   const timeTriggers = {
@@ -1347,8 +1359,6 @@
   };
 
   // Override tick to check for time triggers
-  const _origTick = tick;
-
   function tick() {
     const prev = elapsed;
     elapsed = elapsedBeforePause + Math.floor((Date.now() - startTime) / 1000);
@@ -1367,11 +1377,7 @@
     }
   }
 
-  // Patch start to use themed status labels
-  const origClickHandler = startPauseBtn.onclick;
-  startPauseBtn.addEventListener = _origBtnClick; // restore
-
-  // We need to re-override the start/pause to inject themed labels
+  // Re-create start/pause button to inject themed labels
   // Remove old listener and re-add with Easter eggs
   const newStartPauseBtn = startPauseBtn.cloneNode(true);
   startPauseBtn.parentNode.replaceChild(newStartPauseBtn, startPauseBtn);
