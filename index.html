@@ -168,13 +168,26 @@
     align-items: center;
   }
 
-  .timer-heading {
+  .timer-heading-input {
     font-size: 0.75rem;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--gray-400);
     margin-bottom: 2.5rem;
+    border: none;
+    background: none;
+    outline: none;
+    text-align: center;
+    font-family: inherit;
+    width: 100%;
+    max-width: 300px;
+  }
+  .timer-heading-input::placeholder {
+    color: var(--gray-400);
+  }
+  .timer-heading-input:focus {
+    color: var(--black);
   }
 
   /* Minee-style disc timer */
@@ -868,7 +881,7 @@
 
 <div class="main">
   <div class="timer-section">
-    <div class="timer-heading">Focus Session</div>
+    <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60">
 
     <div class="timer-wrap" id="timerWrap">
       <div class="timer-body" id="timerBody">
@@ -892,7 +905,6 @@
         <span>Finish Session</span>
       </button>
     </div>
-    <input type="text" class="session-input" id="sessionInput" placeholder="What are you working on?" maxlength="60">
   </div>
 
   <div class="session-section">
@@ -1063,15 +1075,33 @@
         return; // migrateLocalToSupabase will re-call this
       }
 
-      if (data && data.length > 0) {
-        sessions = data.map(row => ({
-          _sb_id: row.id,
-          duration: row.duration,
-          date: row.date,
-          name: row.name || 'Deep Work'
-        }));
-        localStorage.setItem('et_sessions', JSON.stringify(sessions));
+      // Merge cloud and local sessions (don't lose local-only sessions)
+      const cloudSessions = (data || []).map(row => ({
+        _sb_id: row.id,
+        duration: row.duration,
+        date: row.date,
+        name: row.name || 'Deep Work'
+      }));
+
+      const localSessions2 = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+      const cloudDates = new Set(cloudSessions.map(s => s.date));
+
+      // Find local sessions not in cloud (failed syncs)
+      const localOnly = localSessions2.filter(s => !s._sb_id && !cloudDates.has(s.date));
+
+      // Re-sync local-only sessions to cloud
+      for (const s of localOnly) {
+        const saved = await saveSessionToSupabase(s);
+        if (saved) {
+          s._sb_id = saved.id;
+        }
       }
+
+      sessions = [...cloudSessions, ...localOnly];
+      // Sort by date so history renders correctly
+      sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+      localStorage.setItem('et_sessions', JSON.stringify(sessions));
+
       renderSessions();
       renderHistory();
     } catch (e) {
