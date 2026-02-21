@@ -195,6 +195,32 @@
     width: 340px;
     height: 340px;
     margin-bottom: 2rem;
+    margin-top: 1rem;
+  }
+
+  .stopwatch-btn {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 14px;
+    background: var(--gray-300);
+    border-radius: 4px 4px 2px 2px;
+    z-index: 3;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .stopwatch-btn::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 4px;
+    background: var(--gray-300);
+    border-radius: 0 0 2px 2px;
   }
 
   .timer-body {
@@ -883,13 +909,14 @@
     <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60">
 
     <div class="timer-wrap" id="timerWrap">
+      <div class="stopwatch-btn"></div>
       <div class="timer-body" id="timerBody">
         <div class="timer-fill" id="timerFill">
           <div class="timer-fill-inner"></div>
         </div>
         <div class="time-display">
           <div class="time-digits idle" id="display">00:00</div>
-          <div class="time-label idle-label" id="statusLabel">Ready</div>
+          <div class="time-label idle-label" id="statusLabel"></div>
         </div>
       </div>
     </div>
@@ -1291,6 +1318,22 @@
     'The dog did nothing\u2026 curious, isn\u2019t it?',
   ];
 
+  // Short quotes for the status label
+  const idleQuotes = [
+    'The game is afoot',
+    'Elementary, my dear Watson',
+    'Give me problems, give me work',
+    'The work is its own reward',
+    'You see, but you do not observe',
+    'Data! Data! Data!',
+    'Every puzzle has an answer',
+    'My mind rebels at stagnation',
+  ];
+
+  function getRandomIdleQuote() {
+    return idleQuotes[Math.floor(Math.random() * idleQuotes.length)];
+  }
+
   function getRandomQuote() {
     return quotes[Math.floor(Math.random() * quotes.length)];
   }
@@ -1430,7 +1473,7 @@
       btnTextNew.textContent = 'Resume';
       playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
       startPauseBtnNew.className = 'btn btn-primary';
-      statusLabel.textContent = 'Paused';
+      statusLabel.textContent = getRandomIdleQuote();
       statusLabel.className = 'time-label paused-label';
       timerBody.classList.remove('running');
       timerWrap.classList.add('active');
@@ -1477,7 +1520,7 @@
     btnTextNew.textContent = 'Start';
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
     startPauseBtnNew.className = 'btn btn-primary';
-    statusLabel.textContent = 'Ready';
+    statusLabel.textContent = getRandomIdleQuote();
     statusLabel.className = 'time-label idle-label';
     timerBody.classList.remove('running');
     timerWrap.classList.remove('active');
@@ -1734,6 +1777,7 @@
   });
 
   // Init
+  statusLabel.textContent = getRandomIdleQuote();
   updateDisplay();
   renderSessions();
   renderHistory();
