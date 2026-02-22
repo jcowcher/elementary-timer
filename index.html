@@ -1574,24 +1574,26 @@
     const weekTotalSec = getWeekSessions(0).reduce((sum, s) => sum + s.duration, 0);
     weeklyTotalEl.textContent = fmtTotal(weekTotalSec);
 
-    // Name totals breakdown
+    // Name totals breakdown (case-insensitive grouping)
     const nameMap = {};
+    const nameDisplay = {}; // preserve first-seen casing for display
     todaySessions.forEach(s => {
       const n = s.name || 'Deep Work';
-      if (!nameMap[n]) nameMap[n] = { total: 0, count: 0 };
-      nameMap[n].total += s.duration;
-      nameMap[n].count++;
+      const key = n.toLowerCase();
+      if (!nameMap[key]) { nameMap[key] = { total: 0, count: 0 }; nameDisplay[key] = n; }
+      nameMap[key].total += s.duration;
+      nameMap[key].count++;
     });
-    const uniqueNames = Object.keys(nameMap);
-    if (uniqueNames.length > 1 || (uniqueNames.length === 1 && nameMap[uniqueNames[0]].count > 1)) {
-      const sorted = uniqueNames.sort((a, b) => nameMap[b].total - nameMap[a].total);
+    const uniqueKeys = Object.keys(nameMap);
+    if (uniqueKeys.length > 1 || (uniqueKeys.length === 1 && nameMap[uniqueKeys[0]].count > 1)) {
+      const sorted = uniqueKeys.sort((a, b) => nameMap[b].total - nameMap[a].total);
       nameTotalsEl.style.display = '';
       nameTotalsEl.innerHTML = '<div class="name-totals-label">By activity</div>' +
-        sorted.map(n =>
+        sorted.map(key =>
           '<div class="name-total-row">' +
-            '<span class="name-total-name"><span class="name-total-dot"></span>' + n +
-              '<span class="name-total-count">&times;' + nameMap[n].count + '</span></span>' +
-            '<span class="name-total-time">' + fmtTotal(nameMap[n].total) + '</span>' +
+            '<span class="name-total-name"><span class="name-total-dot"></span>' + nameDisplay[key] +
+              '<span class="name-total-count">&times;' + nameMap[key].count + '</span></span>' +
+            '<span class="name-total-time">' + fmtTotal(nameMap[key].total) + '</span>' +
           '</div>'
         ).join('');
     } else {
