@@ -898,6 +898,32 @@
 </head>
 <body>
 
+<!-- DEBUG OVERLAY – remove after debugging -->
+<div id="debugLog" style="position:fixed;bottom:0;left:0;right:0;max-height:35vh;overflow-y:auto;background:rgba(0,0,0,0.88);color:#0f0;font:11px/1.4 monospace;padding:8px 10px;z-index:9999;display:none;"></div>
+<script>
+(function(){
+  const el = document.getElementById('debugLog');
+  function show(){ el.style.display = 'block'; }
+  function log(type, args){
+    show();
+    const line = document.createElement('div');
+    line.style.color = type === 'error' ? '#f44' : type === 'warn' ? '#fa0' : '#0f0';
+    line.textContent = '[' + type + '] ' + Array.from(args).map(a => {
+      try { return typeof a === 'object' ? JSON.stringify(a) : String(a); }
+      catch(e){ return String(a); }
+    }).join(' ');
+    el.appendChild(line);
+    el.scrollTop = el.scrollHeight;
+  }
+  const orig = { log: console.log, warn: console.warn, error: console.error };
+  console.log = function(){ orig.log.apply(console, arguments); log('log', arguments); };
+  console.warn = function(){ orig.warn.apply(console, arguments); log('warn', arguments); };
+  console.error = function(){ orig.error.apply(console, arguments); log('error', arguments); };
+  window.addEventListener('error', function(e){ log('error', ['Uncaught: ' + e.message + ' @ ' + e.filename + ':' + e.lineno]); });
+  window.addEventListener('unhandledrejection', function(e){ log('error', ['Unhandled rejection: ' + e.reason]); });
+})();
+</script>
+
 <nav>
   <div class="nav-auth" id="authArea"></div>
   <span class="nav-date" id="navDate"></span>
@@ -1031,8 +1057,12 @@
 
   // ── Auth & Supabase ──────────────────────────────────
   function initSupabase() {
+    console.log('[sync] initSupabase called, window.supabase =', !!window.supabase);
     if (window.supabase) {
       supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      console.log('[sync] supabaseClient created');
+    } else {
+      console.error('[sync] window.supabase not available - SDK failed to load');
     }
   }
 
@@ -1086,13 +1116,19 @@
   }
 
   async function loadAndMergeFromSupabase() {
-    if (!currentUser || !supabaseClient) return;
+    console.log('[sync] loadAndMerge called, user =', !!currentUser, ', client =', !!supabaseClient);
+    if (!currentUser || !supabaseClient) {
+      console.warn('[sync] aborting - missing user or client');
+      return;
+    }
     try {
+      console.log('[sync] querying timer_history for user_id =', currentUser.id);
       const { data, error } = await supabaseClient
         .from('timer_history')
         .select('*')
         .eq('user_id', currentUser.id)
         .order('date', { ascending: true });
+      console.log('[sync] query result: rows =', data ? data.length : 'null', ', error =', error);
       if (error) throw error;
 
       const localSessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
