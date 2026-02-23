@@ -875,7 +875,7 @@
     nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
     .nav-auth { position: static; transform: none; gap: 0.3rem; }
     .nav-date { position: static; transform: none; }
-    .nav-logo-btn { position: static; transform: none; font-size: 0.7rem; padding: 0.3rem 0.6rem; }
+    .nav-logo-btn { position: static; transform: none; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
     .auth-user-full { display: none; }
     .auth-user-short { display: inline; }
 
@@ -1132,6 +1132,10 @@
       renderHistory();
     } catch (e) {
       console.error('Failed to load from Supabase:', e);
+      // Fallback: render local sessions so history isn't blank
+      sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+      renderSessions();
+      renderHistory();
     }
   }
 
