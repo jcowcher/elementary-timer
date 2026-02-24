@@ -908,6 +908,86 @@
     font-style: italic;
   }
 
+  /* Theme picker */
+  .theme-picker {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 0.25rem;
+  }
+
+  .theme-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-input {
+    width: 100%;
+    border: none;
+    background: none;
+    outline: none;
+    font-family: inherit;
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    text-align: center;
+    padding: 0.4rem 1.5rem;
+  }
+
+  .theme-input::placeholder { color: var(--gray-300); }
+  .theme-input:focus { color: var(--black); }
+  .theme-input:focus::placeholder { color: var(--gray-400); }
+
+  .theme-clear {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    line-height: 1;
+    display: none;
+  }
+
+  .theme-clear:hover { color: var(--gray-700); }
+
+  .theme-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    list-style: none;
+    z-index: 50;
+  }
+
+  .theme-suggestions.open { display: block; }
+
+  .theme-suggestion-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .theme-suggestion-item:hover,
+  .theme-suggestion-item.active {
+    background: var(--orange-bg);
+    color: var(--black);
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
@@ -966,6 +1046,16 @@
         <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
         <span>Finish Session</span>
       </button>
+    </div>
+
+    <div class="theme-picker" id="themePicker">
+      <div class="theme-input-wrap">
+        <input type="text" class="theme-input" id="themeInput"
+          placeholder="Want something other than Sherlock Holmes?"
+          autocomplete="off" maxlength="40">
+        <button class="theme-clear" id="themeClear" title="Reset to Sherlock Holmes">&times;</button>
+      </div>
+      <ul class="theme-suggestions" id="themeSuggestions"></ul>
     </div>
   </div>
 
@@ -1337,53 +1427,1013 @@
   const quoteText = document.getElementById('quoteText');
   const quoteAttr = document.getElementById('quoteAttr');
 
-  // Sherlock / Elementary quotes pool
-  const quotes = [
-    { text: '"The game is afoot."', attr: 'Sherlock Holmes' },
-    { text: '"Elementary, my dear Watson."', attr: 'Sherlock Holmes' },
-    { text: '"You see, but you do not observe. The distinction is clear."', attr: 'A Scandal in Bohemia' },
-    { text: '"I am a brain, Watson. The rest of me is a mere appendix."', attr: 'The Adventure of the Mazarin Stone' },
-    { text: '"The world is full of obvious things which nobody ever observes."', attr: 'The Hound of the Baskervilles' },
-    { text: '"There is nothing more deceptive than an obvious fact."', attr: 'The Boscombe Valley Mystery' },
-    { text: '"Every puzzle has an answer."', attr: 'Elementary, CBS' },
-    { text: '"I\'m not a psychopath. I\'m a high-functioning sociopath. Do your research."', attr: 'Sherlock, BBC' },
-    { text: '"My mind rebels at stagnation. Give me problems, give me work."', attr: 'The Sign of the Four' },
-    { text: '"Data! Data! Data! I can\'t make bricks without clay."', attr: 'The Adventure of the Copper Beeches' },
-    { text: '"When you have eliminated the impossible, whatever remains, however improbable, must be the truth."', attr: 'The Sign of the Four' },
-    { text: '"The work is its own reward."', attr: 'Elementary, CBS' },
-    { text: '"Is there any point to which you would wish to draw my attention?" "To the curious incident of the dog in the night-time." "The dog did nothing in the night-time." "That was the curious incident."', attr: 'Silver Blaze' },
-    { text: '"I follow my own methods, and tell as much or as little as I choose. That is the advantage of being unofficial."', attr: 'Silver Blaze' },
-    { text: '"See the value of imagination. We imagined what might have happened, acted upon the supposition, and find ourselves justified."', attr: 'Silver Blaze' },
-  ];
+  // ── Quote Themes ──────────────────────────────────────
+  const QUOTE_THEMES = {
+    sherlock: {
+      name: 'Sherlock Holmes', aliases: ['sherlock','holmes','elementary','watson','221b','baker street','bbc sherlock'],
+      quotes: [
+        { text: '"The game is afoot."', attr: 'Sherlock Holmes' },
+        { text: '"Elementary, my dear Watson."', attr: 'Sherlock Holmes' },
+        { text: '"You see, but you do not observe. The distinction is clear."', attr: 'A Scandal in Bohemia' },
+        { text: '"I am a brain, Watson. The rest of me is a mere appendix."', attr: 'The Adventure of the Mazarin Stone' },
+        { text: '"The world is full of obvious things which nobody ever observes."', attr: 'The Hound of the Baskervilles' },
+        { text: '"There is nothing more deceptive than an obvious fact."', attr: 'The Boscombe Valley Mystery' },
+        { text: '"Every puzzle has an answer."', attr: 'Elementary, CBS' },
+        { text: '"I\'m not a psychopath. I\'m a high-functioning sociopath. Do your research."', attr: 'Sherlock, BBC' },
+        { text: '"My mind rebels at stagnation. Give me problems, give me work."', attr: 'The Sign of the Four' },
+        { text: '"Data! Data! Data! I can\'t make bricks without clay."', attr: 'The Adventure of the Copper Beeches' },
+        { text: '"When you have eliminated the impossible, whatever remains, however improbable, must be the truth."', attr: 'The Sign of the Four' },
+        { text: '"The work is its own reward."', attr: 'Elementary, CBS' },
+        { text: '"Is there any point to which you would wish to draw my attention?" "To the curious incident of the dog in the night-time." "The dog did nothing in the night-time." "That was the curious incident."', attr: 'Silver Blaze' },
+        { text: '"I follow my own methods, and tell as much or as little as I choose. That is the advantage of being unofficial."', attr: 'Silver Blaze' },
+        { text: '"See the value of imagination. We imagined what might have happened, acted upon the supposition, and find ourselves justified."', attr: 'Silver Blaze' },
+      ],
+      emptyQuotes: ['The game is afoot\u2026 start a session','The needle awaits the haystack','No data yet. Even Holmes needs evidence.','Begin your deductions','221B reasons to start focusing','The dog did nothing\u2026 curious, isn\u2019t it?'],
+      idleQuotes: ['The game is afoot','Elementary, my dear Watson','Give me problems, give me work','The work is its own reward','You see, but you do not observe','Data! Data! Data!','Every puzzle has an answer','My mind rebels at stagnation'],
+      runningLabels: ['The game is afoot','Focusing','Deducing','Observing','On the case','The dog is silent'],
+      timeTriggers: {141:'2:21 \u2014 Baker St.',420:'The Seven Percent Solution',1021:'A Study in Scarlet',1260:'The Sign of the Four',1800:'The Halfway Mark, Watson',2210:'221B Baker Street',2700:'The dog did nothing',3600:'The Final Problem'},
+      easterEggs: [
+        { trigger: '221b', quote: { text: '"You know my methods, Watson."', attr: '221B Baker Street' }, special: 'baker-street' },
+        { trigger: 'watson', quote: { text: '"I am lost without my Boswell."', attr: 'A Scandal in Bohemia' } },
+        { trigger: 'silver', quote: { text: '"The dog did nothing in the night-time." "That was the curious incident."', attr: 'Silver Blaze' } },
+        { trigger: 'moriarty', quote: { text: '"The Napoleon of crime, Watson."', attr: 'The Final Problem' } },
+      ],
+    },
+    breakingbad: {
+      name: 'Breaking Bad', aliases: ['breaking bad','heisenberg','walter white','jesse pinkman','bb'],
+      quotes: [
+        { text: '"I am the one who knocks."', attr: 'Walter White' },
+        { text: '"Say my name."', attr: 'Walter White' },
+        { text: '"Tread lightly."', attr: 'Walter White' },
+        { text: '"I am not in danger, Skyler. I am the danger."', attr: 'Walter White' },
+        { text: '"Yeah, science!"', attr: 'Jesse Pinkman' },
+        { text: '"No half measures."', attr: 'Mike Ehrmantraut' },
+        { text: '"Chemistry is the study of matter, but I prefer to see it as the study of change."', attr: 'Walter White' },
+        { text: '"We\'re done when I say we\'re done."', attr: 'Walter White' },
+        { text: '"If you don\'t know who I am, then maybe your best course would be to tread lightly."', attr: 'Walter White' },
+        { text: '"I did it for me. I liked it. I was good at it."', attr: 'Walter White' },
+        { text: '"You asked me if I was in the meth business or the money business. Neither. I\'m in the empire business."', attr: 'Walter White' },
+        { text: '"Stay out of my territory."', attr: 'Walter White' },
+        { text: '"I am awake."', attr: 'Walter White' },
+        { text: '"Just because you shot Jesse James, don\'t make you Jesse James."', attr: 'Mike Ehrmantraut' },
+        { text: '"The universe is random. It\'s not inevitable. It\'s simple chaos."', attr: 'Walter White' },
+      ],
+      emptyQuotes: ['Time to cook\u2026 start a session','No half measures. Start working.','The empire hasn\'t been built yet.','Say my name\u2026 and start a timer','This is not meth, this is focus','Let\'s get to work, yo'],
+      idleQuotes: ['I am the one who knocks','Say my name','Tread lightly','Yeah, science!','No half measures','I am awake','Stay out of my territory','The empire business'],
+      runningLabels: ['Cooking','In the lab','Building the empire','Heisenberg mode','Yeah, science!','No half measures'],
+      timeTriggers: {420:'Yeah, science!',737:'Flight 737',1800:'Halfway there, Mr. White',2700:'Stay out of my territory',3600:'I am the one who knocks'},
+      easterEggs: [
+        { trigger: 'heisenberg', quote: { text: '"You\'re goddamn right."', attr: 'Walter White' } },
+        { trigger: 'knock', quote: { text: '"I am the one who knocks."', attr: 'Walter White' } },
+        { trigger: 'cook', quote: { text: '"Let\'s cook."', attr: 'Walter White' } },
+      ],
+    },
+    theoffice: {
+      name: 'The Office', aliases: ['the office','dunder mifflin','michael scott','dwight schrute','office'],
+      quotes: [
+        { text: '"That\'s what she said."', attr: 'Michael Scott' },
+        { text: '"I\'m not superstitious, but I am a little stitious."', attr: 'Michael Scott' },
+        { text: '"Bears. Beets. Battlestar Galactica."', attr: 'Jim Halpert' },
+        { text: '"Sometimes I\'ll start a sentence and I don\'t even know where it\'s going."', attr: 'Michael Scott' },
+        { text: '"I am Beyonc\u00e9, always."', attr: 'Michael Scott' },
+        { text: '"Identity theft is not a joke, Jim!"', attr: 'Dwight Schrute' },
+        { text: '"I wish there was a way to know you\'re in the good old days before you\'ve actually left them."', attr: 'Andy Bernard' },
+        { text: '"Would I rather be feared or loved? Both. I want people to be afraid of how much they love me."', attr: 'Michael Scott' },
+        { text: '"I am running away from my responsibilities. And it feels good."', attr: 'Michael Scott' },
+        { text: '"The worst thing about prison was the dementors."', attr: 'Michael Scott' },
+        { text: '"You miss 100% of the shots you don\'t take. \u2014Wayne Gretzky"', attr: 'Michael Scott' },
+        { text: '"I talk a lot, so I\'ve learned to tune myself out."', attr: 'Kelly Kapoor' },
+        { text: '"I\'m an early bird and a night owl. So I\'m wise and I have worms."', attr: 'Michael Scott' },
+        { text: '"I\'m not offended by homosexuality. In the 60s, I made love to many, many women, often outdoors."', attr: 'Creed Bratton' },
+        { text: '"It\'s a beautiful morning at Dunder Mifflin, or as I like to call it, Great Bratton."', attr: 'Creed Bratton' },
+      ],
+      emptyQuotes: ['No sessions yet. That\'s what she said.','Dunder Mifflin awaits your productivity','Bears, beets, and\u2026 no sessions?','The worst part of no sessions is the dementors','Even Michael Scott would start a timer','This is a lot\u2026 start a session'],
+      idleQuotes: ['That\'s what she said','Bears. Beets. Battlestar Galactica.','I am Beyonc\u00e9, always','Dunder Mifflin time','Identity theft is not a joke','I declare bankruptcy!','That\'s what she said','Schrute Farms'],
+      runningLabels: ['That\'s what she said','At Dunder Mifflin','World\'s best boss','Schrute mode','Paper selling','Pretzel day!'],
+      timeTriggers: {420:'That\'s what she said',900:'Conference room, 5 minutes!',1800:'Pretzel Day!',2700:'World\'s Best Boss',3600:'You have no idea how high I can fly'},
+      easterEggs: [
+        { trigger: 'dwight', quote: { text: '"Fact: Bears eat beets. Bears. Beets. Battlestar Galactica."', attr: 'Jim as Dwight' } },
+        { trigger: 'michael', quote: { text: '"I am dead inside."', attr: 'Michael Scott' } },
+        { trigger: 'prison', quote: { text: '"The worst thing about prison was the dementors."', attr: 'Prison Mike' } },
+      ],
+    },
+    gameofthrones: {
+      name: 'Game of Thrones', aliases: ['game of thrones','got','westeros','thrones','winter is coming'],
+      quotes: [
+        { text: '"When you play the game of thrones, you win or you die."', attr: 'Cersei Lannister' },
+        { text: '"Winter is coming."', attr: 'House Stark' },
+        { text: '"A Lannister always pays his debts."', attr: 'Tyrion Lannister' },
+        { text: '"The night is dark and full of terrors."', attr: 'Melisandre' },
+        { text: '"Chaos isn\'t a pit. Chaos is a ladder."', attr: 'Petyr Baelish' },
+        { text: '"I drink and I know things."', attr: 'Tyrion Lannister' },
+        { text: '"Any man who must say \'I am the king\' is no true king."', attr: 'Tywin Lannister' },
+        { text: '"Valar morghulis."', attr: 'Braavos' },
+        { text: '"The man who passes the sentence should swing the sword."', attr: 'Ned Stark' },
+        { text: '"A mind needs books like a sword needs a whetstone."', attr: 'Tyrion Lannister' },
+        { text: '"What do we say to the God of Death? Not today."', attr: 'Syrio Forel' },
+        { text: '"The things I do for love."', attr: 'Jaime Lannister' },
+        { text: '"You know nothing, Jon Snow."', attr: 'Ygritte' },
+        { text: '"Hold the door!"', attr: 'Hodor' },
+        { text: '"Dracarys."', attr: 'Daenerys Targaryen' },
+      ],
+      emptyQuotes: ['Winter is coming\u2026 start a session','No sessions. A Lannister always pays his debts.','The Iron Throne awaits your effort','Valar morghulis\u2026 but first, focus','You know nothing about productivity\u2026 yet','Not today, God of Procrastination'],
+      idleQuotes: ['Winter is coming','I drink and I know things','Valar morghulis','Not today','Chaos is a ladder','The North remembers','Dracarys','Hold the door'],
+      runningLabels: ['Winter is here','The North remembers','Forging Valyrian steel','On the Iron Throne','Bending the knee','Dracarys'],
+      timeTriggers: {420:'Valar morghulis',900:'The night is dark and full of terrors',1800:'Chaos is a ladder',2700:'The North remembers',3600:'You win or you die'},
+      easterEggs: [
+        { trigger: 'hodor', quote: { text: '"Hodor. Hodor. Hodor."', attr: 'Hodor' } },
+        { trigger: 'dragon', quote: { text: '"Dracarys."', attr: 'Daenerys Targaryen' } },
+        { trigger: 'arya', quote: { text: '"A girl has no name."', attr: 'Arya Stark' } },
+      ],
+    },
+    starwars: {
+      name: 'Star Wars', aliases: ['star wars','jedi','sith','darth vader','yoda','force','skywalker'],
+      quotes: [
+        { text: '"Do or do not. There is no try."', attr: 'Yoda' },
+        { text: '"May the Force be with you."', attr: 'Star Wars' },
+        { text: '"I find your lack of faith disturbing."', attr: 'Darth Vader' },
+        { text: '"The Force will be with you. Always."', attr: 'Obi-Wan Kenobi' },
+        { text: '"In my experience, there is no such thing as luck."', attr: 'Obi-Wan Kenobi' },
+        { text: '"Your focus determines your reality."', attr: 'Qui-Gon Jinn' },
+        { text: '"I\'ve got a bad feeling about this."', attr: 'Han Solo' },
+        { text: '"The ability to speak does not make you intelligent."', attr: 'Qui-Gon Jinn' },
+        { text: '"Truly wonderful, the mind of a child is."', attr: 'Yoda' },
+        { text: '"You were the chosen one!"', attr: 'Obi-Wan Kenobi' },
+        { text: '"Never tell me the odds."', attr: 'Han Solo' },
+        { text: '"Fear is the path to the dark side."', attr: 'Yoda' },
+        { text: '"I am one with the Force, and the Force is with me."', attr: 'Chirrut \u00cemwe' },
+        { text: '"This is the way."', attr: 'The Mandalorian' },
+        { text: '"Patience you must have, my young Padawan."', attr: 'Yoda' },
+      ],
+      emptyQuotes: ['A long time ago in a session far, far away\u2026','The Force awaits\u2026 start a session','Do or do not. There is no try.','These aren\'t the sessions you\'re looking for','The dark side of procrastination','This is the way\u2026 start focusing'],
+      idleQuotes: ['May the Force be with you','Do or do not','This is the way','Use the Force','Never tell me the odds','I have spoken','Your focus determines your reality','Patience you must have'],
+      runningLabels: ['Using the Force','Jedi training','This is the way','Lightsaber focused','In a galaxy far away','Padawan mode'],
+      timeTriggers: {420:'Your focus determines your reality',900:'Use the Force',1800:'Halfway through the trench run',2700:'Almost there\u2026',3600:'You are a Jedi now'},
+      easterEggs: [
+        { trigger: 'yoda', quote: { text: '"Do or do not. There is no try."', attr: 'Yoda' } },
+        { trigger: 'vader', quote: { text: '"I am your father."', attr: 'Darth Vader' } },
+        { trigger: 'force', quote: { text: '"May the Force be with you."', attr: 'Obi-Wan Kenobi' } },
+      ],
+    },
+    lotr: {
+      name: 'Lord of the Rings', aliases: ['lord of the rings','lotr','tolkien','gandalf','frodo','hobbit','middle earth','rings of power'],
+      quotes: [
+        { text: '"All we have to decide is what to do with the time that is given us."', attr: 'Gandalf' },
+        { text: '"Even the smallest person can change the course of the future."', attr: 'Galadriel' },
+        { text: '"Not all those who wander are lost."', attr: 'J.R.R. Tolkien' },
+        { text: '"A wizard is never late. He arrives precisely when he means to."', attr: 'Gandalf' },
+        { text: '"There is some good in this world, and it\'s worth fighting for."', attr: 'Samwise Gamgee' },
+        { text: '"You shall not pass!"', attr: 'Gandalf' },
+        { text: '"I would rather spend one lifetime with you than face all the ages of this world alone."', attr: 'Arwen' },
+        { text: '"The world is changed. I feel it in the water. I feel it in the earth."', attr: 'Galadriel' },
+        { text: '"One does not simply walk into Mordor."', attr: 'Boromir' },
+        { text: '"Certainty of death. Small chance of success. What are we waiting for?"', attr: 'Gimli' },
+        { text: '"My precious."', attr: 'Gollum' },
+        { text: '"I can\'t carry it for you, but I can carry you."', attr: 'Samwise Gamgee' },
+        { text: '"Deeds will not be less valiant because they are unpraised."', attr: 'Aragorn' },
+        { text: '"The board is set. The pieces are moving."', attr: 'Gandalf' },
+        { text: '"It\'s a dangerous business, going out your door."', attr: 'Bilbo Baggins' },
+      ],
+      emptyQuotes: ['The journey of a thousand miles\u2026 start a session','No sessions yet, precious','Not all who wander are lost\u2026 but you haven\'t started','One does not simply skip a focus session','The Shire awaits your return','Even the smallest session counts'],
+      idleQuotes: ['Not all who wander are lost','You shall not pass!','One does not simply\u2026','My precious','And my axe!','The board is set','A wizard is never late','There and back again'],
+      runningLabels: ['On the quest','Carrying the ring','You shall not pass','Walking to Mordor','Second breakfast later','The board is set'],
+      timeTriggers: {420:'A wizard is never late',900:'The Shire is behind you',1800:'Halfway to Mordor',2700:'Almost at Mount Doom',3600:'The ring is destroyed'},
+      easterEggs: [
+        { trigger: 'gandalf', quote: { text: '"You shall not pass!"', attr: 'Gandalf' } },
+        { trigger: 'precious', quote: { text: '"My precious\u2026"', attr: 'Gollum' } },
+        { trigger: 'mordor', quote: { text: '"One does not simply walk into Mordor."', attr: 'Boromir' } },
+      ],
+    },
+    harrypotter: {
+      name: 'Harry Potter', aliases: ['harry potter','hogwarts','dumbledore','hermione','hp','wizarding world','voldemort'],
+      quotes: [
+        { text: '"It does not do to dwell on dreams and forget to live."', attr: 'Albus Dumbledore' },
+        { text: '"Happiness can be found even in the darkest of times, if one only remembers to turn on the light."', attr: 'Albus Dumbledore' },
+        { text: '"It is our choices that show what we truly are, far more than our abilities."', attr: 'Albus Dumbledore' },
+        { text: '"After all this time?" "Always."', attr: 'Severus Snape' },
+        { text: '"I solemnly swear that I am up to no good."', attr: 'The Marauder\'s Map' },
+        { text: '"Mischief managed."', attr: 'The Marauder\'s Map' },
+        { text: '"Expecto Patronum!"', attr: 'Harry Potter' },
+        { text: '"It takes a great deal of bravery to stand up to our enemies, but just as much to stand up to our friends."', attr: 'Albus Dumbledore' },
+        { text: '"Words are our most inexhaustible source of magic."', attr: 'Albus Dumbledore' },
+        { text: '"Of course it is happening inside your head, Harry, but why on earth should that mean that it is not real?"', attr: 'Albus Dumbledore' },
+        { text: '"When in doubt, go to the library."', attr: 'Hermione Granger' },
+        { text: '"Nitwit! Blubber! Oddment! Tweak!"', attr: 'Albus Dumbledore' },
+        { text: '"Fear of a name increases fear of the thing itself."', attr: 'Hermione Granger' },
+        { text: '"We\'ve all got both light and dark inside us."', attr: 'Sirius Black' },
+        { text: '"Just because you have the emotional range of a teaspoon doesn\'t mean we all have."', attr: 'Hermione Granger' },
+      ],
+      emptyQuotes: ['No sessions yet\u2026 mischief not yet managed','Platform 9\u00be awaits your first session','The Room of Requirement is empty','I solemnly swear to start focusing','Expecto Sessionum!','Even muggles need to focus'],
+      idleQuotes: ['Mischief managed','Expecto Patronum!','I solemnly swear\u2026','Always.','Lumos!','After all this time?','Nitwit! Blubber! Oddment!','Turn on the light'],
+      runningLabels: ['At Hogwarts','Casting spells','Mischief managed','In the library','Brewing potions','Quidditch practice'],
+      timeTriggers: {420:'Expecto Patronum!',934:'Platform 9\u00be',1800:'Halfway through the term',2700:'O.W.L. exams approach',3600:'Mischief managed'},
+      easterEggs: [
+        { trigger: 'snape', quote: { text: '"After all this time?" "Always."', attr: 'Severus Snape' } },
+        { trigger: 'lumos', quote: { text: '"Lumos!"', attr: 'Harry Potter' } },
+        { trigger: 'voldemort', quote: { text: '"I am Lord Voldemort."', attr: 'Tom Riddle' } },
+      ],
+    },
+    thewire: {
+      name: 'The Wire', aliases: ['the wire','omar','mcnulty','baltimore','wire'],
+      quotes: [
+        { text: '"All in the game, yo."', attr: 'Omar Little' },
+        { text: '"You come at the king, you best not miss."', attr: 'Omar Little' },
+        { text: '"A man must have a code."', attr: 'Bunk Moreland' },
+        { text: '"The game is the game. Always."', attr: 'Omar Little' },
+        { text: '"You want it to be one way. But it\'s the other way."', attr: 'Marlo Stanfield' },
+        { text: '"Thin line between heaven and here."', attr: 'Bubbles' },
+        { text: '"I got the shotgun. You got the briefcase. It\'s all in the game though, right?"', attr: 'Omar Little' },
+        { text: '"Deserve got nothing to do with it."', attr: 'Snoop' },
+        { text: '"The king stay the king."', attr: 'D\'Angelo Barksdale' },
+        { text: '"If you play in dirt, you get dirty."', attr: 'McNulty' },
+        { text: '"World going one way, people another."', attr: 'Poot' },
+        { text: '"A lie ain\'t a side of a story. It\'s just a lie."', attr: 'Terry Hanning' },
+        { text: '"We ain\'t gotta dream no more, man."', attr: 'Stringer Bell' },
+        { text: '"Come at the king, you best not miss."', attr: 'Omar Little' },
+        { text: '"Man, money ain\'t got no owners. Only spenders."', attr: 'Omar Little' },
+      ],
+      emptyQuotes: ['All in the game\u2026 start a session','No data yet. The game is the game.','The Western District way\u2026 start working','Deserve got nothing to do with sessions','Come at the king with a session','Thin line between here and productivity'],
+      idleQuotes: ['All in the game','A man must have a code','The game is the game','Come at the king','Indeed','Deserve got nothing to do with it','The king stay the king','Sheeeeeit'],
+      runningLabels: ['All in the game','On the wire','Natural police','The game is the game','Re-upping','Baltimore mode'],
+      timeTriggers: {420:'All in the game',900:'A man must have a code',1800:'The game is the game',2700:'Come at the king',3600:'You best not miss'},
+      easterEggs: [
+        { trigger: 'omar', quote: { text: '"Omar comin\'!"', attr: 'The Streets' } },
+        { trigger: 'indeed', quote: { text: '"Oh, indeed."', attr: 'Omar Little' } },
+      ],
+    },
+    suits: {
+      name: 'Suits', aliases: ['suits','harvey specter','mike ross','pearson specter'],
+      quotes: [
+        { text: '"I don\'t play the odds, I play the man."', attr: 'Harvey Specter' },
+        { text: '"Win a no-win situation by rewriting the rules."', attr: 'Harvey Specter' },
+        { text: '"That\'s the difference between you and me. You wanna lose small, I wanna win big."', attr: 'Harvey Specter' },
+        { text: '"I\'m against having emotions, not against using them."', attr: 'Harvey Specter' },
+        { text: '"When you\'re backed against the wall, break the goddamn thing down."', attr: 'Harvey Specter' },
+        { text: '"Life is like this. I like this."', attr: 'Harvey Specter' },
+        { text: '"Winners don\'t make excuses."', attr: 'Harvey Specter' },
+        { text: '"It\'s going to happen, because I\'m going to make it happen."', attr: 'Harvey Specter' },
+        { text: '"Anyone can do my job, but no one can be me."', attr: 'Harvey Specter' },
+        { text: '"Don\'t raise your voice, improve your argument."', attr: 'Harvey Specter' },
+        { text: '"Sorry, I can\'t hear you over the sound of how awesome I am."', attr: 'Harvey Specter' },
+        { text: '"You always have a choice."', attr: 'Mike Ross' },
+        { text: '"Work until you no longer have to introduce yourself."', attr: 'Harvey Specter' },
+        { text: '"I don\'t have dreams, I have goals."', attr: 'Harvey Specter' },
+        { text: '"Kill them with success. Bury them with a smile."', attr: 'Harvey Specter' },
+      ],
+      emptyQuotes: ['No sessions. Harvey would not approve.','Win big\u2026 start a session','Don\'t play the odds. Play the timer.','Even Mike Ross studies','Pearson Specter needs your billable hours','Winners don\'t procrastinate'],
+      idleQuotes: ['I don\'t play the odds','Win a no-win situation','Winners don\'t make excuses','Work until you no longer introduce yourself','I don\'t have dreams, I have goals','Kill them with success','Don\'t raise your voice','Life is like this'],
+      runningLabels: ['Closing the deal','Harvey mode','Lawyering up','Billable hours','Winning big','Specter approved'],
+      timeTriggers: {420:'Winners don\'t make excuses',900:'I play the man',1800:'Halfway to winning',2700:'Don\'t raise your voice',3600:'Case closed'},
+      easterEggs: [
+        { trigger: 'harvey', quote: { text: '"I\'m Harvey Specter. That\'s all you need to know."', attr: 'Harvey Specter' } },
+        { trigger: 'litt', quote: { text: '"You just got Litt up!"', attr: 'Louis Litt' } },
+      ],
+    },
+    friends: {
+      name: 'Friends', aliases: ['friends','central perk','ross','rachel','joey','chandler','monica','phoebe'],
+      quotes: [
+        { text: '"We were on a break!"', attr: 'Ross Geller' },
+        { text: '"How you doin\'?"', attr: 'Joey Tribbiani' },
+        { text: '"Joey doesn\'t share food!"', attr: 'Joey Tribbiani' },
+        { text: '"Oh. My. God."', attr: 'Janice' },
+        { text: '"Pivot! Pivot! PIVOT!"', attr: 'Ross Geller' },
+        { text: '"I\'m not great at the advice. Can I interest you in a sarcastic comment?"', attr: 'Chandler Bing' },
+        { text: '"Welcome to the real world. It sucks. You\'re gonna love it."', attr: 'Monica Geller' },
+        { text: '"It\'s a moo point. It\'s like a cow\'s opinion. It doesn\'t matter. It\'s moo."', attr: 'Joey Tribbiani' },
+        { text: '"I wish I could, but I don\'t want to."', attr: 'Phoebe Buffay' },
+        { text: '"I\'m hopeless and awkward and desperate for love!"', attr: 'Chandler Bing' },
+        { text: '"Smelly cat, smelly cat, what are they feeding you?"', attr: 'Phoebe Buffay' },
+        { text: '"I say more dumb things before 9am than most people say all day."', attr: 'Chandler Bing' },
+        { text: '"See? He\'s her lobster."', attr: 'Phoebe Buffay' },
+        { text: '"Seven! Seven! SEVEN!"', attr: 'Monica Geller' },
+        { text: '"Could I BE wearing any more clothes?"', attr: 'Joey Tribbiani' },
+      ],
+      emptyQuotes: ['No sessions yet. Could this BE any emptier?','Central Perk is waiting\u2026 start a timer','The one where you start focusing','Joey doesn\'t share focus. Neither should you.','We were on a break\u2026 from procrastination','How you doin\' with that productivity?'],
+      idleQuotes: ['How you doin\'?','We were on a break!','Pivot! Pivot!','Could I BE any more idle?','Smelly cat, smelly cat','Joey doesn\'t share food!','Oh. My. God.','It\'s a moo point'],
+      runningLabels: ['How you doin\'?','At Central Perk','Pivoting','The One Where You Focus','Smelly Cat mode','Unagi!'],
+      timeTriggers: {420:'How you doin\'?',900:'Pivot! Pivot!',1800:'We were on a break!',2700:'Seven! Seven! SEVEN!',3600:'I\'ll be there for you'},
+      easterEggs: [
+        { trigger: 'joey', quote: { text: '"Joey doesn\'t share food!"', attr: 'Joey Tribbiani' } },
+        { trigger: 'pivot', quote: { text: '"Pivot! Pivot! PIVOT!"', attr: 'Ross Geller' } },
+        { trigger: 'smelly', quote: { text: '"Smelly cat, smelly cat, what are they feeding you?"', attr: 'Phoebe Buffay' } },
+      ],
+    },
+    seinfeld: {
+      name: 'Seinfeld', aliases: ['seinfeld','george costanza','kramer','jerry','elaine','festivus'],
+      quotes: [
+        { text: '"No soup for you!"', attr: 'The Soup Nazi' },
+        { text: '"These pretzels are making me thirsty."', attr: 'Kramer' },
+        { text: '"I\'m not a man who\'s afraid of saying \'I don\'t know.\'"', attr: 'George Costanza' },
+        { text: '"Serenity now!"', attr: 'Frank Costanza' },
+        { text: '"Not that there\'s anything wrong with that."', attr: 'Jerry Seinfeld' },
+        { text: '"It\'s a show about nothing."', attr: 'George Costanza' },
+        { text: '"The sea was angry that day, my friends."', attr: 'George Costanza' },
+        { text: '"I was in the pool!"', attr: 'George Costanza' },
+        { text: '"Yada yada yada."', attr: 'Elaine Benes' },
+        { text: '"Festivus for the rest of us!"', attr: 'Frank Costanza' },
+        { text: '"You\'re killing independent George!"', attr: 'George Costanza' },
+        { text: '"Giddy up!"', attr: 'Kramer' },
+        { text: '"I don\'t wanna be a pirate!"', attr: 'Jerry Seinfeld' },
+        { text: '"It\'s not a lie if you believe it."', attr: 'George Costanza' },
+        { text: '"That\'s a shame."', attr: 'Jerry Seinfeld' },
+      ],
+      emptyQuotes: ['No sessions. It\'s a show about nothing.','Serenity now\u2026 start a session','These pretzels are making me thirsty for productivity','Yada yada yada\u2026 no sessions','No soup for you until you focus','Festivus for the productive'],
+      idleQuotes: ['Serenity now!','Yada yada yada','No soup for you!','Giddy up!','Not that there\'s anything wrong','These pretzels\u2026','A show about nothing','Festivus!'],
+      runningLabels: ['Serenity now','Giddy up!','About nothing','Yada yada yada','Festivus mode','Master of my domain'],
+      timeTriggers: {420:'Serenity now!',900:'These pretzels are making me thirsty',1800:'Yada yada yada',2700:'The sea was angry that day',3600:'No soup for you!'},
+      easterEggs: [
+        { trigger: 'festivus', quote: { text: '"A Festivus for the rest of us!"', attr: 'Frank Costanza' } },
+        { trigger: 'kramer', quote: { text: '"Giddy up!"', attr: 'Cosmo Kramer' } },
+      ],
+    },
+    batman: {
+      name: 'Batman / Dark Knight', aliases: ['batman','dark knight','gotham','bruce wayne','joker','bat'],
+      quotes: [
+        { text: '"Why do we fall? So we can learn to pick ourselves up."', attr: 'Alfred Pennyworth' },
+        { text: '"It\'s not who I am underneath, but what I do that defines me."', attr: 'Batman' },
+        { text: '"You either die a hero, or you live long enough to see yourself become the villain."', attr: 'Harvey Dent' },
+        { text: '"Some men just want to watch the world burn."', attr: 'Alfred Pennyworth' },
+        { text: '"Why so serious?"', attr: 'The Joker' },
+        { text: '"I\'m whatever Gotham needs me to be."', attr: 'Batman' },
+        { text: '"Endure, Master Wayne. Take it."', attr: 'Alfred Pennyworth' },
+        { text: '"A hero can be anyone."', attr: 'Batman' },
+        { text: '"I believe whatever doesn\'t kill you simply makes you\u2026 stranger."', attr: 'The Joker' },
+        { text: '"The night is darkest just before the dawn."', attr: 'Harvey Dent' },
+        { text: '"I\'m not wearing hockey pads."', attr: 'Batman' },
+        { text: '"You don\'t owe these people any more. You\'ve given them everything." "Not everything. Not yet."', attr: 'Batman & Gordon' },
+        { text: '"Theatricality and deception are powerful agents."', attr: 'Ra\'s al Ghul' },
+        { text: '"It\'s not about the money. It\'s about sending a message."', attr: 'The Joker' },
+        { text: '"Peace has cost you your strength. Victory has defeated you."', attr: 'Bane' },
+      ],
+      emptyQuotes: ['The Bat-Signal is dark\u2026 start a session','Gotham needs you to focus','Why do we fall? To start a session.','No sessions. Even Batman needs discipline.','The night is darkest before the session','It\'s not who you are, it\'s what you do'],
+      idleQuotes: ['Why do we fall?','I\'m Batman','Why so serious?','The night is darkest\u2026','Some men just want to watch','Gotham needs me','Not the hero you deserve','Endure, Master Wayne'],
+      runningLabels: ['Protecting Gotham','In the Batcave','Dark Knight mode','Why so serious?','Enduring','The hero Gotham needs'],
+      timeTriggers: {420:'Why so serious?',900:'The night is darkest before the dawn',1800:'Endure, Master Wayne',2700:'A hero can be anyone',3600:'The Dark Knight rises'},
+      easterEggs: [
+        { trigger: 'joker', quote: { text: '"Why so serious?"', attr: 'The Joker' } },
+        { trigger: 'alfred', quote: { text: '"Some men just want to watch the world burn."', attr: 'Alfred Pennyworth' } },
+      ],
+    },
+    godfather: {
+      name: 'The Godfather', aliases: ['godfather','corleone','don corleone','vito','michael corleone','mafia'],
+      quotes: [
+        { text: '"I\'m gonna make him an offer he can\'t refuse."', attr: 'Don Vito Corleone' },
+        { text: '"Leave the gun. Take the cannoli."', attr: 'Clemenza' },
+        { text: '"Keep your friends close, but your enemies closer."', attr: 'Michael Corleone' },
+        { text: '"A man who doesn\'t spend time with his family can never be a real man."', attr: 'Don Vito Corleone' },
+        { text: '"It\'s not personal, Sonny. It\'s strictly business."', attr: 'Michael Corleone' },
+        { text: '"Great men are not born great, they grow great."', attr: 'Don Vito Corleone' },
+        { text: '"Revenge is a dish best served cold."', attr: 'Don Vito Corleone' },
+        { text: '"I believe in America."', attr: 'Bonasera' },
+        { text: '"Every man has but one destiny."', attr: 'Don Vito Corleone' },
+        { text: '"Never hate your enemies. It affects your judgment."', attr: 'Michael Corleone' },
+        { text: '"Friendship is everything."', attr: 'Don Vito Corleone' },
+        { text: '"Do you spend time with your family? Good. Because a man that doesn\'t spend time with his family can never be a real man."', attr: 'Don Vito Corleone' },
+        { text: '"I don\'t feel I have to wipe everybody out, Tom. Just my enemies."', attr: 'Michael Corleone' },
+        { text: '"In Sicily, women are more dangerous than shotguns."', attr: 'Calo' },
+        { text: '"Just when I thought I was out, they pull me back in."', attr: 'Michael Corleone' },
+      ],
+      emptyQuotes: ['An offer you can\'t refuse\u2026 start a session','No sessions. It\'s strictly business.','Leave the gun. Take the timer.','The family needs your focus','Every man has but one destiny\u2026 focus','Great men grow great through sessions'],
+      idleQuotes: ['An offer you can\'t refuse','It\'s strictly business','Leave the gun, take the cannoli','Keep your enemies closer','I believe in America','Every man has one destiny','Great men grow great','Just when I thought I was out'],
+      runningLabels: ['Strictly business','The Don approves','Making offers','Family business','Taking the cannoli','Corleone mode'],
+      timeTriggers: {420:'It\'s strictly business',900:'Keep your enemies closer',1800:'An offer you can\'t refuse',2700:'Great men grow great',3600:'Now who\'s being naive?'},
+      easterEggs: [
+        { trigger: 'corleone', quote: { text: '"I\'m gonna make him an offer he can\'t refuse."', attr: 'Don Vito Corleone' } },
+        { trigger: 'cannoli', quote: { text: '"Leave the gun. Take the cannoli."', attr: 'Clemenza' } },
+      ],
+    },
+    bettercallsaul: {
+      name: 'Better Call Saul', aliases: ['better call saul','saul goodman','jimmy mcgill','bcs','saul'],
+      quotes: [
+        { text: '"S\'all good, man."', attr: 'Saul Goodman' },
+        { text: '"I fought the law and the law won."', attr: 'Jimmy McGill' },
+        { text: '"The Winner takes it all."', attr: 'Jimmy McGill' },
+        { text: '"You think a piece of paper makes you a lawyer? I got news for you."', attr: 'Chuck McGill' },
+        { text: '"I know what stopped me. And you know what? It\'s never stopping me again."', attr: 'Jimmy McGill' },
+        { text: '"Lightning bolts shoot from my fingertips!"', attr: 'Saul Goodman' },
+        { text: '"I once convinced a woman I was Kevin Costner, and it worked because I believed it."', attr: 'Saul Goodman' },
+        { text: '"The man is a hero."', attr: 'Kim Wexler' },
+        { text: '"You don\'t save me. I save me."', attr: 'Kim Wexler' },
+        { text: '"If you\'re committed enough, you can make any story work."', attr: 'Saul Goodman' },
+        { text: '"Have you ever known me to make less than a hundred percent effort?"', attr: 'Jimmy McGill' },
+        { text: '"You think this is bad? This chicanery?"', attr: 'Chuck McGill' },
+        { text: '"Let justice be done, though the heavens fall."', attr: 'Chuck McGill' },
+        { text: '"I will land on my feet. I always do."', attr: 'Jimmy McGill' },
+        { text: '"The clock is ticking."', attr: 'Gus Fring' },
+      ],
+      emptyQuotes: ['S\'all good, man\u2026 just start a session','No sessions? Better call a timer','Did you know you have rights? The right to focus.','Lightning bolts await\u2026 start working','The clock is ticking\u2026','Chicanery! No sessions yet.'],
+      idleQuotes: ['S\'all good, man','Better call Saul','Lightning bolts!','The clock is ticking','I will land on my feet','100% effort','Chicanery!','You don\'t save me'],
+      runningLabels: ['S\'all good','Lawyering','Lightning bolts','Saul mode','Making it work','100% effort'],
+      timeTriggers: {420:'S\'all good, man',900:'Lightning bolts!',1800:'The clock is ticking',2700:'I will land on my feet',3600:'Case closed, counselor'},
+      easterEggs: [
+        { trigger: 'chicanery', quote: { text: '"You think this is bad? This chicanery? He\'s done worse."', attr: 'Chuck McGill' } },
+        { trigger: 'slippin', quote: { text: '"Slippin\' Jimmy with a law degree is like a chimp with a machine gun."', attr: 'Chuck McGill' } },
+      ],
+    },
+    succession: {
+      name: 'Succession', aliases: ['succession','roy family','logan roy','kendall roy','waystar'],
+      quotes: [
+        { text: '"You can\'t make a Tomelette without breaking some Greggs."', attr: 'Tom Wambsgans' },
+        { text: '"If you can\'t hear the music, you\'re not invited to the dance."', attr: 'Logan Roy' },
+        { text: '"I am the eldest boy."', attr: 'Connor Roy' },
+        { text: '"You are not serious people."', attr: 'Logan Roy' },
+        { text: '"I\'m gonna grind his bones to make my bread."', attr: 'Logan Roy' },
+        { text: '"What you\'re feeling right now is the wind being knocked out of your lungs."', attr: 'Kendall Roy' },
+        { text: '"Money wins."', attr: 'Logan Roy' },
+        { text: '"I\'d castrate you and marry you in a heartbeat."', attr: 'Tom Wambsgans' },
+        { text: '"Boar on the floor!"', attr: 'Logan Roy' },
+        { text: '"We\'re like the real thing, but with better lawyers."', attr: 'Roman Roy' },
+        { text: '"You are, I have come to realize, parsing finely, parsing very finely, not good enough."', attr: 'Logan Roy' },
+        { text: '"L to the OG."', attr: 'Kendall Roy' },
+        { text: '"I love you, but you are not serious people."', attr: 'Logan Roy' },
+        { text: '"Life isn\'t nice. It\'s contingent."', attr: 'Logan Roy' },
+        { text: '"Everything is content."', attr: 'Kendall Roy' },
+      ],
+      emptyQuotes: ['No sessions. You are not serious people.','Money wins\u2026 but first, focus','The eldest boy hasn\'t started yet','Boar on the floor! Start a session.','Not good enough\u2026 start working','You can\'t make a Tomelette without sessions'],
+      idleQuotes: ['You are not serious people','Money wins','I am the eldest boy','Boar on the floor!','Not good enough','L to the OG','Everything is content','Life is contingent'],
+      runningLabels: ['Serious people mode','Money winning','At Waystar','L to the OG','Grinding bones','Making bread'],
+      timeTriggers: {420:'Money wins',900:'Boar on the floor!',1800:'You are not serious people',2700:'L to the OG',3600:'You\'re good enough now'},
+      easterEggs: [
+        { trigger: 'logan', quote: { text: '"I love you, but you are not serious people."', attr: 'Logan Roy' } },
+        { trigger: 'boar', quote: { text: '"Boar on the floor!"', attr: 'Logan Roy' } },
+      ],
+    },
+    tedlasso: {
+      name: 'Ted Lasso', aliases: ['ted lasso','lasso','afc richmond','richmond','believe'],
+      quotes: [
+        { text: '"Be curious, not judgmental."', attr: 'Ted Lasso' },
+        { text: '"I believe in believe."', attr: 'Ted Lasso' },
+        { text: '"Taking on a challenge is a lot like riding a horse. If you\'re comfortable while you\'re doing it, you\'re probably doing it wrong."', attr: 'Ted Lasso' },
+        { text: '"I promise you, there is something worse out there than being sad, and that is being alone and being sad."', attr: 'Ted Lasso' },
+        { text: '"Be a goldfish."', attr: 'Ted Lasso' },
+        { text: '"You know what the happiest animal on Earth is? A goldfish. Ten-second memory."', attr: 'Ted Lasso' },
+        { text: '"Doing the right thing is never the wrong thing."', attr: 'Ted Lasso' },
+        { text: '"It\'s the hope that kills you."', attr: 'AFC Richmond' },
+        { text: '"I think that you might be so sure that you\'re one in a million, that sometimes you forget that out there, you\'re also just one of 11."', attr: 'Ted Lasso' },
+        { text: '"If you care about someone, and you got a little love in your heart, there ain\'t nothing you can\'t get through together."', attr: 'Ted Lasso' },
+        { text: '"Football is life!"', attr: 'Dani Rojas' },
+        { text: '"I don\'t drink coffee. My mother always says I was born caffeinated."', attr: 'Ted Lasso' },
+        { text: '"Believe."', attr: 'Ted Lasso' },
+        { text: '"I\'m not a quitter. I\'ve never quit anything in my life, except for breastfeeding."', attr: 'Ted Lasso' },
+        { text: '"All people are different people."', attr: 'Ted Lasso' },
+      ],
+      emptyQuotes: ['BELIEVE\u2026 and start a session','Be a goldfish\u2026 forget procrastination','Football is life! Sessions are life!','Be curious, not unproductive','AFC Richmond needs your focus','Doing the right thing is starting a timer'],
+      idleQuotes: ['BELIEVE','Be a goldfish','Be curious, not judgmental','Football is life!','Doing the right thing','I believe in believe','Be a goldfish','All people are different'],
+      runningLabels: ['Believing','Be a goldfish','Football is life!','Richmond mode','Curious, not judgmental','BELIEVE'],
+      timeTriggers: {420:'Be a goldfish',900:'Football is life!',1800:'BELIEVE',2700:'Be curious, not judgmental',3600:'You believed and you did it'},
+      easterEggs: [
+        { trigger: 'believe', quote: { text: '"I believe in believe."', attr: 'Ted Lasso' } },
+        { trigger: 'goldfish', quote: { text: '"Be a goldfish."', attr: 'Ted Lasso' } },
+      ],
+    },
+    parksandrec: {
+      name: 'Parks and Recreation', aliases: ['parks and recreation','parks and rec','leslie knope','ron swanson','pawnee','parks'],
+      quotes: [
+        { text: '"I am big enough to admit I am often inspired by myself."', attr: 'Leslie Knope' },
+        { text: '"Give me all the bacon and eggs you have."', attr: 'Ron Swanson' },
+        { text: '"I know what I\'m about, son."', attr: 'Ron Swanson' },
+        { text: '"Clear eyes, full hearts, can\'t lose."', attr: 'Leslie Knope' },
+        { text: '"Treat yo\' self!"', attr: 'Tom Haverford & Donna Meagle' },
+        { text: '"Everything hurts and I\'m dying."', attr: 'Leslie Knope' },
+        { text: '"There\'s nothing we can\'t do if we work hard, never sleep, and shirk all other responsibilities."', attr: 'Leslie Knope' },
+        { text: '"I once worked with a guy for three years and never learned his name. Best friend I ever had."', attr: 'Ron Swanson' },
+        { text: '"I typed your symptoms into the thing up here and it says you could have network connectivity problems."', attr: 'Andy Dwyer' },
+        { text: '"Literally the best thing I\'ve ever seen."', attr: 'Chris Traeger' },
+        { text: '"I\'m a simple man. I like pretty, dark-haired women and breakfast food."', attr: 'Ron Swanson' },
+        { text: '"The calzone betrayed me? Never!"', attr: 'Ben Wyatt' },
+        { text: '"Ann Perkins!"', attr: 'Chris Traeger' },
+        { text: '"We need to remember what\'s important in life: friends, waffles, work. Or waffles, friends, work."', attr: 'Leslie Knope' },
+        { text: '"There has never been a sadness that can\'t be cured by breakfast food."', attr: 'Ron Swanson' },
+      ],
+      emptyQuotes: ['Treat yo\' self\u2026 to a focus session','No sessions yet. Everything hurts.','Pawnee needs your productivity','Give me all the sessions you have','I know what I\'m about\u2026 starting a timer','Waffles, friends, work. Start with work.'],
+      idleQuotes: ['Treat yo\' self!','I know what I\'m about, son','Give me all the bacon','Ann Perkins!','Literally the best','Everything hurts','Clear eyes, full hearts','Friends, waffles, work'],
+      runningLabels: ['Treat yo\' self','Pawnee mode','Knope approved','Ron Swanson mode','Li\'trally working','Waffles later'],
+      timeTriggers: {420:'I know what I\'m about, son',900:'Treat yo\' self!',1800:'Clear eyes, full hearts',2700:'Li\'trally amazing',3600:'You Knope\'d it!'},
+      easterEggs: [
+        { trigger: 'waffles', quote: { text: '"We need to remember what\'s important in life: friends, waffles, work."', attr: 'Leslie Knope' } },
+        { trigger: 'bacon', quote: { text: '"Give me all the bacon and eggs you have."', attr: 'Ron Swanson' } },
+      ],
+    },
+    sopranos: {
+      name: 'The Sopranos', aliases: ['sopranos','tony soprano','soprano','bada bing'],
+      quotes: [
+        { text: '"Those who want respect, give respect."', attr: 'Tony Soprano' },
+        { text: '"A wrong decision is better than indecision."', attr: 'Tony Soprano' },
+        { text: '"In the end, you die in your own arms."', attr: 'Tony Soprano' },
+        { text: '"It\'s good to be in something from the ground floor."', attr: 'Christopher Moltisanti' },
+        { text: '"All due respect, you got no idea what it\'s like to be number one."', attr: 'Tony Soprano' },
+        { text: '"Woke up this morning, got yourself a gun."', attr: 'Theme Song' },
+        { text: '"Remember when is the lowest form of conversation."', attr: 'Tony Soprano' },
+        { text: '"Even a broken clock is right twice a day."', attr: 'Tony Soprano' },
+        { text: '"Someday soon, you\'re gonna have families of your own and if you\'re lucky, you\'ll remember the little moments."', attr: 'Tony Soprano' },
+        { text: '"There\'s no scraps in my scrapbook."', attr: 'Tony Soprano' },
+        { text: '"This thing of ours."', attr: 'Tony Soprano' },
+        { text: '"You\'re only as good as your last envelope."', attr: 'Junior Soprano' },
+        { text: '"More is lost by indecision than wrong decision."', attr: 'Tony Soprano' },
+        { text: '"What happened to Gary Cooper? The strong, silent type."', attr: 'Tony Soprano' },
+        { text: '"Don\'t stop believing."', attr: 'Final Scene' },
+      ],
+      emptyQuotes: ['Woke up this morning\u2026 start a session','No sessions. More is lost by indecision.','This thing of ours needs your focus','Gabagool\u2026 and then a session','Even a broken clock starts somewhere','Those who want respect, give focus'],
+      idleQuotes: ['Woke up this morning','This thing of ours','A wrong decision beats indecision','Those who want respect','Don\'t stop believing','Gary Cooper, the strong silent type','No scraps in my scrapbook','Even a broken clock'],
+      runningLabels: ['This thing of ours','Bada bing!','Gary Cooper mode','Making moves','Rispect','Don\'t stop'],
+      timeTriggers: {420:'Woke up this morning',900:'This thing of ours',1800:'More is lost by indecision',2700:'Don\'t stop believing',3600:'Don\'t stop\u2026'},
+      easterEggs: [
+        { trigger: 'gabagool', quote: { text: '"Gabagool? Over here!"', attr: 'Tony Soprano' } },
+        { trigger: 'tony', quote: { text: '"Those who want respect, give respect."', attr: 'Tony Soprano' } },
+      ],
+    },
+    strangerthings: {
+      name: 'Stranger Things', aliases: ['stranger things','hawkins','eleven','upside down','demogorgon'],
+      quotes: [
+        { text: '"Friends don\'t lie."', attr: 'Eleven' },
+        { text: '"She\'s our friend and she\'s crazy."', attr: 'Dustin Henderson' },
+        { text: '"Mornings are for coffee and contemplation."', attr: 'Chief Hopper' },
+        { text: '"I dump your ass."', attr: 'Eleven' },
+        { text: '"Mouth breather."', attr: 'Eleven' },
+        { text: '"How do you know it\'s not just a lizard?"', attr: 'Dustin Henderson' },
+        { text: '"You\'re going to be so cool now, it\'s ridiculous."', attr: 'Steve Harrington' },
+        { text: '"Nobody normal ever accomplished anything meaningful in this world."', attr: 'Jonathan Byers' },
+        { text: '"She opened a gate. And now we\'re all screwed."', attr: 'Dustin Henderson' },
+        { text: '"Science is neat."', attr: 'Mr. Clarke' },
+        { text: '"We\'re not gonna take it. No, we ain\'t gonna take it."', attr: 'The Party' },
+        { text: '"Bitchin\'."', attr: 'Eleven' },
+        { text: '"I\'m stealthy, like a ninja."', attr: 'Dustin Henderson' },
+        { text: '"The world is turning upside down."', attr: 'Joyce Byers' },
+        { text: '"It\'s finger-lickin\' good."', attr: 'Eleven (about Eggos)' },
+      ],
+      emptyQuotes: ['The Upside Down has no sessions either','Friends don\'t lie\u2026 you need to focus','Mornings are for coffee and focus','Hawkins Lab needs your data','Even Eleven started somewhere','Eggos after you finish a session'],
+      idleQuotes: ['Friends don\'t lie','Mornings are for coffee','Mouth breather','Bitchin\'','Science is neat','The Upside Down','Nobody normal\u2026','Eggos!'],
+      runningLabels: ['In the Upside Down','Friends don\'t lie','Bitchin\'','Hawkins mode','Rolling dice','Science is neat'],
+      timeTriggers: {420:'Mornings are for coffee',900:'Friends don\'t lie',1011:'Eleven!',1800:'The gate is open',2700:'Almost out of the Upside Down',3600:'You closed the gate'},
+      easterEggs: [
+        { trigger: 'eleven', quote: { text: '"Friends don\'t lie."', attr: 'Eleven' } },
+        { trigger: 'eggo', quote: { text: '"Eggos."', attr: 'Eleven' } },
+        { trigger: 'demogorgon', quote: { text: '"The Demogorgon. It got me."', attr: 'Will Byers' } },
+      ],
+    },
+    marvel: {
+      name: 'Marvel / Avengers', aliases: ['marvel','avengers','mcu','iron man','tony stark','captain america','thanos','spider-man','spiderman'],
+      quotes: [
+        { text: '"I am Iron Man."', attr: 'Tony Stark' },
+        { text: '"I can do this all day."', attr: 'Steve Rogers' },
+        { text: '"With great power comes great responsibility."', attr: 'Uncle Ben / Spider-Man' },
+        { text: '"I am inevitable."', attr: 'Thanos' },
+        { text: '"Avengers, assemble."', attr: 'Captain America' },
+        { text: '"That\'s my secret, Captain. I\'m always angry."', attr: 'Bruce Banner' },
+        { text: '"Genius, billionaire, playboy, philanthropist."', attr: 'Tony Stark' },
+        { text: '"Doth mother know you weareth her drapes?"', attr: 'Tony Stark' },
+        { text: '"I have nothing to prove to you."', attr: 'Captain Marvel' },
+        { text: '"Perfectly balanced, as all things should be."', attr: 'Thanos' },
+        { text: '"We don\'t trade lives."', attr: 'Steve Rogers' },
+        { text: '"Higher, further, faster."', attr: 'Captain Marvel' },
+        { text: '"I am Groot."', attr: 'Groot' },
+        { text: '"Just a kid from Brooklyn."', attr: 'Steve Rogers' },
+        { text: '"Wakanda forever."', attr: 'T\'Challa' },
+      ],
+      emptyQuotes: ['Avengers, assemble\u2026 a session','No sessions. I can do this all day.','With great power comes great focus','Perfectly balanced\u2026 zero sessions','I am inevitable\u2026 at procrastinating','Wakanda forever, sessions never?'],
+      idleQuotes: ['I can do this all day','I am Iron Man','Avengers, assemble','Wakanda forever','I am Groot','Perfectly balanced','Higher, further, faster','Just a kid from Brooklyn'],
+      runningLabels: ['Avengers mode','I am Iron Man','Wakanda forever','Assembling','I am Groot','Higher, further, faster'],
+      timeTriggers: {420:'I can do this all day',900:'Avengers, assemble',1800:'Perfectly balanced',2700:'We\'re in the endgame now',3600:'I am inevitable'},
+      easterEggs: [
+        { trigger: 'snap', quote: { text: '"I am inevitable." *snap*', attr: 'Thanos' } },
+        { trigger: 'groot', quote: { text: '"I am Groot."', attr: 'Groot' } },
+        { trigger: 'assemble', quote: { text: '"Avengers\u2026 assemble."', attr: 'Captain America' } },
+      ],
+    },
+    princessbride: {
+      name: 'The Princess Bride', aliases: ['princess bride','the princess bride','westley','inigo montoya','inconceivable'],
+      quotes: [
+        { text: '"As you wish."', attr: 'Westley' },
+        { text: '"Hello. My name is Inigo Montoya. You killed my father. Prepare to die."', attr: 'Inigo Montoya' },
+        { text: '"Inconceivable!"', attr: 'Vizzini' },
+        { text: '"Life is pain, Highness. Anyone who says differently is selling something."', attr: 'Westley' },
+        { text: '"Have fun storming the castle!"', attr: 'Miracle Max' },
+        { text: '"You keep using that word. I do not think it means what you think it means."', attr: 'Inigo Montoya' },
+        { text: '"Mawage. Mawage is what bwings us togethew today."', attr: 'The Impressive Clergyman' },
+        { text: '"Never go against a Sicilian when death is on the line!"', attr: 'Vizzini' },
+        { text: '"There\'s a shortage of perfect breasts in this world. It would be a pity to damage yours."', attr: 'Westley' },
+        { text: '"I am not left-handed."', attr: 'Inigo Montoya' },
+        { text: '"You rush a miracle man, you get rotten miracles."', attr: 'Miracle Max' },
+        { text: '"Death cannot stop true love. All it can do is delay it for a while."', attr: 'Westley' },
+        { text: '"Anybody want a peanut?"', attr: 'Fezzik' },
+        { text: '"Since the invention of the kiss, there have been five kisses rated the most passionate."', attr: 'Narrator' },
+        { text: '"We are men of action. Lies do not become us."', attr: 'Westley' },
+      ],
+      emptyQuotes: ['As you wish\u2026 start a session','Inconceivable! No sessions!','Have fun storming the session!','Anybody want a\u2026 session?','Prepare to focus','Death cannot stop true productivity'],
+      idleQuotes: ['As you wish','Inconceivable!','Prepare to die','Have fun storming the castle','I am not left-handed','Anybody want a peanut?','Mawage','You keep using that word'],
+      runningLabels: ['As you wish','Storming the castle','Inconceivable!','Seeking the six-fingered man','Mostly dead','Men of action'],
+      timeTriggers: {420:'Inconceivable!',900:'I am not left-handed',1800:'Have fun storming the castle!',2700:'As you wish',3600:'You survived the Fire Swamp'},
+      easterEggs: [
+        { trigger: 'inigo', quote: { text: '"Hello. My name is Inigo Montoya. You killed my father. Prepare to die."', attr: 'Inigo Montoya' } },
+        { trigger: 'inconceivable', quote: { text: '"You keep using that word. I do not think it means what you think it means."', attr: 'Inigo Montoya' } },
+      ],
+    },
+    dune: {
+      name: 'Dune', aliases: ['dune','arrakis','paul atreides','muad\'dib','spice','fremen','kwisatz haderach'],
+      quotes: [
+        { text: '"Fear is the mind-killer."', attr: 'Bene Gesserit Litany' },
+        { text: '"The spice must flow."', attr: 'Dune' },
+        { text: '"He who controls the spice controls the universe."', attr: 'Baron Harkonnen' },
+        { text: '"I must not fear. Fear is the mind-killer."', attr: 'Paul Atreides' },
+        { text: '"A great man doesn\'t seek to lead. He\'s called to it."', attr: 'Reverend Mother' },
+        { text: '"The mystery of life isn\'t a problem to solve, but a reality to experience."', attr: 'Frank Herbert' },
+        { text: '"Without change something sleeps inside us, and seldom awakens."', attr: 'Duke Leto Atreides' },
+        { text: '"My road leads into the desert. I can see it."', attr: 'Paul Atreides' },
+        { text: '"Deep in the human unconscious is a pervasive need for a logical universe. But the real universe is always one step beyond logic."', attr: 'Frank Herbert' },
+        { text: '"The sleeper must awaken."', attr: 'Duke Leto Atreides' },
+        { text: '"God created Arrakis to train the faithful."', attr: 'Fremen Proverb' },
+        { text: '"There is no escape\u2014we pay for the violence of our ancestors."', attr: 'Frank Herbert' },
+        { text: '"Survival is the ability to swim in strange water."', attr: 'Frank Herbert' },
+        { text: '"What do you despise? By this are you truly known."', attr: 'Frank Herbert' },
+        { text: '"Polish comes from the cities; wisdom from the desert."', attr: 'Fremen Proverb' },
+      ],
+      emptyQuotes: ['The spice must flow\u2026 start a session','Fear is the mind-killer. Procrastination too.','Arrakis awaits your focus','The sleeper must awaken and focus','He who controls the timer controls the day','Wisdom from the desert of productivity'],
+      idleQuotes: ['Fear is the mind-killer','The spice must flow','The sleeper must awaken','Desert power','Muad\'Dib','Arrakis','Without change, something sleeps','Swim in strange water'],
+      runningLabels: ['The spice flows','Fear is the mind-killer','Desert power','Arrakis mode','The sleeper awakens','Fremen focus'],
+      timeTriggers: {420:'The sleeper must awaken',900:'The spice must flow',1800:'Fear is the mind-killer',2700:'Desert power',3600:'The spice has flowed'},
+      easterEggs: [
+        { trigger: 'spice', quote: { text: '"He who controls the spice controls the universe."', attr: 'Baron Harkonnen' } },
+        { trigger: 'fear', quote: { text: '"I must not fear. Fear is the mind-killer. Fear is the little-death that brings total obliteration."', attr: 'Bene Gesserit Litany' } },
+      ],
+    },
+    peakyblinders: {
+      name: 'Peaky Blinders', aliases: ['peaky blinders','tommy shelby','shelby','peaky','birmingham'],
+      quotes: [
+        { text: '"I\'m not a traitor to my class. I am just an extreme example of what a working man can achieve."', attr: 'Tommy Shelby' },
+        { text: '"Everyone\'s a whore, Grace. We just sell different parts of ourselves."', attr: 'Tommy Shelby' },
+        { text: '"Big fucks small."', attr: 'Alfie Solomons' },
+        { text: '"I don\'t pay for suits. My suits are on the house, or the house burns down."', attr: 'Tommy Shelby' },
+        { text: '"By order of the Peaky Blinders."', attr: 'Tommy Shelby' },
+        { text: '"Already broken."', attr: 'Tommy Shelby' },
+        { text: '"There\'s no rest for me in this world. Maybe in the next."', attr: 'Tommy Shelby' },
+        { text: '"In the bleak midwinter."', attr: 'Tommy Shelby' },
+        { text: '"I have made arrangements with men I trust."', attr: 'Tommy Shelby' },
+        { text: '"I nearly got fked by my own brother."', attr: 'Tommy Shelby' },
+        { text: '"Whiskey is good proofing water. It tells you who\'s real and who isn\'t."', attr: 'Tommy Shelby' },
+        { text: '"The one minute. The soldier\'s minute. In a battle, that\'s all you get."', attr: 'Tommy Shelby' },
+        { text: '"A man needs to prove he is better than me. Or I kill him."', attr: 'Luca Changretta' },
+        { text: '"No fighting. No fighting. No fighting."', attr: 'Tommy Shelby' },
+        { text: '"Who the fk is this?"', attr: 'Alfie Solomons' },
+      ],
+      emptyQuotes: ['By order of the Peaky Blinders\u2026 start a session','No rest. No sessions. Start working.','The soldier\'s minute\u2026 begin yours','Already broken? Start a session anyway.','Birmingham steel. Birmingham focus.','Whiskey later. Focus now.'],
+      idleQuotes: ['By order of the Peaky Blinders','Already broken','No rest for me','In the bleak midwinter','The soldier\'s minute','Big fucks small','I don\'t pay for suits','No fighting'],
+      runningLabels: ['By order','Shelby mode','Birmingham steel','Already broken','No rest','The soldier\'s minute'],
+      timeTriggers: {420:'The soldier\'s minute',900:'By order of the Peaky Blinders',1800:'Already broken',2700:'In the bleak midwinter',3600:'No rest, no surrender'},
+      easterEggs: [
+        { trigger: 'shelby', quote: { text: '"By order of the Peaky Blinders."', attr: 'Tommy Shelby' } },
+        { trigger: 'alfie', quote: { text: '"Right, so you are. You\'re a bit mad, aren\'t ya?"', attr: 'Alfie Solomons' } },
+      ],
+    },
+    schittscreek: {
+      name: 'Schitt\'s Creek', aliases: ['schitt\'s creek','schitts creek','david rose','alexis rose','moira rose','johnny rose'],
+      quotes: [
+        { text: '"Ew, David!"', attr: 'Alexis Rose' },
+        { text: '"I\'d kill for a good coma right now."', attr: 'Moira Rose' },
+        { text: '"What you did was impulsive, capricious, and melodramatic. But it was also wrong."', attr: 'Moira Rose' },
+        { text: '"I like the wine and not the label."', attr: 'David Rose' },
+        { text: '"Fold in the cheese."', attr: 'Moira Rose' },
+        { text: '"Love that journey for me."', attr: 'Alexis Rose' },
+        { text: '"Nobody cares, David."', attr: 'Stevie Budd' },
+        { text: '"I have my process!"', attr: 'David Rose' },
+        { text: '"Pick up a hammer and nail this coffin shut."', attr: 'Moira Rose' },
+        { text: '"You are beb\u00e9s."', attr: 'Moira Rose' },
+        { text: '"This is not a natural disaster, David."', attr: 'Alexis Rose' },
+        { text: '"I\'m trying very hard not to connect with people right now."', attr: 'David Rose' },
+        { text: '"I do drink fruit wine. I do."', attr: 'David Rose' },
+        { text: '"Best wishes! Warmest regards."', attr: 'David and Alexis Rose' },
+        { text: '"I could not be more at one with nature. I do Coachella every year."', attr: 'Alexis Rose' },
+      ],
+      emptyQuotes: ['Ew, David! No sessions!','Love that journey\u2026 start a timer','Fold in the\u2026 sessions?','Nobody cares about zero sessions','Best wishes, warmest sessions','You are beb\u00e9s. Now focus.'],
+      idleQuotes: ['Ew, David!','Love that journey for me','Fold in the cheese','Best wishes!','Warmest regards','Nobody cares, David','I have my process!','You are beb\u00e9s'],
+      runningLabels: ['Ew, David!','Love that journey','Rose mode','Folding in cheese','Warmest regards','Beb\u00e9 mode'],
+      timeTriggers: {420:'Ew, David!',900:'Fold in the cheese',1800:'Love that journey for me',2700:'Best wishes!',3600:'Warmest regards'},
+      easterEggs: [
+        { trigger: 'david', quote: { text: '"Ew, David!"', attr: 'Alexis Rose' } },
+        { trigger: 'fold', quote: { text: '"What does that mean? Fold it in."', attr: 'David Rose' } },
+      ],
+    },
+    wednesday: {
+      name: 'Wednesday / Addams Family', aliases: ['wednesday','addams family','addams','morticia','gomez'],
+      quotes: [
+        { text: '"I act as if I don\'t care if people dislike me. Deep down, I secretly enjoy it."', attr: 'Wednesday Addams' },
+        { text: '"I\'m not perky. Perky people make me sick."', attr: 'Wednesday Addams' },
+        { text: '"I didn\'t say I wasn\'t going to help. I just said I\'d enjoy watching you struggle."', attr: 'Wednesday Addams' },
+        { text: '"Woe is the child who is not embraced by the village."', attr: 'Wednesday Addams' },
+        { text: '"Normal is an illusion. What is normal for the spider is chaos for the fly."', attr: 'Morticia Addams' },
+        { text: '"I would die for her. I would kill for her. Either way, what bliss."', attr: 'Gomez Addams' },
+        { text: '"Be afraid. Be very afraid."', attr: 'Wednesday Addams' },
+        { text: '"When the sun shines, we rust."', attr: 'Wednesday Addams' },
+        { text: '"I\'m on a murder of crows appreciation journey."', attr: 'Wednesday Addams' },
+        { text: '"To live without color is to not live at all."', attr: 'Morticia Addams (on black)' },
+        { text: '"I\'m not sure I can be friends with someone who uses emojis."', attr: 'Wednesday Addams' },
+        { text: '"I see the world as a place that needs to be corrected."', attr: 'Wednesday Addams' },
+        { text: '"The only thing that makes me happy is other people\'s pain."', attr: 'Wednesday Addams' },
+        { text: '"Sarcasm is my love language."', attr: 'Wednesday Addams' },
+        { text: '"This is my resting face."', attr: 'Wednesday Addams' },
+      ],
+      emptyQuotes: ['No sessions. How delightfully morbid.','I secretly enjoy watching you procrastinate','The emptiness is\u2026 comforting','Normal people have sessions. Do you?','Be afraid of zero sessions','This void pleases me. Start a timer.'],
+      idleQuotes: ['This is my resting face','Sarcasm is my love language','Be afraid','Normal is an illusion','I secretly enjoy this','When the sun shines, we rust','No emojis','The world needs correcting'],
+      runningLabels: ['Delightfully morbid','Resting face mode','Normal is an illusion','Correcting the world','Woe is me','Sarcasm mode'],
+      timeTriggers: {420:'Normal is an illusion',900:'Be afraid. Be very afraid.',1800:'I secretly enjoy this',2700:'When the sun shines, we rust',3600:'Even I\'m impressed'},
+      easterEggs: [
+        { trigger: 'thing', quote: { text: '"Thing, I need you."', attr: 'Wednesday Addams' } },
+        { trigger: 'snap', quote: { text: '"*snaps twice*"', attr: 'The Addams Family' } },
+      ],
+    },
+    anchorman: {
+      name: 'Anchorman', aliases: ['anchorman','ron burgundy','stay classy','will ferrell anchorman'],
+      quotes: [
+        { text: '"I\'m kind of a big deal."', attr: 'Ron Burgundy' },
+        { text: '"Stay classy, San Diego."', attr: 'Ron Burgundy' },
+        { text: '"60% of the time, it works every time."', attr: 'Brian Fantana' },
+        { text: '"I love lamp."', attr: 'Brick Tamland' },
+        { text: '"Don\'t act like you\'re not impressed."', attr: 'Ron Burgundy' },
+        { text: '"I\'m in a glass case of emotion!"', attr: 'Ron Burgundy' },
+        { text: '"Boy, that escalated quickly."', attr: 'Ron Burgundy' },
+        { text: '"It\'s so damn hot. Milk was a bad choice."', attr: 'Ron Burgundy' },
+        { text: '"I immediately regret this decision."', attr: 'Ron Burgundy' },
+        { text: '"I\'m Ron Burgundy?"', attr: 'Ron Burgundy' },
+        { text: '"You know I don\'t speak Spanish."', attr: 'Ron Burgundy' },
+        { text: '"Knights of Columbus, that hurt."', attr: 'Ron Burgundy' },
+        { text: '"It\'s anchorMAN, not anchorLADY."', attr: 'Ron Burgundy' },
+        { text: '"I have many leather-bound books and my apartment smells of rich mahogany."', attr: 'Ron Burgundy' },
+        { text: '"Discovered by the Germans in 1904, they named it San Diego, which of course in German means a whale\'s vagina."', attr: 'Ron Burgundy' },
+      ],
+      emptyQuotes: ['I\'m kind of a big deal\u2026 with no sessions','Stay classy and start a timer','60% of the time, it works every time','I love lamp. I love sessions.','That escalated quickly\u2026 start working','Glass case of emotion! No sessions!'],
+      idleQuotes: ['Stay classy','I\'m kind of a big deal','I love lamp','60% of the time','That escalated quickly','Milk was a bad choice','Glass case of emotion','Don\'t act unimpressed'],
+      runningLabels: ['Staying classy','Kind of a big deal','I love lamp','Burgundy mode','60% of the time','Rich mahogany'],
+      timeTriggers: {420:'I love lamp',900:'Stay classy',1800:'60% of the time, it works every time',2700:'Kind of a big deal',3600:'That escalated perfectly'},
+      easterEggs: [
+        { trigger: 'lamp', quote: { text: '"I love lamp."', attr: 'Brick Tamland' } },
+        { trigger: 'classy', quote: { text: '"Stay classy, San Diego."', attr: 'Ron Burgundy' } },
+      ],
+    },
+    thetown: {
+      name: 'The Town', aliases: ['the town','charlestown','ben affleck town','doug macray'],
+      quotes: [
+        { text: '"I need your help. I can\'t tell you what it is, you can never ask me about it later, and we\'re gonna hurt some people."', attr: 'Doug MacRay' },
+        { text: '"No matter how much you change, you still have to pay the price for the things you\'ve done."', attr: 'Doug MacRay' },
+        { text: '"Whose car are we gonna take?"', attr: 'Jem Coughlin' },
+        { text: '"I\'m putting this whole town in my rearview."', attr: 'Doug MacRay' },
+        { text: '"This is what happens when you grow up in Charlestown."', attr: 'Doug MacRay' },
+        { text: '"You wanna see what a man\'s made of? See how he acts when he loses."', attr: 'Doug MacRay' },
+        { text: '"Every day I wake up and think about you."', attr: 'Doug MacRay' },
+        { text: '"We grew up together. I\'m gonna die with you."', attr: 'Jem Coughlin' },
+        { text: '"The enemy of my enemy\u2026 is my enemy."', attr: 'Fergie Colm' },
+        { text: '"This is Charlestown. Boston\'s one-square-mile neighborhood."', attr: 'Narrator' },
+        { text: '"I don\'t want to die young in this town."', attr: 'Doug MacRay' },
+        { text: '"It took me 29 years to get out of Charlestown."', attr: 'Doug MacRay' },
+        { text: '"You\'re not behind a desk with a badge. You\'re on the streets."', attr: 'Jem Coughlin' },
+        { text: '"People get hurt. Accidents happen."', attr: 'Fergie Colm' },
+        { text: '"I got nothing left to lose."', attr: 'Doug MacRay' },
+      ],
+      emptyQuotes: ['Whose car are we gonna take\u2026 to productivity?','No sessions. Charlestown is watching.','Every day I wake up and think about focusing','Put procrastination in your rearview','Nothing left to lose. Start a session.','This is what happens when you don\'t focus'],
+      idleQuotes: ['Whose car we taking?','Charlestown mode','Nothing left to lose','Put it in the rearview','Every day I wake up','This is Charlestown','No matter how much you change','See how he acts'],
+      runningLabels: ['Charlestown mode','Nothing to lose','In the rearview','On the streets','Taking the car','Making moves'],
+      timeTriggers: {420:'Whose car we taking?',900:'Nothing left to lose',1800:'Putting it in the rearview',2700:'Almost out of Charlestown',3600:'You made it out'},
+      easterEggs: [
+        { trigger: 'charlestown', quote: { text: '"I need your help. I can\'t tell you what it is."', attr: 'Doug MacRay' } },
+      ],
+    },
+    heat: {
+      name: 'Heat', aliases: ['heat','neil mccauley','vincent hanna','michael mann heat','de niro pacino'],
+      quotes: [
+        { text: '"Don\'t let yourself get attached to anything you are not willing to walk out on in 30 seconds flat."', attr: 'Neil McCauley' },
+        { text: '"I am double the worst trouble you ever had."', attr: 'Vincent Hanna' },
+        { text: '"A guy told me one time, \'Don\'t let yourself get attached to anything.\'"', attr: 'Neil McCauley' },
+        { text: '"The action is the juice."', attr: 'Vincent Hanna' },
+        { text: '"That\'s exactly what it is. It\'s a great spot."', attr: 'Neil McCauley' },
+        { text: '"Brother, you are going down."', attr: 'Vincent Hanna' },
+        { text: '"I do what I do best. I take scores."', attr: 'Neil McCauley' },
+        { text: '"Sometimes you just gotta say, forget everything else."', attr: 'Vincent Hanna' },
+        { text: '"All I am is what I\'m going after."', attr: 'Vincent Hanna' },
+        { text: '"I had coffee with McCauley half an hour ago."', attr: 'Vincent Hanna' },
+        { text: '"Told you I\'m never going back."', attr: 'Neil McCauley' },
+        { text: '"You do what you do. I do what I gotta do."', attr: 'Neil McCauley' },
+        { text: '"The sun just came up and we\'re already behind."', attr: 'Vincent Hanna' },
+        { text: '"Maybe we should both just keep walkin\'."', attr: 'Neil McCauley' },
+        { text: '"Time is luck."', attr: 'Neil McCauley' },
+      ],
+      emptyQuotes: ['The action is the juice\u2026 start a session','30 seconds flat\u2026 or just start a timer','Time is luck. Don\'t waste it.','All I am is what I\'m going after','Don\'t get attached to zero sessions','I take scores. You take sessions.'],
+      idleQuotes: ['The action is the juice','Time is luck','30 seconds flat','I take scores','Never going back','All I am is what I\'m after','Keep walkin\'','The sun just came up'],
+      runningLabels: ['The action is the juice','Taking scores','30 seconds flat','McCauley mode','Time is luck','Never going back'],
+      timeTriggers: {420:'The action is the juice',900:'Time is luck',1800:'All I am is what I\'m after',2700:'Never going back',3600:'Score complete'},
+      easterEggs: [
+        { trigger: 'mccauley', quote: { text: '"Don\'t let yourself get attached to anything you are not willing to walk out on in 30 seconds flat."', attr: 'Neil McCauley' } },
+      ],
+    },
+    hangover: {
+      name: 'The Hangover', aliases: ['hangover','the hangover','wolfpack','alan','zach galifianakis hangover','mr chow'],
+      quotes: [
+        { text: '"What happens in Vegas stays in Vegas. Except herpes. That shit\'ll come back with you."', attr: 'Phil' },
+        { text: '"We\'re the three best friends that anyone could have."', attr: 'Alan' },
+        { text: '"Tigers love pepper. They hate cinnamon."', attr: 'Alan' },
+        { text: '"It\'s not a purse. It\'s a satchel."', attr: 'Alan' },
+        { text: '"But did you die?"', attr: 'Mr. Chow' },
+        { text: '"You are literally too stupid to insult."', attr: 'Alan' },
+        { text: '"I\'m a one-man wolfpack."', attr: 'Alan' },
+        { text: '"What do tigers dream of when they take a little tiger snooze?"', attr: 'Alan' },
+        { text: '"I don\'t think you should be doing too much of anything."', attr: 'Stu' },
+        { text: '"Would you please put some pants on? I feel weird having to ask you twice."', attr: 'Phil' },
+        { text: '"Paging Dr. Faggot."', attr: 'Alan' },
+        { text: '"Rain Man. He practically ran a casino."', attr: 'Alan' },
+        { text: '"Remember, what happens in Vegas stays in Vegas."', attr: 'Phil' },
+        { text: '"It\'s the weekend! We should be partying!"', attr: 'Phil' },
+        { text: '"I tend to think of myself as a one-man wolfpack."', attr: 'Alan' },
+      ],
+      emptyQuotes: ['But did you die? No. Start a session.','One-man wolfpack needs a session','Tigers love pepper\u2026 and productivity','What happens in Vegas\u2026 but focus here','We\'re the three best sessions','It\'s not a purse, it\'s a timer'],
+      idleQuotes: ['But did you die?','One-man wolfpack','Tigers love pepper','It\'s a satchel!','What happens in Vegas','Too stupid to insult','Rain Man mode','We\'re the three best friends'],
+      runningLabels: ['Wolfpack mode','But did you die?','Not a purse','Tigers love pepper','Vegas baby','Rain Man mode'],
+      timeTriggers: {420:'Tigers love pepper',900:'One-man wolfpack',1800:'But did you die?',2700:'What happens in Vegas',3600:'The wolfpack survives'},
+      easterEggs: [
+        { trigger: 'wolfpack', quote: { text: '"I\'m a one-man wolfpack."', attr: 'Alan' } },
+        { trigger: 'chow', quote: { text: '"But did you die?"', attr: 'Mr. Chow' } },
+      ],
+    },
+    moneyball: {
+      name: 'Moneyball', aliases: ['moneyball','billy beane','oakland','brad pitt moneyball','sabermetrics'],
+      quotes: [
+        { text: '"Adapt or die."', attr: 'Billy Beane' },
+        { text: '"It\'s hard not to be romantic about baseball."', attr: 'Billy Beane' },
+        { text: '"If he\'s a good hitter, why doesn\'t he hit good?"', attr: 'Billy Beane' },
+        { text: '"The first one through the wall always gets bloody."', attr: 'Billy Beane' },
+        { text: '"People are always gonna try to tell you how things have always been done."', attr: 'Billy Beane' },
+        { text: '"We\'re not trying to buy players. We\'re trying to buy wins."', attr: 'Billy Beane' },
+        { text: '"I pay you to get on first, not get thrown out at second."', attr: 'Billy Beane' },
+        { text: '"Your goal shouldn\'t be to buy players. Your goal should be to buy wins."', attr: 'Billy Beane' },
+        { text: '"Would you rather get one shot in the head or five in the chest and bleed to death?"', attr: 'Billy Beane' },
+        { text: '"It\'s a process. It\'s a process."', attr: 'Billy Beane' },
+        { text: '"How can you not be romantic about baseball?"', attr: 'Billy Beane' },
+        { text: '"Anyone who\'s not building a team right and rebuilding it right is dinosaurs."', attr: 'Billy Beane' },
+        { text: '"You\'re not solving the problem. You\'re not even looking at the problem."', attr: 'Peter Brand' },
+        { text: '"There are rich teams, and there are poor teams. Then there\'s 50 feet of crap. And then there\'s us."', attr: 'Billy Beane' },
+        { text: '"He gets on base."', attr: 'Peter Brand' },
+      ],
+      emptyQuotes: ['Adapt or die\u2026 start a session','It\'s a process. Start the process.','You\'re not solving the problem\u2026 yet','He gets on base. You get on timer.','50 feet of crap, then a session','How can you not be romantic about focus?'],
+      idleQuotes: ['Adapt or die','It\'s a process','He gets on base','Buy wins, not players','The first through the wall','50 feet of crap','Look at the problem','Hard not to be romantic'],
+      runningLabels: ['Adapt or die','The process','Getting on base','Buying wins','Sabermetrics','Oakland mode'],
+      timeTriggers: {420:'It\'s a process',900:'The first through the wall gets bloody',1800:'Adapt or die',2700:'He gets on base',3600:'You bought the win'},
+      easterEggs: [
+        { trigger: 'beane', quote: { text: '"How can you not be romantic about baseball?"', attr: 'Billy Beane' } },
+      ],
+    },
+    socialnetwork: {
+      name: 'The Social Network', aliases: ['social network','the social network','zuckerberg','facebook','mark zuckerberg','eduardo'],
+      quotes: [
+        { text: '"A million dollars isn\'t cool. You know what\'s cool? A billion dollars."', attr: 'Sean Parker' },
+        { text: '"You don\'t get to 500 million friends without making a few enemies."', attr: 'Tagline' },
+        { text: '"I\'m CEO, bitch."', attr: 'Mark Zuckerberg' },
+        { text: '"If you guys were the inventors of Facebook, you\'d have invented Facebook."', attr: 'Mark Zuckerberg' },
+        { text: '"People don\'t walk around with a sign that says what they want."', attr: 'Sean Parker' },
+        { text: '"You\'re not an asshole, Mark. You\'re just trying so hard to be."', attr: 'Erica Albright' },
+        { text: '"This is our time."', attr: 'Mark Zuckerberg' },
+        { text: '"Drop the \'the.\' Just Facebook. It\'s cleaner."', attr: 'Sean Parker' },
+        { text: '"As if every thought that tumbles through your head was so clever it would be a crime for it not to be shared."', attr: 'Erica Albright' },
+        { text: '"The internet\'s not written in pencil, Mark. It\'s written in ink."', attr: 'Erica Albright' },
+        { text: '"We lived on farms, then we lived in cities, and now we\'re gonna live on the internet."', attr: 'Sean Parker' },
+        { text: '"I went to a party in a limo and I left in a taxi."', attr: 'Eduardo Saverin' },
+        { text: '"You set one thing up, and it can change the world."', attr: 'Mark Zuckerberg' },
+        { text: '"We don\'t even know what it is yet. We don\'t know what it can be."', attr: 'Mark Zuckerberg' },
+        { text: '"Let me tell you the difference between Facebook and everyone else\u2026 we don\'t crash. Ever."', attr: 'Mark Zuckerberg' },
+      ],
+      emptyQuotes: ['A billion sessions would be cool','Drop the procrastination. It\'s cleaner.','You don\'t get to 500 million without starting','This is our time\u2026 start a session','Written in ink\u2026 start a timer','We don\'t crash. We focus.'],
+      idleQuotes: ['A billion dollars','Drop the "the"','I\'m CEO','This is our time','Written in ink','We don\'t crash','500 million friends','It\'s cleaner'],
+      runningLabels: ['CEO mode','Move fast','This is our time','Disrupting','Changing the world','We don\'t crash'],
+      timeTriggers: {420:'This is our time',900:'Drop the "the." It\'s cleaner.',1800:'A billion sessions',2700:'We don\'t crash',3600:'You changed the world'},
+      easterEggs: [
+        { trigger: 'facebook', quote: { text: '"Drop the \'the.\' Just Facebook. It\'s cleaner."', attr: 'Sean Parker' } },
+        { trigger: 'billion', quote: { text: '"A million dollars isn\'t cool. You know what\'s cool? A billion dollars."', attr: 'Sean Parker' } },
+      ],
+    },
+    devilwearsprada: {
+      name: 'The Devil Wears Prada', aliases: ['devil wears prada','the devil wears prada','miranda priestly','andy sachs','runway','meryl streep prada'],
+      quotes: [
+        { text: '"That\'s all."', attr: 'Miranda Priestly' },
+        { text: '"Florals? For spring? Groundbreaking."', attr: 'Miranda Priestly' },
+        { text: '"I\'m just one stomach flu away from my goal weight."', attr: 'Emily Charlton' },
+        { text: '"By all means, move at a glacial pace. You know how that thrills me."', attr: 'Miranda Priestly' },
+        { text: '"Details of your incompetence do not interest me."', attr: 'Miranda Priestly' },
+        { text: '"I see, you think this has nothing to do with you."', attr: 'Miranda Priestly' },
+        { text: '"Is there some reason my coffee isn\'t here? Has she died or something?"', attr: 'Miranda Priestly' },
+        { text: '"You have no sense of fashion."', attr: 'Emily Charlton' },
+        { text: '"This is what happens when you don\'t have taste."', attr: 'Miranda Priestly' },
+        { text: '"I\'m hearing this, and I want to hear this."', attr: 'Miranda Priestly' },
+        { text: '"Don\'t bore me."', attr: 'Miranda Priestly' },
+        { text: '"Everyone wants to be us."', attr: 'Miranda Priestly' },
+        { text: '"Wake up, six. It\'s not like you were doing anything important."', attr: 'Emily Charlton' },
+        { text: '"You sold your soul the first time you put on those Jimmy Choos."', attr: 'Nigel' },
+        { text: '"You have no style or sense of fashion."', attr: 'Emily Charlton' },
+      ],
+      emptyQuotes: ['By all means, move at a glacial pace','Details of your incompetence do not interest me','That\'s all\u2026 no sessions','Florals? For spring? No sessions? Groundbreaking.','Everyone wants sessions\u2026 you have none','Is there some reason my session isn\'t here?'],
+      idleQuotes: ['That\'s all.','Groundbreaking.','Move at a glacial pace','Details don\'t interest me','Everyone wants to be us','Don\'t bore me','Has she died?','Wake up, six'],
+      runningLabels: ['That\'s all','Runway mode','Groundbreaking','Don\'t bore me','Miranda mode','Everyone wants to be us'],
+      timeTriggers: {420:'Groundbreaking.',900:'By all means, at a glacial pace',1800:'Details don\'t interest me',2700:'Everyone wants to be us',3600:'That\'s all.'},
+      easterEggs: [
+        { trigger: 'miranda', quote: { text: '"By all means, move at a glacial pace. You know how that thrills me."', attr: 'Miranda Priestly' } },
+        { trigger: 'prada', quote: { text: '"Florals? For spring? Groundbreaking."', attr: 'Miranda Priestly' } },
+      ],
+    },
+    departed: {
+      name: 'The Departed', aliases: ['the departed','departed','colin sullivan','billy costigan','jack nicholson departed','scorsese departed'],
+      quotes: [
+        { text: '"I don\'t want to be a product of my environment. I want my environment to be a product of me."', attr: 'Frank Costello' },
+        { text: '"When you decide to be something, you can be it."', attr: 'Frank Costello' },
+        { text: '"I\'m the guy who does his job. You must be the other guy."', attr: 'Dignam' },
+        { text: '"What Freud said about the Irish is\u2026 we\'re the only people who are impervious to psychoanalysis."', attr: 'Billy Costigan' },
+        { text: '"Maybe. Maybe not. Maybe go f*ck yourself."', attr: 'Dignam' },
+        { text: '"You can become cops or criminals. Today what I\'m saying to you is this: when you\'re facing a loaded gun, what\'s the difference?"', attr: 'Frank Costello' },
+        { text: '"Heavy lies the crown."', attr: 'Frank Costello' },
+        { text: '"Nobody gives it to you. You have to take it."', attr: 'Frank Costello' },
+        { text: '"This job is not about romance. It\'s about results."', attr: 'Colin Sullivan' },
+        { text: '"One of us had to die. With me, it tends to be the other guy."', attr: 'Frank Costello' },
+        { text: '"Families are always rising and falling in America."', attr: 'Frank Costello' },
+        { text: '"I gotta find myself."', attr: 'Billy Costigan' },
+        { text: '"Two kinds of people in this world: those who point guns, and those who dig."', attr: 'Frank Costello' },
+        { text: '"Go save a kitten in a tree, you f*cking homo."', attr: 'Dignam' },
+        { text: '"Act accordingly."', attr: 'Frank Costello' },
+      ],
+      emptyQuotes: ['Nobody gives it to you\u2026 start a session','The guy who does his job\u2026 that\'s you','When you decide to be something, be it','I\'m the other guy\u2026 start a timer','Act accordingly. Start focusing.','Environment: product of your sessions'],
+      idleQuotes: ['I\'m the guy who does his job','Nobody gives it to you','Act accordingly','Heavy lies the crown','About results, not romance','When you decide to be something','You have to take it','Maybe go f yourself'],
+      runningLabels: ['Doing my job','Taking it','Acting accordingly','Costello mode','About results','Heavy crown'],
+      timeTriggers: {420:'Nobody gives it to you',900:'I\'m the guy who does his job',1800:'Heavy lies the crown',2700:'Act accordingly',3600:'You took it'},
+      easterEggs: [
+        { trigger: 'dignam', quote: { text: '"Maybe. Maybe not. Maybe go f*ck yourself."', attr: 'Dignam' } },
+        { trigger: 'costello', quote: { text: '"I don\'t want to be a product of my environment."', attr: 'Frank Costello' } },
+      ],
+    },
+    rocky: {
+      name: 'Rocky', aliases: ['rocky','rocky balboa','stallone','apollo creed','ivan drago','creed'],
+      quotes: [
+        { text: '"It ain\'t about how hard you hit. It\'s about how hard you can get hit and keep moving forward."', attr: 'Rocky Balboa' },
+        { text: '"Yo, Adrian!"', attr: 'Rocky Balboa' },
+        { text: '"Every champion was once a contender that refused to give up."', attr: 'Rocky Balboa' },
+        { text: '"Going the distance."', attr: 'Rocky' },
+        { text: '"The world ain\'t all sunshine and rainbows."', attr: 'Rocky Balboa' },
+        { text: '"Nobody is gonna hit as hard as life."', attr: 'Rocky Balboa' },
+        { text: '"I\'m gonna fly now."', attr: 'Rocky Balboa' },
+        { text: '"You\'re gonna eat lightning and crap thunder."', attr: 'Mickey Goldmill' },
+        { text: '"I must break you."', attr: 'Ivan Drago' },
+        { text: '"It ain\'t over till it\'s over."', attr: 'Rocky Balboa' },
+        { text: '"Win. WIN!"', attr: 'Rocky III' },
+        { text: '"Get up, you son of a bitch. \'Cause Mickey loves ya."', attr: 'Mickey Goldmill' },
+        { text: '"That\'s how winning is done."', attr: 'Rocky Balboa' },
+        { text: '"One step at a time. One punch at a time. One round at a time."', attr: 'Rocky Balboa' },
+        { text: '"I didn\'t hear no bell."', attr: 'Rocky Balboa' },
+      ],
+      emptyQuotes: ['Every champion starts with one session','No sessions. Get up and fight!','Yo, Adrian\u2026 I need a session!','Going the distance starts now','It ain\'t over till it\'s over','One round at a time. Start round one.'],
+      idleQuotes: ['Keep moving forward','Yo, Adrian!','Going the distance','I didn\'t hear no bell','Fly now','One round at a time','Eye of the tiger','That\'s how winning is done'],
+      runningLabels: ['Going the distance','Eye of the tiger','Keep moving forward','Rocky mode','Fly now','One round at a time'],
+      timeTriggers: {420:'Gonna fly now',900:'Eye of the tiger',1800:'Going the distance',2700:'I didn\'t hear no bell',3600:'You went the distance'},
+      easterEggs: [
+        { trigger: 'adrian', quote: { text: '"Yo, Adrian, I did it!"', attr: 'Rocky Balboa' } },
+        { trigger: 'drago', quote: { text: '"I must break you."', attr: 'Ivan Drago' } },
+      ],
+    },
+    jaws: {
+      name: 'Jaws', aliases: ['jaws','quint','brody','amity island','shark','spielberg jaws'],
+      quotes: [
+        { text: '"You\'re gonna need a bigger boat."', attr: 'Chief Brody' },
+        { text: '"Here\'s to swimmin\' with bow-legged women."', attr: 'Quint' },
+        { text: '"Don\'t go in the water."', attr: 'Jaws Tagline' },
+        { text: '"This was no boating accident."', attr: 'Chief Brody' },
+        { text: '"Smile, you son of a bitch."', attr: 'Chief Brody' },
+        { text: '"I\'m not going to stand here and see that thing cut open and see that little Kintner boy spill out all over the dock."', attr: 'Mrs. Kintner' },
+        { text: '"Farewell and adieu to you, fair Spanish ladies."', attr: 'Quint' },
+        { text: '"I think we\'re gonna need a bigger boat."', attr: 'Chief Brody' },
+        { text: '"You yell barracuda, everybody says \'huh?\' You yell shark, we\'ve got a panic on our hands."', attr: 'Mayor Vaughn' },
+        { text: '"I got no spit."', attr: 'Chief Brody' },
+        { text: '"What we are dealing with here is a perfect engine. An eating machine."', attr: 'Hooper' },
+        { text: '"Eleven hundred men went into the water. Three hundred and sixteen men come out."', attr: 'Quint' },
+        { text: '"Sometimes that shark, he looks right into ya."', attr: 'Quint' },
+        { text: '"The thing about a shark, it\'s got lifeless eyes, black eyes, like a doll\'s eyes."', attr: 'Quint' },
+        { text: '"That\'s some bad hat, Harry."', attr: 'Chief Brody' },
+      ],
+      emptyQuotes: ['You\'re gonna need a bigger session','Don\'t go in the water\u2026 go to the timer','This was no productivity accident','Smile, you son of a session','A perfect eating\u2026 er, focusing machine','Amity Island needs your focus'],
+      idleQuotes: ['Bigger boat','Don\'t go in the water','Smile, you son of a\u2026','A perfect machine','Black eyes, like a doll\'s','Here\'s to swimmin\'','Bad hat, Harry','Farewell and adieu'],
+      runningLabels: ['Bigger boat needed','Shark mode','Swimming','Amity Island','Perfect machine','Hunting the shark'],
+      timeTriggers: {420:'Here\'s to swimmin\'',900:'This was no accident',1800:'A perfect engine',2700:'Smile, you son of a bitch',3600:'You\'re gonna need a bigger trophy'},
+      easterEggs: [
+        { trigger: 'shark', quote: { text: '"Sometimes that shark, he looks right into ya. Right into your eyes."', attr: 'Quint' } },
+        { trigger: 'boat', quote: { text: '"You\'re gonna need a bigger boat."', attr: 'Chief Brody' } },
+      ],
+    },
+  };
 
-  // Empty state quotes (rotate each load)
-  const emptyQuotes = [
-    'The game is afoot\u2026 start a session',
-    'The needle awaits the haystack',
-    'No data yet. Even Holmes needs evidence.',
-    'Begin your deductions',
-    '221B reasons to start focusing',
-    'The dog did nothing\u2026 curious, isn\u2019t it?',
-  ];
-
-  // Short quotes for the status label
-  const idleQuotes = [
-    'The game is afoot',
-    'Elementary, my dear Watson',
-    'Give me problems, give me work',
-    'The work is its own reward',
-    'You see, but you do not observe',
-    'Data! Data! Data!',
-    'Every puzzle has an answer',
-    'My mind rebels at stagnation',
-  ];
+  // Active theme variables (mutable)
+  let activeThemeKey = 'sherlock';
+  let activeQuotes = QUOTE_THEMES.sherlock.quotes;
+  let activeEmptyQuotes = QUOTE_THEMES.sherlock.emptyQuotes;
+  let activeIdleQuotes = QUOTE_THEMES.sherlock.idleQuotes;
+  let activeRunningLabels = QUOTE_THEMES.sherlock.runningLabels;
+  let activeTimeTriggers = QUOTE_THEMES.sherlock.timeTriggers;
+  let activeEasterEggs = QUOTE_THEMES.sherlock.easterEggs;
 
   function getRandomIdleQuote() {
-    return idleQuotes[Math.floor(Math.random() * idleQuotes.length)];
+    return activeIdleQuotes[Math.floor(Math.random() * activeIdleQuotes.length)];
   }
 
   function getRandomQuote() {
-    return quotes[Math.floor(Math.random() * quotes.length)];
+    return activeQuotes[Math.floor(Math.random() * activeQuotes.length)];
   }
 
   function showQuoteOverlay(q) {
@@ -1397,47 +2447,22 @@
     quoteOverlay.classList.remove('visible');
   });
 
-  // Easter egg 1: Type "221b" anywhere to trigger quote
+  // Easter egg 1: Type keywords anywhere to trigger themed quotes
   let secretBuffer = '';
   document.addEventListener('keydown', (e) => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
     secretBuffer += e.key.toLowerCase();
     if (secretBuffer.length > 20) secretBuffer = secretBuffer.slice(-20);
 
-    if (secretBuffer.includes('221b')) {
-      secretBuffer = '';
-      document.documentElement.classList.toggle('baker-street-mode');
-      showQuoteOverlay({
-        text: '"You know my methods, Watson."',
-        attr: '221B Baker Street'
-      });
-    }
-
-    // Easter egg: Type "watson" for a quote
-    if (secretBuffer.includes('watson')) {
-      secretBuffer = '';
-      showQuoteOverlay({
-        text: '"I am lost without my Boswell."',
-        attr: 'A Scandal in Bohemia'
-      });
-    }
-
-    // Easter egg: Type "silver" (Silver Blaze)
-    if (secretBuffer.includes('silver')) {
-      secretBuffer = '';
-      showQuoteOverlay({
-        text: '"The dog did nothing in the night-time." "That was the curious incident."',
-        attr: 'Silver Blaze'
-      });
-    }
-
-    // Easter egg: Type "moriarty"
-    if (secretBuffer.includes('moriarty')) {
-      secretBuffer = '';
-      showQuoteOverlay({
-        text: '"The Napoleon of crime, Watson."',
-        attr: 'The Final Problem'
-      });
+    for (const egg of activeEasterEggs) {
+      if (secretBuffer.includes(egg.trigger)) {
+        secretBuffer = '';
+        if (egg.special === 'baker-street') {
+          document.documentElement.classList.toggle('baker-street-mode');
+        }
+        showQuoteOverlay(egg.quote);
+        break;
+      }
     }
   });
 
@@ -1459,28 +2484,7 @@
     }
   });
 
-  // Easter egg 3: Special status text when running
-  const runningLabels = [
-    'The game is afoot',
-    'Focusing',
-    'Deducing',
-    'Observing',
-    'On the case',
-    'The dog is silent',
-  ];
-
   // (Easter eggs patched below via cloneNode)
-
-  // Easter egg 4: Time-based title Easter eggs
-  const timeTriggers = {
-    420: 'The Seven Percent Solution',   // 7 minutes
-    1021: 'A Study in Scarlet',          // ~17 min (1887 publication)
-    1260: 'The Sign of the Four',        // 21 minutes
-    1800: 'The Halfway Mark, Watson',    // 30 min
-    2210: '221B Baker Street',           // 22:10 on the clock = 22m10s, close to 221
-    2700: 'The dog did nothing',         // 45 min — Silver Blaze
-    3600: 'The Final Problem',           // full hour
-  };
 
   // Override tick to check for time triggers
   function tick() {
@@ -1490,12 +2494,8 @@
 
     // Check time-based Easter eggs (only trigger once per second crossed)
     for (let s = prev + 1; s <= elapsed; s++) {
-      if (timeTriggers[s]) {
-        statusLabel.textContent = timeTriggers[s];
-        statusLabel.className = 'time-label running-label';
-      }
-      if (s === 141) {
-        statusLabel.textContent = '2:21 \u2014 Baker St.';
+      if (activeTimeTriggers[s]) {
+        statusLabel.textContent = activeTimeTriggers[s];
         statusLabel.className = 'time-label running-label';
       }
     }
@@ -1530,7 +2530,7 @@
       startTime = Date.now();
       btnTextNew.textContent = 'Pause';
       playIconNew.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-      statusLabel.textContent = runningLabels[Math.floor(Math.random() * runningLabels.length)];
+      statusLabel.textContent = activeRunningLabels[Math.floor(Math.random() * activeRunningLabels.length)];
       statusLabel.className = 'time-label running-label';
       timerBody.classList.add('running');
       timerWrap.classList.add('active');
@@ -1588,7 +2588,7 @@
     sessionList.innerHTML = '';
 
     if (todaySessions.length === 0) {
-      const randomEmpty = emptyQuotes[Math.floor(Math.random() * emptyQuotes.length)];
+      const randomEmpty = activeEmptyQuotes[Math.floor(Math.random() * activeEmptyQuotes.length)];
       sessionList.innerHTML = '<li class="empty-state">' + randomEmpty + '</li>';
       sessionCount.textContent = '';
     } else {
@@ -1826,7 +2826,132 @@
     }
   });
 
-  // Init
+  // ── Theme Switcher ──────────────────────────────────
+  const themeInput = document.getElementById('themeInput');
+  const themeSuggestions = document.getElementById('themeSuggestions');
+  const themeClear = document.getElementById('themeClear');
+
+  function switchTheme(key) {
+    const theme = QUOTE_THEMES[key];
+    if (!theme) return;
+    activeThemeKey = key;
+    activeQuotes = theme.quotes;
+    activeEmptyQuotes = theme.emptyQuotes;
+    activeIdleQuotes = theme.idleQuotes;
+    activeRunningLabels = theme.runningLabels;
+    activeTimeTriggers = theme.timeTriggers;
+    activeEasterEggs = theme.easterEggs;
+    localStorage.setItem('et_quote_theme', key);
+
+    // Update UI
+    themeInput.value = theme.name;
+    themeInput.placeholder = 'Want something other than ' + theme.name + '?';
+    themeClear.style.display = key === 'sherlock' ? 'none' : 'block';
+
+    // Refresh visible quotes
+    if (!running) {
+      statusLabel.textContent = getRandomIdleQuote();
+    }
+    renderSessions();
+  }
+
+  function findThemes(input) {
+    const q = input.toLowerCase().trim();
+    if (!q) return [];
+    const results = [];
+    for (const [key, theme] of Object.entries(QUOTE_THEMES)) {
+      const name = theme.name.toLowerCase();
+      if (name.includes(q) || theme.aliases.some(a => a.includes(q))) {
+        results.push({ key, name: theme.name, score: name.startsWith(q) ? 0 : 1 });
+      }
+    }
+    results.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+    return results.slice(0, 8);
+  }
+
+  let activeSuggestionIdx = -1;
+
+  function renderSuggestions(matches) {
+    if (matches.length === 0) {
+      themeSuggestions.classList.remove('open');
+      themeSuggestions.innerHTML = '';
+      activeSuggestionIdx = -1;
+      return;
+    }
+    activeSuggestionIdx = -1;
+    themeSuggestions.innerHTML = matches.map((m, i) =>
+      '<li class="theme-suggestion-item" data-key="' + m.key + '">' + m.name + '</li>'
+    ).join('');
+    themeSuggestions.classList.add('open');
+
+    themeSuggestions.querySelectorAll('.theme-suggestion-item').forEach(item => {
+      item.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        switchTheme(item.dataset.key);
+        themeSuggestions.classList.remove('open');
+        themeInput.blur();
+      });
+    });
+  }
+
+  themeInput.addEventListener('input', () => {
+    const val = themeInput.value;
+    if (!val.trim()) {
+      themeSuggestions.classList.remove('open');
+      return;
+    }
+    renderSuggestions(findThemes(val));
+  });
+
+  themeInput.addEventListener('focus', () => {
+    themeInput.select();
+    if (themeInput.value.trim()) {
+      renderSuggestions(findThemes(themeInput.value));
+    }
+  });
+
+  themeInput.addEventListener('blur', () => {
+    setTimeout(() => themeSuggestions.classList.remove('open'), 150);
+  });
+
+  themeInput.addEventListener('keydown', (e) => {
+    const items = themeSuggestions.querySelectorAll('.theme-suggestion-item');
+    if (!items.length) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeSuggestionIdx = Math.min(activeSuggestionIdx + 1, items.length - 1);
+      items.forEach((it, i) => it.classList.toggle('active', i === activeSuggestionIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeSuggestionIdx = Math.max(activeSuggestionIdx - 1, 0);
+      items.forEach((it, i) => it.classList.toggle('active', i === activeSuggestionIdx));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeSuggestionIdx >= 0 && items[activeSuggestionIdx]) {
+        switchTheme(items[activeSuggestionIdx].dataset.key);
+        themeSuggestions.classList.remove('open');
+        themeInput.blur();
+      }
+    } else if (e.key === 'Escape') {
+      themeSuggestions.classList.remove('open');
+      themeInput.blur();
+    }
+  });
+
+  themeClear.addEventListener('click', () => {
+    switchTheme('sherlock');
+    themeInput.value = '';
+    themeInput.placeholder = 'Want something other than Sherlock Holmes?';
+    themeClear.style.display = 'none';
+  });
+
+  // Init — restore theme from localStorage
+  const savedTheme = localStorage.getItem('et_quote_theme');
+  if (savedTheme && QUOTE_THEMES[savedTheme]) {
+    switchTheme(savedTheme);
+  }
+
   statusLabel.textContent = getRandomIdleQuote();
   updateDisplay();
   renderSessions();
