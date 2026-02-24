@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Elementary Timer</title>
+<meta name="description" content="Privacy Policy for Elementary Timer, a minimalist focus timer for deep work.">
+<meta name="theme-color" content="#FF6600">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --orange: #FF6600;
+    --orange-light: #FF8533;
+    --black: #1a1a1a;
+    --gray-700: #555;
+    --gray-500: #888;
+    --gray-400: #aaa;
+    --gray-200: #e5e5e5;
+    --gray-100: #f5f5f5;
+    --white: #ffffff;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--gray-200);
+  }
+
+  .nav-logo-btn {
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.4rem 0.85rem;
+    border-radius: 100px;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+
+  .nav-logo-btn:hover { background: var(--orange-light); }
+
+  .content {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--black);
+  }
+
+  .last-updated {
+    font-size: 0.78rem;
+    color: var(--gray-500);
+    margin-bottom: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: var(--black);
+  }
+
+  p, li {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--gray-700);
+    margin-bottom: 0.75rem;
+  }
+
+  ul {
+    padding-left: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  li { margin-bottom: 0.35rem; }
+
+  a { color: var(--orange); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .back-link {
+    display: inline-block;
+    margin-top: 2.5rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--orange);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0.75rem; }
+    .content { padding: 2rem 1.25rem 3rem; }
+    h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo-btn" href="/">Elementary Timer</a>
+</nav>
+
+<div class="content">
+  <h1>Privacy Policy</h1>
+  <p class="last-updated">Last updated: February 23, 2026</p>
+
+  <p>Elementary Timer ("we", "us", or "the app") is a minimalist focus timer for deep work. We are committed to protecting your privacy and being transparent about how we handle your data.</p>
+
+  <h2>What Data We Collect</h2>
+  <p>We collect the minimum data necessary to provide the app's functionality:</p>
+  <ul>
+    <li><strong>Account information:</strong> If you choose to sign in, we collect your email address and name via Clerk authentication. Signing in is optional.</li>
+    <li><strong>Session data:</strong> When you use the timer, we store session duration, session name, and timestamp. If you are signed in, this data is stored in our Supabase database. If you are not signed in, it is stored only in your browser's localStorage.</li>
+    <li><strong>Preferences:</strong> Your selected language and quote theme are stored in your browser's localStorage.</li>
+  </ul>
+
+  <h2>How We Use Your Data</h2>
+  <p>Your data is used solely to provide the app's core functionality:</p>
+  <ul>
+    <li>Displaying your focus session history and statistics</li>
+    <li>Syncing your session data across devices (when signed in)</li>
+    <li>Remembering your preferences (language, quote theme)</li>
+  </ul>
+  <p>We do not sell, share, or use your data for advertising, analytics, or any purpose beyond the app's functionality.</p>
+
+  <h2>Data Storage</h2>
+  <ul>
+    <li><strong>Browser localStorage:</strong> Session history, language preference, and quote theme are stored locally in your browser. This data never leaves your device unless you sign in.</li>
+    <li><strong>Supabase (cloud):</strong> If you sign in, your session data is stored in a Supabase-hosted PostgreSQL database. Your data is associated with your user ID and is only accessible to you.</li>
+    <li><strong>Clerk (authentication):</strong> Account authentication is handled by Clerk. Please refer to <a href="https://clerk.com/privacy" target="_blank" rel="noopener">Clerk's Privacy Policy</a> for details on how they handle authentication data.</li>
+  </ul>
+
+  <h2>Data Retention & Deletion</h2>
+  <p>You can delete individual sessions from the app at any time. If you wish to delete all your data, you can:</p>
+  <ul>
+    <li>Clear your browser's localStorage to remove local data</li>
+    <li>Contact us to request deletion of your cloud-stored data</li>
+  </ul>
+
+  <h2>Cookies</h2>
+  <p>Elementary Timer does not use cookies directly. Clerk authentication may use cookies for session management. We do not use any tracking or advertising cookies.</p>
+
+  <h2>Third-Party Services</h2>
+  <ul>
+    <li><strong>Clerk</strong> — authentication (<a href="https://clerk.com/privacy" target="_blank" rel="noopener">privacy policy</a>)</li>
+    <li><strong>Supabase</strong> — data storage (<a href="https://supabase.com/privacy" target="_blank" rel="noopener">privacy policy</a>)</li>
+    <li><strong>Google Fonts</strong> — font delivery (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a>)</li>
+  </ul>
+
+  <h2>Children's Privacy</h2>
+  <p>Elementary Timer is not directed at children under 13. We do not knowingly collect personal information from children.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>We may update this privacy policy from time to time. Changes will be reflected on this page with an updated "Last updated" date.</p>
+
+  <h2>Contact</h2>
+  <p>If you have questions about this privacy policy or want to request data deletion, please contact us at <a href="mailto:privacy@elementarytimer.com">privacy@elementarytimer.com</a>.</p>
+
+  <a href="/" class="back-link">&larr; Back to Elementary Timer</a>
+</div>
+
+</body>
+</html>

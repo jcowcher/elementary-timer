@@ -86,7 +86,7 @@
 
   .nav-auth {
     position: absolute;
-    left: 1.25rem;
+    right: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -170,7 +170,7 @@
 
   .nav-logo-btn {
     position: absolute;
-    right: 1.25rem;
+    left: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
     background: var(--orange);
@@ -1011,6 +1011,94 @@
     .timer-wrap { width: 280px; height: 280px; }
     .time-digits { font-size: 2.8rem; }
   }
+
+  /* Footer */
+  .site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1.25rem;
+    border-top: 1px solid var(--gray-200);
+    background: var(--white);
+    font-size: 0.72rem;
+    z-index: 50;
+  }
+
+  .footer-left { position: relative; }
+
+  .lang-picker-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
+    padding: 0.3rem 0.7rem;
+    font-family: inherit;
+    font-size: 0.72rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .lang-picker-btn:hover {
+    border-color: var(--gray-400);
+    color: var(--black);
+  }
+
+  .lang-picker-btn svg { flex-shrink: 0; }
+
+  .lang-dropdown {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 150px;
+    z-index: 100;
+    overflow: hidden;
+  }
+
+  .lang-dropdown.open { display: block; }
+
+  .lang-dropdown button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .lang-dropdown button:hover { background: var(--gray-100); }
+  .lang-dropdown button.active { color: var(--orange); font-weight: 500; }
+
+  .footer-link {
+    color: var(--gray-500);
+    text-decoration: none;
+    font-size: 0.72rem;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover { color: var(--black); }
+
+  @media (max-width: 768px) {
+    .site-footer { padding: 0.4rem 0.75rem; }
+    .main { padding-bottom: 4rem; }
+  }
 </style>
 </head>
 <body>
@@ -1099,6 +1187,21 @@
   </div>
 </div>
 
+<footer class="site-footer">
+  <div class="footer-left">
+    <button class="lang-picker-btn" id="langPickerBtn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+      </svg>
+      <span id="langLabel">English</span>
+    </button>
+    <div class="lang-dropdown" id="langDropdown"></div>
+  </div>
+  <div class="footer-right">
+    <a href="/privacy" class="footer-link" id="privacyLink">Privacy Policy</a>
+  </div>
+</footer>
+
 <!-- Clerk sign-in overlay -->
 <div id="clerkOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
   <div style="position:relative;">
@@ -1140,6 +1243,167 @@
   const weekNext = document.getElementById('weekNext');
   const nameTotalsEl = document.getElementById('nameTotals');
   const totalLabelEl = document.getElementById('totalLabel');
+
+  // ── i18n Translations ─────────────────────────────
+  const TRANSLATIONS = {
+    en: { label: 'English', flag: '🇺🇸',
+      start: 'Start', pause: 'Pause', resume: 'Resume', finishSession: 'Finish Session',
+      todaysSessions: "Today's Sessions", today: 'Today', dailyAvg: 'Daily avg',
+      weekTotal: 'Week total', history: 'History', byActivity: 'By activity',
+      signIn: 'Sign in', signOut: 'Sign out', thisWeek: 'This Week', lastWeek: 'Last Week',
+      pastSessions: 'Past sessions will appear here', noSessions: 'No sessions this week',
+      deepWork: 'Deep Work', sessionSingular: 'session', sessionPlural: 'sessions',
+      previousWeek: 'Previous week', nextWeek: 'Next week',
+      whatWorking: 'What are you working on?', tryTheme: 'Try a different quote theme...',
+      clickDismiss: 'click anywhere to dismiss', privacyPolicy: 'Privacy Policy',
+      deleteSession: 'Delete session', resetSherlock: 'Reset to Sherlock Holmes',
+    },
+    es: { label: 'Español', flag: '🇪🇸',
+      start: 'Iniciar', pause: 'Pausar', resume: 'Reanudar', finishSession: 'Terminar sesión',
+      todaysSessions: 'Sesiones de hoy', today: 'Hoy', dailyAvg: 'Prom. diario',
+      weekTotal: 'Total semanal', history: 'Historial', byActivity: 'Por actividad',
+      signIn: 'Iniciar sesión', signOut: 'Cerrar sesión', thisWeek: 'Esta semana', lastWeek: 'Semana pasada',
+      pastSessions: 'Las sesiones pasadas aparecerán aquí', noSessions: 'Sin sesiones esta semana',
+      deepWork: 'Trabajo profundo', sessionSingular: 'sesión', sessionPlural: 'sesiones',
+      previousWeek: 'Semana anterior', nextWeek: 'Semana siguiente',
+      whatWorking: '¿En qué estás trabajando?', tryTheme: 'Prueba un tema de citas diferente...',
+      clickDismiss: 'haz clic en cualquier lugar para cerrar', privacyPolicy: 'Política de privacidad',
+      deleteSession: 'Eliminar sesión', resetSherlock: 'Restablecer a Sherlock Holmes',
+    },
+    fr: { label: 'Français', flag: '🇫🇷',
+      start: 'Démarrer', pause: 'Pause', resume: 'Reprendre', finishSession: 'Terminer la session',
+      todaysSessions: "Sessions d'aujourd'hui", today: "Aujourd'hui", dailyAvg: 'Moy. quotidienne',
+      weekTotal: 'Total semaine', history: 'Historique', byActivity: 'Par activité',
+      signIn: 'Se connecter', signOut: 'Se déconnecter', thisWeek: 'Cette semaine', lastWeek: 'Semaine dernière',
+      pastSessions: 'Les sessions passées apparaîtront ici', noSessions: 'Aucune session cette semaine',
+      deepWork: 'Travail profond', sessionSingular: 'session', sessionPlural: 'sessions',
+      previousWeek: 'Semaine précédente', nextWeek: 'Semaine suivante',
+      whatWorking: 'Sur quoi travaillez-vous ?', tryTheme: 'Essayez un autre thème de citations...',
+      clickDismiss: 'cliquez n\'importe où pour fermer', privacyPolicy: 'Politique de confidentialité',
+      deleteSession: 'Supprimer la session', resetSherlock: 'Réinitialiser à Sherlock Holmes',
+    },
+    de: { label: 'Deutsch', flag: '🇩🇪',
+      start: 'Starten', pause: 'Pause', resume: 'Fortsetzen', finishSession: 'Sitzung beenden',
+      todaysSessions: 'Heutige Sitzungen', today: 'Heute', dailyAvg: 'Tagesschnitt',
+      weekTotal: 'Wochensumme', history: 'Verlauf', byActivity: 'Nach Aktivität',
+      signIn: 'Anmelden', signOut: 'Abmelden', thisWeek: 'Diese Woche', lastWeek: 'Letzte Woche',
+      pastSessions: 'Vergangene Sitzungen erscheinen hier', noSessions: 'Keine Sitzungen diese Woche',
+      deepWork: 'Fokusarbeit', sessionSingular: 'Sitzung', sessionPlural: 'Sitzungen',
+      previousWeek: 'Vorherige Woche', nextWeek: 'Nächste Woche',
+      whatWorking: 'Woran arbeitest du?', tryTheme: 'Probiere ein anderes Zitat-Thema...',
+      clickDismiss: 'Klicke irgendwo zum Schließen', privacyPolicy: 'Datenschutzerklärung',
+      deleteSession: 'Sitzung löschen', resetSherlock: 'Auf Sherlock Holmes zurücksetzen',
+    },
+    pt: { label: 'Português', flag: '🇧🇷',
+      start: 'Iniciar', pause: 'Pausar', resume: 'Retomar', finishSession: 'Encerrar sessão',
+      todaysSessions: 'Sessões de hoje', today: 'Hoje', dailyAvg: 'Média diária',
+      weekTotal: 'Total semanal', history: 'Histórico', byActivity: 'Por atividade',
+      signIn: 'Entrar', signOut: 'Sair', thisWeek: 'Esta semana', lastWeek: 'Semana passada',
+      pastSessions: 'Sessões anteriores aparecerão aqui', noSessions: 'Sem sessões esta semana',
+      deepWork: 'Trabalho profundo', sessionSingular: 'sessão', sessionPlural: 'sessões',
+      previousWeek: 'Semana anterior', nextWeek: 'Próxima semana',
+      whatWorking: 'No que você está trabalhando?', tryTheme: 'Tente um tema de citações diferente...',
+      clickDismiss: 'clique em qualquer lugar para fechar', privacyPolicy: 'Política de Privacidade',
+      deleteSession: 'Excluir sessão', resetSherlock: 'Redefinir para Sherlock Holmes',
+    },
+    ja: { label: '日本語', flag: '🇯🇵',
+      start: 'スタート', pause: '一時停止', resume: '再開', finishSession: 'セッション終了',
+      todaysSessions: '今日のセッション', today: '今日', dailyAvg: '日平均',
+      weekTotal: '週合計', history: '履歴', byActivity: 'アクティビティ別',
+      signIn: 'ログイン', signOut: 'ログアウト', thisWeek: '今週', lastWeek: '先週',
+      pastSessions: '過去のセッションがここに表示されます', noSessions: '今週のセッションはありません',
+      deepWork: 'ディープワーク', sessionSingular: 'セッション', sessionPlural: 'セッション',
+      previousWeek: '前の週', nextWeek: '次の週',
+      whatWorking: '何に取り組んでいますか？', tryTheme: '別の引用テーマを試す...',
+      clickDismiss: 'どこかをクリックして閉じる', privacyPolicy: 'プライバシーポリシー',
+      deleteSession: 'セッションを削除', resetSherlock: 'シャーロック・ホームズにリセット',
+    },
+  };
+
+  let currentLang = 'en';
+
+  function t(key) {
+    return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.en[key] || key;
+  }
+
+  function setLanguage(langCode) {
+    if (!TRANSLATIONS[langCode]) return;
+    currentLang = langCode;
+    localStorage.setItem('et_language', langCode);
+
+    // Update lang label in footer
+    document.getElementById('langLabel').textContent = TRANSLATIONS[langCode].label;
+
+    // Update static UI elements
+    sessionInput.placeholder = t('whatWorking');
+    document.querySelector('.section-title').textContent = t('todaysSessions');
+    document.querySelector('.history-title').textContent = t('history');
+    document.getElementById('avgLabel').textContent = t('dailyAvg');
+    document.getElementById('themeInput').placeholder = t('tryTheme');
+    document.getElementById('themeClear').title = t('resetSherlock');
+    document.querySelector('.quote-dismiss').textContent = t('clickDismiss');
+    document.getElementById('privacyLink').textContent = t('privacyPolicy');
+    document.getElementById('weekPrev').title = t('previousWeek');
+    document.getElementById('weekNext').title = t('nextWeek');
+
+    // Update button text based on timer state
+    const currentBtnText = document.querySelector('#startPauseBtn span') ||
+      document.querySelector('.btn-primary span');
+    if (currentBtnText) {
+      const txt = currentBtnText.textContent;
+      if (!running && elapsed === 0) currentBtnText.textContent = t('start');
+      else if (!running && elapsed > 0) currentBtnText.textContent = t('resume');
+      else if (running) currentBtnText.textContent = t('pause');
+    }
+
+    // Update finish session button
+    const resetSpan = document.querySelector('.btn-secondary span');
+    if (resetSpan) resetSpan.textContent = t('finishSession');
+
+    // Mark active language in dropdown
+    document.querySelectorAll('#langDropdown button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === langCode);
+    });
+
+    // Re-render dynamic content
+    renderSessions();
+    renderHistory();
+    updateAuthUI();
+  }
+
+  // Build language dropdown
+  (function initLangPicker() {
+    const dropdown = document.getElementById('langDropdown');
+    const btn = document.getElementById('langPickerBtn');
+
+    dropdown.innerHTML = Object.entries(TRANSLATIONS).map(([code, lang]) =>
+      '<button data-lang="' + code + '">' + lang.flag + ' ' + lang.label + '</button>'
+    ).join('');
+
+    dropdown.querySelectorAll('button').forEach(b => {
+      b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        setLanguage(b.dataset.lang);
+        dropdown.classList.remove('open');
+      });
+    });
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+      dropdown.classList.remove('open');
+    });
+
+    // Restore saved language
+    const saved = localStorage.getItem('et_language');
+    if (saved && TRANSLATIONS[saved]) {
+      currentLang = saved;
+      document.getElementById('langLabel').textContent = TRANSLATIONS[saved].label;
+    }
+  })();
 
   // Constants
   const ONE_HOUR = 3600; // seconds
@@ -1198,7 +1462,7 @@
     if (currentUser) {
       const fullName = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
       const initial = fullName.charAt(0).toUpperCase();
-      authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '<div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">Sign out</button></div></div>';
+      authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '<div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">' + t('signOut') + '</button></div></div>';
       document.getElementById('authAvatar').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('authDropdown').classList.toggle('open');
@@ -1209,7 +1473,7 @@
       });
       document.getElementById('signOutBtn').addEventListener('click', () => window.Clerk.signOut());
     } else {
-      authArea.innerHTML = '<button class="auth-btn" id="signInBtn">Sign in</button>';
+      authArea.innerHTML = '<button class="auth-btn" id="signInBtn">' + t('signIn') + '</button>';
       document.getElementById('signInBtn').addEventListener('click', () => {
         if (window.Clerk) {
           document.getElementById('clerkOverlay').style.display = 'flex';
@@ -2520,7 +2784,7 @@
       running = false;
       elapsedBeforePause = elapsed;
       startTime = null;
-      btnTextNew.textContent = 'Resume';
+      btnTextNew.textContent = t('resume');
       playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
       startPauseBtnNew.className = 'btn btn-primary';
       statusLabel.textContent = getRandomIdleQuote();
@@ -2530,7 +2794,7 @@
     } else {
       running = true;
       startTime = Date.now();
-      btnTextNew.textContent = 'Pause';
+      btnTextNew.textContent = t('pause');
       playIconNew.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       statusLabel.textContent = activeRunningLabels[Math.floor(Math.random() * activeRunningLabels.length)];
       statusLabel.className = 'time-label running-label';
@@ -2546,7 +2810,7 @@
 
   newResetBtn.addEventListener('click', async () => {
     if (elapsed >= 5) {
-      const name = sessionInput.value.trim() || 'Deep Work';
+      const name = sessionInput.value.trim() || t('deepWork');
       const session = { duration: elapsed, date: new Date().toISOString(), name: name };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
@@ -2567,7 +2831,7 @@
     elapsedBeforePause = 0;
     sessionInput.value = '';
 
-    btnTextNew.textContent = 'Start';
+    btnTextNew.textContent = t('start');
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
     startPauseBtnNew.className = 'btn btn-primary';
     statusLabel.textContent = getRandomIdleQuote();
@@ -2594,7 +2858,7 @@
       sessionList.innerHTML = '<li class="empty-state">' + randomEmpty + '</li>';
       sessionCount.textContent = '';
     } else {
-      sessionCount.textContent = todaySessions.length + ' session' + (todaySessions.length !== 1 ? 's' : '');
+      sessionCount.textContent = todaySessions.length + ' ' + (todaySessions.length !== 1 ? t('sessionPlural') : t('sessionSingular'));
       todaySessions.forEach((s, i) => {
         const li = document.createElement('li');
         li.className = 'session-item';
@@ -2609,7 +2873,7 @@
               '<span class="session-duration">' + fmtDuration(s.duration) + ' · ' + fmtTime(s.date) + '</span>' +
             '</div>' +
           '</div>' +
-          '<button class="session-delete" data-idx="' + globalIndex + '" title="Delete session">' +
+          '<button class="session-delete" data-idx="' + globalIndex + '" title="' + t('deleteSession') + '">' +
             '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
           '</button>';
 
@@ -2636,7 +2900,7 @@
     if (uniqueKeys.length > 1 || (uniqueKeys.length === 1 && nameMap[uniqueKeys[0]].count > 1)) {
       const sorted = uniqueKeys.sort((a, b) => nameMap[b].total - nameMap[a].total);
       nameTotalsEl.style.display = '';
-      nameTotalsEl.innerHTML = '<div class="name-totals-label">By activity</div>' +
+      nameTotalsEl.innerHTML = '<div class="name-totals-label">' + t('byActivity') + '</div>' +
         sorted.map(key =>
           '<div class="name-total-row">' +
             '<span class="name-total-name"><span class="name-total-dot"></span>' + nameDisplay[key] +
@@ -2714,8 +2978,8 @@
 
   function fmtWeekLabel(offset) {
     const days = getWeekDays(offset);
-    if (offset === 0) return 'This Week';
-    if (offset === -1) return 'Last Week';
+    if (offset === 0) return t('thisWeek');
+    if (offset === -1) return t('lastWeek');
     return fmtShortDate(days[0]) + ' – ' + fmtShortDate(days[6]);
   }
 
@@ -2775,7 +3039,7 @@
         '<div class="history-group-header">' +
           '<span class="history-group-date">' + dateLabel + '</span>' +
           '<div class="history-group-meta">' +
-            '<span class="history-group-total">' + fmtTotal(dayTotal) + ' · ' + daySessions.length + ' session' + (daySessions.length !== 1 ? 's' : '') + '</span>' +
+            '<span class="history-group-total">' + fmtTotal(dayTotal) + ' · ' + daySessions.length + ' ' + (daySessions.length !== 1 ? t('sessionPlural') : t('sessionSingular')) + '</span>' +
             '<span class="history-group-arrow">▶</span>' +
           '</div>' +
         '</div>' +
@@ -2791,9 +3055,9 @@
     });
 
     if (!hasAny && weekOffset !== 0) {
-      groupsHtml = '<div class="history-empty">No sessions this week</div>';
+      groupsHtml = '<div class="history-empty">' + t('noSessions') + '</div>';
     } else if (!hasAny) {
-      groupsHtml = '<div class="history-empty">Past sessions will appear here</div>';
+      groupsHtml = '<div class="history-empty">' + t('pastSessions') + '</div>';
     }
 
     historyGroups.innerHTML = groupsHtml;
@@ -2815,14 +3079,14 @@
 
     if (weekOffset === 0) {
       // Current week: show today's total
-      totalLabelEl.textContent = 'Today';
+      totalLabelEl.textContent = t('today');
       const todaySec = sessions
         .filter(s => new Date(s.date).toDateString() === today)
         .reduce((sum, s) => sum + s.duration, 0);
       totalTimeEl.textContent = fmtTotal(todaySec);
     } else {
       // Past week: show week total instead
-      totalLabelEl.textContent = 'Week total';
+      totalLabelEl.textContent = t('weekTotal');
       totalTimeEl.textContent = fmtTotal(viewedTotalSec);
     }
   }
@@ -2975,8 +3239,15 @@
 
   statusLabel.textContent = getRandomIdleQuote();
   updateDisplay();
-  renderSessions();
-  renderHistory();
+
+  // Apply saved language (must run after all elements exist)
+  const savedLang = localStorage.getItem('et_language');
+  if (savedLang && TRANSLATIONS[savedLang]) {
+    setLanguage(savedLang);
+  } else {
+    renderSessions();
+    renderHistory();
+  }
 
   // Console Easter egg for curious devs
   console.log('%c 221B ', 'background: #FF6600; color: white; font-size: 14px; font-weight: bold; border-radius: 3px;',
