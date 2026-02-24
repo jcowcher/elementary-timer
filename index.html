@@ -113,19 +113,58 @@
     color: var(--black);
   }
 
-  .auth-user {
+  .auth-avatar {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-700);
     font-size: 0.75rem;
-    color: var(--gray-500);
-    font-weight: 400;
-    white-space: nowrap;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
   }
 
-  .auth-user-full {
+  .auth-avatar:hover {
+    background: var(--gray-300);
+  }
+
+  .auth-dropdown {
     display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    min-width: 120px;
+    z-index: 100;
   }
 
-  .auth-user-short {
-    display: inline;
+  .auth-dropdown.open {
+    display: block;
+  }
+
+  .auth-dropdown button {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.75rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .auth-dropdown button:hover {
+    background: var(--gray-100);
   }
 
   .nav-logo-btn {
@@ -874,8 +913,6 @@
     .nav-auth { position: static; transform: none; gap: 0.3rem; }
     .nav-date { position: static; transform: none; }
     .nav-logo-btn { position: static; transform: none; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
-    .auth-user-full { display: none; }
-    .auth-user-short { display: inline; }
 
     .main {
       flex-direction: column;
@@ -1068,7 +1105,15 @@
     if (currentUser) {
       const fullName = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
       const initial = fullName.charAt(0).toUpperCase();
-      authArea.innerHTML = '<span class="auth-user auth-user-full">' + fullName + '</span><span class="auth-user auth-user-short">' + initial + '</span><button class="auth-btn" id="signOutBtn">Sign out</button>';
+      authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '<div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">Sign out</button></div></div>';
+      document.getElementById('authAvatar').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('authDropdown').classList.toggle('open');
+      });
+      document.addEventListener('click', () => {
+        const dd = document.getElementById('authDropdown');
+        if (dd) dd.classList.remove('open');
+      });
       document.getElementById('signOutBtn').addEventListener('click', () => window.Clerk.signOut());
     } else {
       authArea.innerHTML = '<button class="auth-btn" id="signInBtn">Sign in</button>';
