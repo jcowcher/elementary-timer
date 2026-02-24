@@ -1070,11 +1070,11 @@
     <div class="daily-total">
       <div class="totals-row">
         <div class="total-block">
-          <span class="total-label">Today</span>
+          <span class="total-label" id="totalLabel">Today</span>
           <span class="total-value" id="totalTime">0m</span>
         </div>
         <div class="total-block">
-          <span class="total-label">Daily avg</span>
+          <span class="total-label" id="avgLabel">Daily avg</span>
           <span class="total-value" id="weeklyTotal">0m</span>
         </div>
       </div>
@@ -1139,6 +1139,7 @@
   const weekPrev = document.getElementById('weekPrev');
   const weekNext = document.getElementById('weekNext');
   const nameTotalsEl = document.getElementById('nameTotals');
+  const totalLabelEl = document.getElementById('totalLabel');
 
   // Constants
   const ONE_HOUR = 3600; // seconds
@@ -2619,13 +2620,7 @@
     const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
-    // Daily average (current week only)
-    const weekSessions = getWeekSessions(0);
-    const weekDaySet = new Set();
-    weekSessions.forEach(s => weekDaySet.add(new Date(s.date).toDateString()));
-    const weekTotalSec = weekSessions.reduce((sum, s) => sum + s.duration, 0);
-    const weekDaysWithSessions = weekDaySet.size || 1;
-    weeklyTotalEl.textContent = fmtTotal(Math.round(weekTotalSec / weekDaysWithSessions));
+    // Daily average is updated by renderHistory()
 
     // Name totals breakdown (case-insensitive grouping)
     const nameMap = {};
@@ -2809,6 +2804,27 @@
         header.parentElement.classList.toggle('expanded');
       });
     });
+
+    // Update totals for the viewed week
+    const viewedWeekSessions = getWeekSessions(weekOffset);
+    const viewedDaySet = new Set();
+    viewedWeekSessions.forEach(s => viewedDaySet.add(new Date(s.date).toDateString()));
+    const viewedTotalSec = viewedWeekSessions.reduce((sum, s) => sum + s.duration, 0);
+    const viewedDays = viewedDaySet.size || 1;
+    weeklyTotalEl.textContent = fmtTotal(Math.round(viewedTotalSec / viewedDays));
+
+    if (weekOffset === 0) {
+      // Current week: show today's total
+      totalLabelEl.textContent = 'Today';
+      const todaySec = sessions
+        .filter(s => new Date(s.date).toDateString() === today)
+        .reduce((sum, s) => sum + s.duration, 0);
+      totalTimeEl.textContent = fmtTotal(todaySec);
+    } else {
+      // Past week: show week total instead
+      totalLabelEl.textContent = 'Week total';
+      totalTimeEl.textContent = fmtTotal(viewedTotalSec);
+    }
   }
 
   // Week navigation
