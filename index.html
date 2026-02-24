@@ -1014,10 +1014,6 @@
 
   /* Footer */
   .site-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1025,7 +1021,7 @@
     border-top: 1px solid var(--gray-200);
     background: var(--white);
     font-size: 0.72rem;
-    z-index: 50;
+    margin-top: 2rem;
   }
 
   .footer-left { position: relative; }
@@ -1097,7 +1093,6 @@
 
   @media (max-width: 768px) {
     .site-footer { padding: 0.4rem 0.75rem; }
-    .main { padding-bottom: 4rem; }
   }
 </style>
 </head>
