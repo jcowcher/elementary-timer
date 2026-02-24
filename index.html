@@ -2619,12 +2619,13 @@
     const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
-    // Daily average (across all days that have sessions)
-    const daySet = new Set();
-    sessions.forEach(s => daySet.add(new Date(s.date).toDateString()));
-    const totalAllSec = sessions.reduce((sum, s) => sum + s.duration, 0);
-    const daysWithSessions = daySet.size || 1;
-    weeklyTotalEl.textContent = fmtTotal(Math.round(totalAllSec / daysWithSessions));
+    // Daily average (current week only)
+    const weekSessions = getWeekSessions(0);
+    const weekDaySet = new Set();
+    weekSessions.forEach(s => weekDaySet.add(new Date(s.date).toDateString()));
+    const weekTotalSec = weekSessions.reduce((sum, s) => sum + s.duration, 0);
+    const weekDaysWithSessions = weekDaySet.size || 1;
+    weeklyTotalEl.textContent = fmtTotal(Math.round(weekTotalSec / weekDaysWithSessions));
 
     // Name totals breakdown (case-insensitive grouping)
     const nameMap = {};
