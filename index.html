@@ -115,23 +115,24 @@
 
   .auth-avatar {
     position: relative;
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
-    background: var(--gray-200);
-    color: var(--gray-700);
-    font-size: 0.75rem;
-    font-weight: 600;
+    background: var(--orange);
+    color: var(--black);
+    font-size: 0.8rem;
+    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: opacity 0.15s;
     user-select: none;
+    letter-spacing: -0.02em;
   }
 
   .auth-avatar:hover {
-    background: var(--gray-300);
+    opacity: 0.85;
   }
 
   .auth-dropdown {
