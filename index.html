@@ -222,6 +222,7 @@
   }
   .timer-heading-input::placeholder {
     color: var(--gray-400);
+    font-style: italic;
   }
   .timer-heading-input:focus {
     color: var(--black);
@@ -934,7 +935,7 @@
     padding: 0.4rem 1.5rem;
   }
 
-  .theme-input::placeholder { color: var(--gray-300); }
+  .theme-input::placeholder { color: var(--gray-300); font-style: italic; }
   .theme-input:focus { color: var(--black); }
   .theme-input:focus::placeholder { color: var(--gray-400); }
 
@@ -1051,7 +1052,7 @@
     <div class="theme-picker" id="themePicker">
       <div class="theme-input-wrap">
         <input type="text" class="theme-input" id="themeInput"
-          placeholder="Want something other than Sherlock Holmes?"
+          placeholder="Try a different quote theme..."
           autocomplete="off" maxlength="40">
         <button class="theme-clear" id="themeClear" title="Reset to Sherlock Holmes">&times;</button>
       </div>
@@ -1073,7 +1074,7 @@
           <span class="total-value" id="totalTime">0m</span>
         </div>
         <div class="total-block">
-          <span class="total-label">This week</span>
+          <span class="total-label">Daily avg</span>
           <span class="total-value" id="weeklyTotal">0m</span>
         </div>
       </div>
@@ -2618,9 +2619,12 @@
     const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
-    // Weekly total (current week Mon–Sun)
-    const weekTotalSec = getWeekSessions(0).reduce((sum, s) => sum + s.duration, 0);
-    weeklyTotalEl.textContent = fmtTotal(weekTotalSec);
+    // Daily average (across all days that have sessions)
+    const daySet = new Set();
+    sessions.forEach(s => daySet.add(new Date(s.date).toDateString()));
+    const totalAllSec = sessions.reduce((sum, s) => sum + s.duration, 0);
+    const daysWithSessions = daySet.size || 1;
+    weeklyTotalEl.textContent = fmtTotal(Math.round(totalAllSec / daysWithSessions));
 
     // Name totals breakdown (case-insensitive grouping)
     const nameMap = {};
@@ -2845,7 +2849,7 @@
 
     // Update UI
     themeInput.value = theme.name;
-    themeInput.placeholder = 'Want something other than ' + theme.name + '?';
+    themeInput.placeholder = 'Try a different quote theme...';
     themeClear.style.display = key === 'sherlock' ? 'none' : 'block';
 
     // Refresh visible quotes
@@ -2942,7 +2946,7 @@
   themeClear.addEventListener('click', () => {
     switchTheme('sherlock');
     themeInput.value = '';
-    themeInput.placeholder = 'Want something other than Sherlock Holmes?';
+    themeInput.placeholder = 'Try a different quote theme...';
     themeClear.style.display = 'none';
   });
 
