@@ -971,6 +971,36 @@
 
   .theme-clear:hover { color: var(--gray-700); }
 
+  .theme-submit {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--orange);
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s;
+  }
+
+  .theme-submit:hover { background: var(--orange-light); }
+
+  .theme-submit svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: var(--white);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   .theme-suggestions {
     display: none;
     position: absolute;
@@ -1157,6 +1187,9 @@
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
         </span>
+        <button class="theme-submit" id="themeSubmit">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
         <button class="theme-clear" id="themeClear" title="Reset to Sherlock Holmes">&times;</button>
       </div>
       <ul class="theme-suggestions" id="themeSuggestions"></ul>
@@ -3130,6 +3163,12 @@
   const themeInput = document.getElementById('themeInput');
   const themeSuggestions = document.getElementById('themeSuggestions');
   const themeClear = document.getElementById('themeClear');
+  const themeSubmit = document.getElementById('themeSubmit');
+
+  function updateThemeSubmit() {
+    const hasText = themeInput.value.trim().length > 0;
+    themeSubmit.style.display = hasText ? 'flex' : 'none';
+  }
 
   function switchTheme(key) {
     const theme = QUOTE_THEMES[key];
@@ -3147,6 +3186,7 @@
     themeInput.value = theme.name;
     themeInput.placeholder = 'Try a different quote theme...';
     themeClear.style.display = key === 'sherlock' ? 'none' : 'block';
+    themeSubmit.style.display = 'none';
 
     // Refresh visible quotes
     if (!running) {
@@ -3195,6 +3235,7 @@
   }
 
   themeInput.addEventListener('input', () => {
+    updateThemeSubmit();
     const val = themeInput.value;
     if (!val.trim()) {
       themeSuggestions.classList.remove('open');
@@ -3239,11 +3280,22 @@
     }
   });
 
+  themeSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const matches = findThemes(themeInput.value);
+    if (matches.length > 0) {
+      switchTheme(matches[0].key);
+      themeSuggestions.classList.remove('open');
+      themeInput.blur();
+    }
+  });
+
   themeClear.addEventListener('click', () => {
     switchTheme('sherlock');
     themeInput.value = '';
     themeInput.placeholder = 'Try a different quote theme...';
     themeClear.style.display = 'none';
+    themeSubmit.style.display = 'none';
   });
 
   // Init — restore theme from localStorage
