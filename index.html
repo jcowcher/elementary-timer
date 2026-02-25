@@ -3406,7 +3406,7 @@
       html += '<div class="dd-hour-row">' +
         '<span class="dd-hour-label">' + label + '</span>' +
         '<div class="dd-hour-bar-bg"><div class="dd-hour-bar" style="width:' + pct + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div></div>' +
-        '<span class="dd-hour-val">' + (b.totalSec >= 60 ? fmtTotal(Math.round(b.totalSec)) : '') + '</span></div>';
+        '<span class="dd-hour-val">' + (b.totalSec > 0 ? Math.round(b.totalSec / 3600 * 100) + '%' : '') + '</span></div>';
     }
     html += '</div>';
 
