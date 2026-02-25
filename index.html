@@ -3507,7 +3507,10 @@
 
   function findThemes(input) {
     const q = input.toLowerCase().trim();
-    if (!q) return [];
+    if (!q) {
+      return Object.entries(QUOTE_THEMES).map(([key, theme]) => ({ key, name: theme.name, score: 0 }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
     const results = [];
     for (const [key, theme] of Object.entries(QUOTE_THEMES)) {
       const name = theme.name.toLowerCase();
@@ -3516,7 +3519,7 @@
       }
     }
     results.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
-    return results.slice(0, 8);
+    return results;
   }
 
   let activeSuggestionIdx = -1;
@@ -3546,19 +3549,12 @@
 
   themeInput.addEventListener('input', () => {
     updateThemeSubmit();
-    const val = themeInput.value;
-    if (!val.trim()) {
-      themeSuggestions.classList.remove('open');
-      return;
-    }
-    renderSuggestions(findThemes(val));
+    renderSuggestions(findThemes(themeInput.value));
   });
 
   themeInput.addEventListener('focus', () => {
     themeInput.select();
-    if (themeInput.value.trim()) {
-      renderSuggestions(findThemes(themeInput.value));
-    }
+    renderSuggestions(findThemes(themeInput.value));
   });
 
   themeInput.addEventListener('blur', () => {
