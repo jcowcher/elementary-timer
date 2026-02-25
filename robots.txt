@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://elementarytimer.com/sitemap.xml
