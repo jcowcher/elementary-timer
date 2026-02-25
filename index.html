@@ -1034,6 +1034,103 @@
     color: var(--black);
   }
 
+  /* Deep Dive Analytics */
+  .deep-dive-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    margin-top: 1rem;
+    background: none;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 0.78rem;
+    color: var(--gray-500);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .deep-dive-btn:hover { border-color: var(--orange); color: var(--orange); }
+  .deep-dive-btn svg { width: 14px; height: 14px; }
+
+  .deep-dive-panel { display: none; }
+  .deep-dive-panel.open { display: block; }
+
+  .dd-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .dd-back {
+    background: none; border: none; cursor: pointer; padding: 0.2rem;
+    color: var(--gray-500); display: flex; align-items: center;
+    transition: color 0.15s;
+  }
+  .dd-back:hover { color: var(--black); }
+  .dd-back svg { width: 18px; height: 18px; }
+  .dd-title { font-size: 0.95rem; font-weight: 600; color: var(--black); flex: 1; }
+
+  .dd-range-toggle {
+    display: flex; gap: 0.25rem; background: var(--gray-100);
+    border-radius: var(--radius); padding: 2px;
+  }
+  .dd-range-btn {
+    background: none; border: none; padding: 0.25rem 0.6rem;
+    font-family: inherit; font-size: 0.7rem; color: var(--gray-500);
+    cursor: pointer; border-radius: calc(var(--radius) - 2px);
+    transition: all 0.15s;
+  }
+  .dd-range-btn.active { background: var(--white); color: var(--black); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .dd-stats { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .dd-stat-card {
+    flex: 1; background: var(--gray-50); border: 1px solid var(--gray-100);
+    border-radius: var(--radius); padding: 0.6rem 0.75rem;
+  }
+  .dd-stat-label { font-size: 0.65rem; color: var(--gray-500); margin-bottom: 0.2rem; }
+  .dd-stat-value { font-size: 1.1rem; font-weight: 700; color: var(--black); }
+
+  .dd-section-title { font-size: 0.72rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; margin: 1rem 0 0.5rem; }
+
+  .dd-tod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .dd-tod-card {
+    background: var(--gray-50); border: 1px solid var(--gray-100);
+    border-radius: var(--radius); padding: 0.6rem 0.75rem;
+  }
+  .dd-tod-name { font-size: 0.72rem; font-weight: 600; color: var(--black); margin-bottom: 0.15rem; }
+  .dd-tod-hours { font-size: 0.65rem; color: var(--gray-400); margin-bottom: 0.35rem; }
+  .dd-tod-bar-bg {
+    height: 4px; background: var(--gray-100); border-radius: 2px; overflow: hidden;
+  }
+  .dd-tod-bar {
+    height: 100%; border-radius: 2px; transition: width 0.3s;
+  }
+  .dd-tod-pct { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-top: 0.3rem; }
+
+  .dd-hour-grid { display: flex; flex-direction: column; gap: 1px; margin-bottom: 0.5rem; }
+  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; height: 18px; }
+  .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; }
+  .dd-hour-bar-bg { flex: 1; height: 10px; background: var(--gray-50); border-radius: 3px; overflow: hidden; }
+  .dd-hour-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .dd-hour-val { width: 32px; font-size: 0.6rem; color: var(--gray-400); flex-shrink: 0; }
+
+  .dd-trend { display: flex; align-items: flex-end; gap: 2px; height: 60px; margin-bottom: 0.5rem; }
+  .dd-trend-bar-wrap { flex: 1; height: 100%; display: flex; align-items: flex-end; position: relative; }
+  .dd-trend-bar {
+    width: 100%; border-radius: 2px 2px 0 0; transition: height 0.3s; min-height: 1px;
+  }
+  .dd-trend-bar-wrap:hover .dd-trend-tip { display: block; }
+  .dd-trend-tip {
+    display: none; position: absolute; bottom: calc(100% + 4px); left: 50%;
+    transform: translateX(-50%); background: var(--black); color: var(--white);
+    font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; white-space: nowrap; z-index: 10;
+  }
+
+  .dd-empty { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 2rem 0; }
+
   /* Responsive */
   @media (max-width: 768px) {
     nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
@@ -1055,6 +1152,10 @@
 
     .timer-wrap { width: 280px; height: 280px; }
     .time-digits { font-size: 2.8rem; }
+    .dd-stats { flex-direction: column; }
+    .dd-tod-grid { grid-template-columns: 1fr; }
+    .dd-hour-grid { gap: 0; }
+    .dd-hour-row { height: 16px; }
   }
 
   /* Footer */
@@ -1231,6 +1332,26 @@
       </div>
       <div class="week-chart" id="weekChart"></div>
       <div id="historyGroups"></div>
+    </div>
+
+    <button class="deep-dive-btn" id="deepDiveBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Deep Dive
+    </button>
+
+    <div class="deep-dive-panel" id="deepDivePanel">
+      <div class="dd-header">
+        <button class="dd-back" id="ddBack" title="Back">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <span class="dd-title">Deep Dive</span>
+        <div class="dd-range-toggle" id="ddRangeToggle">
+          <button class="dd-range-btn active" data-range="7d">7d</button>
+          <button class="dd-range-btn" data-range="30d">30d</button>
+          <button class="dd-range-btn" data-range="all">All</button>
+        </div>
+      </div>
+      <div id="deepDiveContent"></div>
     </div>
   </div>
 </div>
@@ -3150,6 +3271,190 @@
       weekOffset++;
       renderHistory();
     }
+  });
+
+  // ── Deep Dive Analytics ──────────────────────────────
+  const deepDiveBtn = document.getElementById('deepDiveBtn');
+  const deepDivePanel = document.getElementById('deepDivePanel');
+  const deepDiveContent = document.getElementById('deepDiveContent');
+  const ddBack = document.getElementById('ddBack');
+  const ddRangeToggle = document.getElementById('ddRangeToggle');
+  let ddRange = '7d';
+
+  function getFilteredSessions(range) {
+    if (range === 'all') return sessions.slice();
+    const now = new Date();
+    const days = range === '7d' ? 7 : 30;
+    const cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days + 1);
+    return sessions.filter(s => new Date(s.date) >= cutoff);
+  }
+
+  function getHourlyFocusMap(filteredSessions) {
+    const map = {};
+    filteredSessions.forEach(s => {
+      const end = new Date(s.date);
+      const start = new Date(end.getTime() - s.duration * 1000);
+      let cursor = new Date(start);
+      while (cursor < end) {
+        const hourStart = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), cursor.getHours());
+        const hourEnd = new Date(hourStart.getTime() + 3600000);
+        const segEnd = hourEnd < end ? hourEnd : end;
+        const segStart = cursor > start ? cursor : start;
+        const secs = Math.max(0, (segEnd - segStart) / 1000);
+        if (secs > 0) {
+          const key = hourStart.getFullYear() + '-' +
+            String(hourStart.getMonth() + 1).padStart(2, '0') + '-' +
+            String(hourStart.getDate()).padStart(2, '0') + ':' +
+            String(hourStart.getHours()).padStart(2, '0');
+          map[key] = (map[key] || 0) + secs;
+        }
+        cursor = hourEnd;
+      }
+    });
+    return map;
+  }
+
+  function aggregateByHourOfDay(hourlyMap) {
+    const buckets = new Array(24).fill(0);
+    const dayCounts = new Array(24).fill(0);
+    const daysSeen = Array.from({ length: 24 }, () => new Set());
+    Object.entries(hourlyMap).forEach(([key, secs]) => {
+      const hour = parseInt(key.split(':')[1], 10);
+      buckets[hour] += secs;
+      daysSeen[hour].add(key.split(':')[0]);
+    });
+    for (let i = 0; i < 24; i++) dayCounts[i] = daysSeen[i].size;
+    return buckets.map((totalSec, i) => ({
+      hour: i,
+      totalSec,
+      avgSec: dayCounts[i] > 0 ? totalSec / dayCounts[i] : 0
+    }));
+  }
+
+  function aggregateByTimeOfDay(hourBuckets) {
+    const groups = [
+      { name: 'Morning', range: '6am – 12pm', hours: [6,7,8,9,10,11] },
+      { name: 'Afternoon', range: '12pm – 6pm', hours: [12,13,14,15,16,17] },
+      { name: 'Evening', range: '6pm – 12am', hours: [18,19,20,21,22,23] },
+      { name: 'Night', range: '12am – 6am', hours: [0,1,2,3,4,5] }
+    ];
+    return groups.map(g => {
+      const totalSec = g.hours.reduce((sum, h) => sum + hourBuckets[h].totalSec, 0);
+      const avgSec = g.hours.reduce((sum, h) => sum + hourBuckets[h].avgSec, 0);
+      return { ...g, totalSec, avgSec };
+    });
+  }
+
+  function getDailyTrend(hourlyMap) {
+    const dayMap = {};
+    Object.entries(hourlyMap).forEach(([key, secs]) => {
+      const day = key.split(':')[0];
+      dayMap[day] = (dayMap[day] || 0) + secs;
+    });
+    return Object.entries(dayMap).sort((a, b) => a[0].localeCompare(b[0])).map(([day, secs]) => ({ day, secs }));
+  }
+
+  function renderDeepDive() {
+    const filtered = getFilteredSessions(ddRange);
+    if (filtered.length === 0) {
+      deepDiveContent.innerHTML = '<div class="dd-empty">No sessions in this range</div>';
+      return;
+    }
+
+    const hourlyMap = getHourlyFocusMap(filtered);
+    const hourBuckets = aggregateByHourOfDay(hourlyMap);
+    const todGroups = aggregateByTimeOfDay(hourBuckets);
+    const trend = getDailyTrend(hourlyMap);
+
+    // Overall stats
+    const totalFocusSec = filtered.reduce((sum, s) => sum + s.duration, 0);
+    const peakHour = hourBuckets.reduce((best, b) => b.totalSec > best.totalSec ? b : best, hourBuckets[0]);
+    const peakLabel = ((peakHour.hour % 12) || 12) + (peakHour.hour < 12 ? 'am' : 'pm');
+
+    // Max for scaling
+    const maxHourSec = Math.max(...hourBuckets.map(b => b.totalSec), 1);
+    const maxTodSec = Math.max(...todGroups.map(g => g.totalSec), 1);
+    const maxTrendSec = Math.max(...trend.map(t => t.secs), 1);
+
+    let html = '<div class="dd-stats">';
+    html += '<div class="dd-stat-card"><div class="dd-stat-label">Total Focus</div><div class="dd-stat-value">' + fmtTotal(totalFocusSec) + '</div></div>';
+    html += '<div class="dd-stat-card"><div class="dd-stat-label">Peak Hour</div><div class="dd-stat-value">' + peakLabel + '</div></div>';
+    html += '</div>';
+
+    // Time of day
+    html += '<div class="dd-section-title">Time of Day</div>';
+    html += '<div class="dd-tod-grid">';
+    todGroups.forEach(g => {
+      const pct = maxTodSec > 0 ? (g.totalSec / maxTodSec * 100) : 0;
+      const opacity = 0.3 + 0.7 * (g.totalSec / maxTodSec);
+      html += '<div class="dd-tod-card">' +
+        '<div class="dd-tod-name">' + g.name + '</div>' +
+        '<div class="dd-tod-hours">' + g.range + '</div>' +
+        '<div class="dd-tod-bar-bg"><div class="dd-tod-bar" style="width:' + pct + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div></div>' +
+        '<div class="dd-tod-pct">' + fmtTotal(g.totalSec) + '</div></div>';
+    });
+    html += '</div>';
+
+    // Hour by hour
+    html += '<div class="dd-section-title">Hour by Hour</div>';
+    html += '<div class="dd-hour-grid">';
+    for (let h = 0; h < 24; h++) {
+      const b = hourBuckets[h];
+      const pct = maxHourSec > 0 ? (b.totalSec / maxHourSec * 100) : 0;
+      const opacity = b.totalSec > 0 ? (0.3 + 0.7 * (b.totalSec / maxHourSec)) : 0;
+      const label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
+      html += '<div class="dd-hour-row">' +
+        '<span class="dd-hour-label">' + label + '</span>' +
+        '<div class="dd-hour-bar-bg"><div class="dd-hour-bar" style="width:' + pct + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div></div>' +
+        '<span class="dd-hour-val">' + (b.totalSec >= 60 ? fmtTotal(Math.round(b.totalSec)) : '') + '</span></div>';
+    }
+    html += '</div>';
+
+    // Daily trend
+    if (trend.length > 1) {
+      html += '<div class="dd-section-title">Daily Trend</div>';
+      html += '<div class="dd-trend">';
+      trend.forEach(t => {
+        const pctH = maxTrendSec > 0 ? (t.secs / maxTrendSec * 100) : 0;
+        const opacity = 0.3 + 0.7 * (t.secs / maxTrendSec);
+        const d = new Date(t.day + 'T12:00:00');
+        const tipLabel = d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ': ' + fmtTotal(Math.round(t.secs));
+        html += '<div class="dd-trend-bar-wrap"><div class="dd-trend-bar" style="height:' + pctH + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div><div class="dd-trend-tip">' + tipLabel + '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    deepDiveContent.innerHTML = html;
+  }
+
+  deepDiveBtn.addEventListener('click', () => {
+    document.querySelector('.session-section .section-header').style.display = 'none';
+    document.getElementById('sessionList').style.display = 'none';
+    document.getElementById('nameTotals').style.display = 'none';
+    document.querySelector('.daily-total').style.display = 'none';
+    document.getElementById('historySection').style.display = 'none';
+    deepDiveBtn.style.display = 'none';
+    deepDivePanel.classList.add('open');
+    renderDeepDive();
+  });
+
+  ddBack.addEventListener('click', () => {
+    deepDivePanel.classList.remove('open');
+    document.querySelector('.session-section .section-header').style.display = '';
+    document.getElementById('sessionList').style.display = '';
+    document.getElementById('nameTotals').style.display = '';
+    document.querySelector('.daily-total').style.display = '';
+    document.getElementById('historySection').style.display = '';
+    deepDiveBtn.style.display = '';
+  });
+
+  ddRangeToggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('.dd-range-btn');
+    if (!btn) return;
+    ddRangeToggle.querySelectorAll('.dd-range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ddRange = btn.dataset.range;
+    renderDeepDive();
   });
 
   // Catch up when tab/app regains focus
