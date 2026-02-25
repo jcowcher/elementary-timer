@@ -324,6 +324,9 @@
 
   .time-digits.visible {
     opacity: 1;
+    color: var(--white);
+    font-weight: 700;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.15);
   }
 
   .timer-wrap:hover .time-digits,
@@ -354,7 +357,7 @@
   }
 
   .time-label.running-label { display: none; }
-  .time-label.paused-label { color: var(--gray-500); text-shadow: none; }
+  .time-label.paused-label { color: var(--white); font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 
   /* Pulse glow when running */
   .timer-body.running {
@@ -923,6 +926,18 @@
     align-items: center;
   }
 
+  .theme-search-icon {
+    position: absolute;
+    left: 22px;
+    color: var(--gray-400);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-input:focus ~ .theme-search-icon,
+  .theme-input:not(:placeholder-shown) ~ .theme-search-icon { display: none; }
+
   .theme-input {
     width: 100%;
     border: none;
@@ -1137,6 +1152,11 @@
         <input type="text" class="theme-input" id="themeInput"
           placeholder="Try a different quote theme..."
           autocomplete="off" maxlength="40">
+        <span class="theme-search-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
         <button class="theme-clear" id="themeClear" title="Reset to Sherlock Holmes">&times;</button>
       </div>
       <ul class="theme-suggestions" id="themeSuggestions"></ul>
