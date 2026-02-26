@@ -1192,8 +1192,15 @@
   .add-session-link {
     background: none; border: none; color: var(--orange); font-size: 0.75rem;
     font-family: inherit; cursor: pointer; padding: 0; margin-left: auto;
+    display: flex; align-items: center; gap: 0.35rem;
   }
   .add-session-link:hover { text-decoration: underline; }
+  .add-session-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: var(--orange); color: var(--white);
+    font-size: 0.85rem; font-weight: 600; line-height: 1;
+  }
 
   .add-session-screen {
     position: fixed; inset: 0; background: var(--white); z-index: 9998;
@@ -1425,7 +1432,7 @@
     <div class="section-header">
       <span class="section-title">Today's Sessions</span>
       <span class="section-meta" id="sessionCount"></span>
-      <button class="add-session-link" id="addSessionBtn">+ Add a session</button>
+      <button class="add-session-link" id="addSessionBtn"><span class="add-session-icon">+</span> Add a session</button>
     </div>
     <ul class="session-list" id="sessionList"></ul>
     <div class="name-totals" id="nameTotals"></div>
