@@ -120,7 +120,7 @@
     border-radius: 50%;
     background: var(--orange);
     color: #fff;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -128,7 +128,7 @@
     cursor: pointer;
     transition: opacity 0.15s;
     user-select: none;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.04em;
   }
 
   .auth-avatar:hover {
@@ -1136,6 +1136,125 @@
 
   .dd-empty { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 2rem 0; }
 
+  /* Feedback FAB & Modal */
+  .feedback-fab {
+    position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--gray-700); color: var(--white); border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.18); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .feedback-fab:hover { background: var(--orange); transform: scale(1.08); }
+  .feedback-fab svg { width: 22px; height: 22px; fill: currentColor; }
+
+  .feedback-modal-overlay {
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(0,0,0,0.4); display: flex;
+    align-items: center; justify-content: center;
+    opacity: 0; visibility: hidden; transition: opacity 0.2s, visibility 0.2s;
+  }
+  .feedback-modal-overlay.active { opacity: 1; visibility: visible; }
+
+  .feedback-modal {
+    background: var(--white); border-radius: var(--radius);
+    padding: 1.5rem; width: 90%; max-width: 420px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18); position: relative;
+  }
+  .feedback-modal h3 { margin: 0 0 0.75rem; font-size: 1rem; color: var(--black); }
+  .feedback-modal textarea {
+    width: 100%; min-height: 120px; border: 1px solid var(--gray-200);
+    border-radius: var(--radius); padding: 0.6rem; font-size: 0.9rem;
+    font-family: inherit; resize: vertical; box-sizing: border-box;
+  }
+  .feedback-modal textarea:focus { outline: none; border-color: var(--orange); }
+  .feedback-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.75rem; }
+  .feedback-modal-actions button {
+    padding: 0.45rem 1rem; border-radius: var(--radius); border: none;
+    font-size: 0.85rem; cursor: pointer; transition: background 0.15s;
+  }
+  .feedback-modal .feedback-cancel { background: var(--gray-100); color: var(--gray-700); }
+  .feedback-modal .feedback-cancel:hover { background: var(--gray-200); }
+  .feedback-modal .feedback-submit { background: var(--orange); color: var(--white); }
+  .feedback-modal .feedback-submit:hover { background: var(--orange-light); }
+  .feedback-modal .feedback-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .feedback-toast {
+    position: fixed; bottom: 5rem; right: 1.5rem; z-index: 10001;
+    background: var(--gray-900); color: var(--white);
+    padding: 0.5rem 1rem; border-radius: var(--radius); font-size: 0.85rem;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.3s, transform 0.3s; pointer-events: none;
+  }
+  .feedback-toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Add Session */
+  .add-session-link {
+    background: none; border: none; color: var(--orange); font-size: 0.75rem;
+    font-family: inherit; cursor: pointer; padding: 0; margin-left: auto;
+  }
+  .add-session-link:hover { text-decoration: underline; }
+
+  .add-session-screen {
+    position: fixed; inset: 0; background: var(--white); z-index: 9998;
+    display: flex; align-items: center; justify-content: center;
+    transform: translateY(100%); transition: transform 0.35s ease;
+    visibility: hidden;
+  }
+  .add-session-screen.active { transform: translateY(0); visibility: visible; }
+
+  .add-session-content {
+    display: flex; flex-direction: column; align-items: center; gap: 1.25rem;
+    max-width: 400px; width: 100%; padding: 2rem;
+  }
+  .add-session-content h2 {
+    font-size: 1.1rem; font-weight: 600; color: var(--black); margin: 0;
+  }
+  .add-session-content input[type="text"] {
+    width: 100%; height: 44px; padding: 0 0.85rem;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    font-family: inherit; font-size: 0.85rem; color: var(--black);
+    background: var(--white); outline: none; transition: border-color 0.15s;
+  }
+  .add-session-content input[type="text"]:focus { border-color: var(--orange); }
+  .add-session-content input[type="text"]::placeholder { color: var(--gray-400); font-style: italic; }
+
+  .add-session-duration {
+    display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--gray-500);
+  }
+  .add-session-duration input {
+    width: 60px; height: 44px; text-align: center;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+    font-family: inherit; font-size: 0.95rem; color: var(--black);
+    background: var(--white); outline: none; transition: border-color 0.15s;
+  }
+  .add-session-duration input:focus { border-color: var(--orange); }
+  .add-session-duration input.invalid { border-color: #e53e3e; animation: shake 0.3s ease; }
+
+  .add-session-tick {
+    width: 48px; height: 48px; border-radius: 50%; border: none;
+    background: var(--orange); color: var(--white); font-size: 1.3rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .add-session-tick:hover { background: var(--orange-light); transform: scale(1.06); }
+
+  .add-session-close {
+    position: fixed; bottom: 2rem; left: 2rem;
+    width: 44px; height: 44px; border-radius: 50%; border: none;
+    background: var(--white); color: var(--gray-500); font-size: 1.1rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    transition: background 0.15s, color 0.15s;
+  }
+  .add-session-close:hover { background: var(--gray-100); color: var(--black); }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
@@ -1306,6 +1425,7 @@
     <div class="section-header">
       <span class="section-title">Today's Sessions</span>
       <span class="section-meta" id="sessionCount"></span>
+      <button class="add-session-link" id="addSessionBtn">+ Add a session</button>
     </div>
     <ul class="session-list" id="sessionList"></ul>
     <div class="name-totals" id="nameTotals"></div>
@@ -1634,8 +1754,9 @@
     const authArea = document.getElementById('authArea');
     if (!authArea) return;
     if (currentUser) {
-      const fullName = currentUser.firstName || (currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'User');
-      const initial = fullName.charAt(0).toUpperCase();
+      const firstName = currentUser.firstName || '';
+      const lastName = currentUser.lastName || '';
+      const initial = firstName ? (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase() : ((currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'U').charAt(0).toUpperCase());
       authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '<div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">' + t('signOut') + '</button></div></div>';
       document.getElementById('authAvatar').addEventListener('click', (e) => {
         e.stopPropagation();
@@ -3622,10 +3743,123 @@
     renderHistory();
   }
 
+  // Add Session overlay
+  (function() {
+    const btn = document.getElementById('addSessionBtn');
+    const screen = document.getElementById('addSessionScreen');
+    const closeBtn = document.getElementById('addSessionClose');
+    const submitBtn = document.getElementById('addSessionSubmit');
+    const nameInput = document.getElementById('addSessionName');
+    const hoursInput = document.getElementById('addSessionHours');
+    const minutesInput = document.getElementById('addSessionMinutes');
+
+    function openOverlay() { screen.classList.add('active'); nameInput.focus(); }
+    function closeOverlay() {
+      screen.classList.remove('active');
+      nameInput.value = ''; hoursInput.value = ''; minutesInput.value = '';
+      hoursInput.classList.remove('invalid'); minutesInput.classList.remove('invalid');
+    }
+
+    btn.addEventListener('click', openOverlay);
+    closeBtn.addEventListener('click', closeOverlay);
+
+    submitBtn.addEventListener('click', async function() {
+      const h = parseInt(hoursInput.value) || 0;
+      const m = parseInt(minutesInput.value) || 0;
+      const totalSeconds = h * 3600 + m * 60;
+
+      if (totalSeconds < 60) {
+        hoursInput.classList.add('invalid'); minutesInput.classList.add('invalid');
+        setTimeout(() => { hoursInput.classList.remove('invalid'); minutesInput.classList.remove('invalid'); }, 600);
+        return;
+      }
+
+      const name = nameInput.value.trim() || 'Deep Work';
+      const session = { name: name, duration: totalSeconds, date: new Date().toISOString() };
+      sessions.push(session);
+      localStorage.setItem('et_sessions', JSON.stringify(sessions));
+
+      if (currentUser && supabaseClient) {
+        const saved = await saveSessionToSupabase(session);
+        if (saved) {
+          session._sb_id = saved.id;
+          localStorage.setItem('et_sessions', JSON.stringify(sessions));
+        }
+      }
+
+      renderSessions();
+      renderHistory();
+      closeOverlay();
+    });
+  })();
+
+  // Feedback submission
+  async function submitFeedback() {
+    const textarea = document.getElementById('feedbackText');
+    const message = textarea.value.trim();
+    if (!message) return;
+    const btn = document.getElementById('feedbackSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    try {
+      if (!supabaseClient) throw new Error('Not connected');
+      const { error } = await supabaseClient.from('feedback').insert({
+        message,
+        user_id: currentUser ? currentUser.id : null
+      });
+      if (error) throw error;
+      textarea.value = '';
+      document.getElementById('feedbackOverlay').classList.remove('active');
+      showFeedbackToast('Thanks for your feedback!');
+    } catch (e) {
+      showFeedbackToast('Failed to send — try again');
+      console.error('Feedback error:', e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    }
+  }
+
+  function showFeedbackToast(msg) {
+    const toast = document.getElementById('feedbackToast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
   // Console Easter egg for curious devs
   console.log('%c 221B ', 'background: #FF6600; color: white; font-size: 14px; font-weight: bold; border-radius: 3px;',
     'You know my methods. Type "221b" for a surprise.');
 </script>
+
+<!-- Feedback FAB -->
+<button class="feedback-fab" title="Send feedback" onclick="document.getElementById('feedbackOverlay').classList.add('active');document.getElementById('feedbackText').focus()">
+  <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.2L4 17.2V4h16v12z"/></svg>
+</button>
+<div class="feedback-modal-overlay" id="feedbackOverlay" onclick="if(event.target===this)this.classList.remove('active')">
+  <div class="feedback-modal">
+    <h3>Send Feedback</h3>
+    <textarea id="feedbackText" placeholder="Bug report, feature idea, or just say hi..."></textarea>
+    <div class="feedback-modal-actions">
+      <button class="feedback-cancel" onclick="document.getElementById('feedbackOverlay').classList.remove('active')">Cancel</button>
+      <button class="feedback-submit" id="feedbackSubmitBtn" onclick="submitFeedback()">Send</button>
+    </div>
+  </div>
+</div>
+<div class="feedback-toast" id="feedbackToast"></div>
+
+<div class="add-session-screen" id="addSessionScreen">
+  <div class="add-session-content">
+    <h2>Add a Session</h2>
+    <input type="text" placeholder="What did you work on?" id="addSessionName" maxlength="60">
+    <div class="add-session-duration">
+      <input type="number" id="addSessionHours" min="0" max="23" placeholder="0"> <span>h</span>
+      <input type="number" id="addSessionMinutes" min="0" max="59" placeholder="25"> <span>m</span>
+    </div>
+    <button class="add-session-tick" id="addSessionSubmit">&#10003;</button>
+  </div>
+  <button class="add-session-close" id="addSessionClose">&#10005;</button>
+</div>
 
 </body>
 </html>
