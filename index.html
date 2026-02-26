@@ -1412,7 +1412,8 @@
 
 <div class="main">
   <div class="timer-section">
-    <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60">
+    <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" list="mainSessionSuggestions" autocomplete="off">
+    <datalist id="mainSessionSuggestions"></datalist>
 
     <div class="timer-wrap" id="timerWrap">
       <div class="stopwatch-btn"></div>
@@ -1551,7 +1552,8 @@
 
 <div class="add-session-screen" id="addSessionScreen">
   <div class="add-session-content">
-    <input type="text" class="add-session-name" placeholder="What did you work on?" id="addSessionName" maxlength="60">
+    <input type="text" class="add-session-name" placeholder="What did you work on?" id="addSessionName" maxlength="60" list="sessionNameSuggestions" autocomplete="off">
+    <datalist id="sessionNameSuggestions"></datalist>
     <div class="add-session-timer-wrap">
       <div class="stopwatch-btn"></div>
       <div class="add-session-timer-body">
@@ -3203,6 +3205,13 @@
     const today = new Date().toDateString();
     const todaySessions = sessions.filter(s => new Date(s.date).toDateString() === today);
 
+    // Populate main input suggestions
+    const mainSuggestions = document.getElementById('mainSessionSuggestions');
+    if (mainSuggestions) {
+      const names = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
+      mainSuggestions.innerHTML = names.map(n => '<option value="' + n + '">').join('');
+    }
+
     sessionList.innerHTML = '';
 
     if (todaySessions.length === 0) {
@@ -3809,8 +3818,14 @@
     const nameInput = document.getElementById('addSessionName');
     const hoursInput = document.getElementById('addSessionHours');
     const minutesInput = document.getElementById('addSessionMinutes');
+    const suggestionsList = document.getElementById('sessionNameSuggestions');
 
-    function openOverlay() { screen.classList.add('active'); nameInput.focus(); }
+    function populateSuggestions() {
+      const names = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
+      suggestionsList.innerHTML = names.map(n => '<option value="' + n + '">').join('');
+    }
+
+    function openOverlay() { populateSuggestions(); screen.classList.add('active'); nameInput.focus(); }
     function closeOverlay() {
       screen.classList.remove('active');
       nameInput.value = ''; hoursInput.value = 0; minutesInput.value = 25;
