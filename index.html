@@ -1521,6 +1521,19 @@
   </div>
 </div>
 
+<div class="add-session-screen" id="addSessionScreen">
+  <div class="add-session-content">
+    <h2>Add a Session</h2>
+    <input type="text" placeholder="What did you work on?" id="addSessionName" maxlength="60">
+    <div class="add-session-duration">
+      <input type="number" id="addSessionHours" min="0" max="23" placeholder="0"> <span>h</span>
+      <input type="number" id="addSessionMinutes" min="0" max="59" placeholder="25"> <span>m</span>
+    </div>
+    <button class="add-session-tick" id="addSessionSubmit">&#10003;</button>
+  </div>
+  <button class="add-session-close" id="addSessionClose">&#10005;</button>
+</div>
+
 <script>
   // Elements
   const display = document.getElementById('display');
@@ -3855,19 +3868,6 @@
   </div>
 </div>
 <div class="feedback-toast" id="feedbackToast"></div>
-
-<div class="add-session-screen" id="addSessionScreen">
-  <div class="add-session-content">
-    <h2>Add a Session</h2>
-    <input type="text" placeholder="What did you work on?" id="addSessionName" maxlength="60">
-    <div class="add-session-duration">
-      <input type="number" id="addSessionHours" min="0" max="23" placeholder="0"> <span>h</span>
-      <input type="number" id="addSessionMinutes" min="0" max="59" placeholder="25"> <span>m</span>
-    </div>
-    <button class="add-session-tick" id="addSessionSubmit">&#10003;</button>
-  </div>
-  <button class="add-session-close" id="addSessionClose">&#10005;</button>
-</div>
 
 </body>
 </html>
