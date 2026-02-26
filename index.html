@@ -444,6 +444,11 @@
     font-weight: 400;
   }
 
+  .session-count-below {
+    font-size: 0.75rem; color: var(--gray-500); font-weight: 400;
+    margin-bottom: 0.75rem;
+  }
+
   .session-list {
     list-style: none;
     max-height: 400px;
@@ -1456,6 +1461,7 @@
       <span class="section-title">Today's breakdown</span>
       <button class="add-session-link" id="addSessionBtn"><span class="add-session-icon">+</span> Add a session</button>
     </div>
+    <div class="session-count-below" id="sessionCount"></div>
     <ul class="session-list" id="sessionList"></ul>
     <div class="name-totals" id="nameTotals"></div>
     <div class="daily-total">
@@ -3201,7 +3207,9 @@
     if (todaySessions.length === 0) {
       const randomEmpty = activeEmptyQuotes[Math.floor(Math.random() * activeEmptyQuotes.length)];
       sessionList.innerHTML = '<li class="empty-state">' + randomEmpty + '</li>';
+      sessionCount.textContent = '';
     } else {
+      sessionCount.textContent = todaySessions.length + ' ' + (todaySessions.length !== 1 ? t('sessionPlural') : t('sessionSingular'));
       todaySessions.forEach((s, i) => {
         const li = document.createElement('li');
         li.className = 'session-item';
