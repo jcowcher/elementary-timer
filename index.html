@@ -102,6 +102,7 @@
     font-family: inherit;
     font-size: 0.78rem;
     font-weight: 500;
+    line-height: 1.2;
     color: var(--gray-700);
     cursor: pointer;
     transition: all 0.15s;
@@ -179,6 +180,7 @@
     font-weight: 600;
     padding: 0.4rem 0.85rem;
     border-radius: 100px;
+    line-height: 1.2;
     text-decoration: none;
     letter-spacing: -0.01em;
     white-space: nowrap;
@@ -228,6 +230,31 @@
   }
   .timer-heading-input:focus {
     color: var(--black);
+  }
+
+  .session-input-wrap {
+    position: relative; display: flex; flex-direction: column; align-items: center;
+    width: 100%; max-width: 300px; margin-bottom: 2.5rem;
+  }
+  .session-input-wrap .timer-heading-input { margin-bottom: 0; }
+  .add-session-input-wrap { margin-bottom: 2.5rem; }
+  .add-session-input-wrap .add-session-name { margin-bottom: 0; }
+
+  .session-suggestions {
+    display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+    width: 240px; max-height: 200px; overflow-y: auto;
+    background: var(--white); border: 1px solid var(--gray-200);
+    border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    list-style: none; z-index: 50; margin-top: 4px;
+  }
+  .session-suggestions.open { display: block; }
+  .session-suggestion-item {
+    padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--gray-700);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .session-suggestion-item:hover,
+  .session-suggestion-item.active {
+    background: var(--orange-bg); color: var(--black);
   }
 
   /* Minee-style disc timer */
@@ -1412,8 +1439,10 @@
 
 <div class="main">
   <div class="timer-section">
-    <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" list="mainSessionSuggestions" autocomplete="off">
-    <datalist id="mainSessionSuggestions"></datalist>
+    <div class="session-input-wrap">
+      <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" autocomplete="off">
+      <ul class="session-suggestions" id="mainSessionSuggestions"></ul>
+    </div>
 
     <div class="timer-wrap" id="timerWrap">
       <div class="stopwatch-btn"></div>
@@ -1552,8 +1581,10 @@
 
 <div class="add-session-screen" id="addSessionScreen">
   <div class="add-session-content">
-    <input type="text" class="add-session-name" placeholder="What did you work on?" id="addSessionName" maxlength="60" list="sessionNameSuggestions" autocomplete="off">
-    <datalist id="sessionNameSuggestions"></datalist>
+    <div class="session-input-wrap add-session-input-wrap">
+      <input type="text" class="add-session-name" placeholder="What did you work on?" id="addSessionName" maxlength="60" autocomplete="off">
+      <ul class="session-suggestions" id="addSessionSuggestions"></ul>
+    </div>
     <div class="add-session-timer-wrap">
       <div class="stopwatch-btn"></div>
       <div class="add-session-timer-body">
@@ -3205,13 +3236,6 @@
     const today = new Date().toDateString();
     const todaySessions = sessions.filter(s => new Date(s.date).toDateString() === today);
 
-    // Populate main input suggestions
-    const mainSuggestions = document.getElementById('mainSessionSuggestions');
-    if (mainSuggestions) {
-      const names = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
-      mainSuggestions.innerHTML = names.map(n => '<option value="' + n + '">').join('');
-    }
-
     sessionList.innerHTML = '';
 
     if (todaySessions.length === 0) {
@@ -3809,6 +3833,37 @@
     renderHistory();
   }
 
+  // Session name suggestions (shared helper)
+  function setupSessionSuggestions(input, list) {
+    function getNames() {
+      return [...new Set(sessions.map(s => s.name || 'Deep Work'))];
+    }
+    function showMatches() {
+      const val = input.value.trim().toLowerCase();
+      const names = getNames();
+      const matches = val ? names.filter(n => n.toLowerCase().includes(val)) : names;
+      if (matches.length === 0) { list.classList.remove('open'); list.innerHTML = ''; return; }
+      list.innerHTML = matches.map(n =>
+        '<li class="session-suggestion-item">' + n + '</li>'
+      ).join('');
+      list.classList.add('open');
+      list.querySelectorAll('.session-suggestion-item').forEach(item => {
+        item.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          input.value = this.textContent;
+          list.classList.remove('open');
+        });
+      });
+    }
+    input.addEventListener('focus', showMatches);
+    input.addEventListener('input', showMatches);
+    input.addEventListener('blur', function() {
+      setTimeout(() => list.classList.remove('open'), 150);
+    });
+  }
+
+  setupSessionSuggestions(sessionInput, document.getElementById('mainSessionSuggestions'));
+
   // Add Session overlay
   (function() {
     const btn = document.getElementById('addSessionBtn');
@@ -3818,14 +3873,10 @@
     const nameInput = document.getElementById('addSessionName');
     const hoursInput = document.getElementById('addSessionHours');
     const minutesInput = document.getElementById('addSessionMinutes');
-    const suggestionsList = document.getElementById('sessionNameSuggestions');
 
-    function populateSuggestions() {
-      const names = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
-      suggestionsList.innerHTML = names.map(n => '<option value="' + n + '">').join('');
-    }
+    setupSessionSuggestions(nameInput, document.getElementById('addSessionSuggestions'));
 
-    function openOverlay() { populateSuggestions(); screen.classList.add('active'); nameInput.focus(); }
+    function openOverlay() { screen.classList.add('active'); nameInput.focus(); }
     function closeOverlay() {
       screen.classList.remove('active');
       nameInput.value = ''; hoursInput.value = 0; minutesInput.value = 25;
