@@ -1454,7 +1454,6 @@
   <div class="session-section">
     <div class="section-header">
       <span class="section-title">Today's breakdown</span>
-      <span class="section-meta" id="sessionCount"></span>
       <button class="add-session-link" id="addSessionBtn"><span class="add-session-icon">+</span> Add a session</button>
     </div>
     <ul class="session-list" id="sessionList"></ul>
@@ -3202,9 +3201,7 @@
     if (todaySessions.length === 0) {
       const randomEmpty = activeEmptyQuotes[Math.floor(Math.random() * activeEmptyQuotes.length)];
       sessionList.innerHTML = '<li class="empty-state">' + randomEmpty + '</li>';
-      sessionCount.textContent = '';
     } else {
-      sessionCount.textContent = todaySessions.length + ' ' + (todaySessions.length !== 1 ? t('sessionPlural') : t('sessionSingular'));
       todaySessions.forEach((s, i) => {
         const li = document.createElement('li');
         li.className = 'session-item';
