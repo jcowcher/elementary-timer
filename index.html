@@ -1453,7 +1453,7 @@
 
   <div class="session-section">
     <div class="section-header">
-      <span class="section-title">Today's Breakdown</span>
+      <span class="section-title">Today's breakdown</span>
       <span class="section-meta" id="sessionCount"></span>
       <button class="add-session-link" id="addSessionBtn"><span class="add-session-icon">+</span> Add a session</button>
     </div>
@@ -1593,7 +1593,7 @@
   const TRANSLATIONS = {
     en: { label: 'English', flag: '🇺🇸',
       start: 'Start', pause: 'Pause', resume: 'Resume', finishSession: 'Finish Session',
-      todaysSessions: "Today's Breakdown", today: 'Today', dailyAvg: 'Daily avg',
+      todaysSessions: "Today's breakdown", today: 'Today', dailyAvg: 'Daily avg',
       weekTotal: 'Week total', history: 'History', byActivity: 'By activity',
       signIn: 'Sign in', signOut: 'Sign out', thisWeek: 'This Week', lastWeek: 'Last Week',
       pastSessions: 'Past sessions will appear here', noSessions: 'No sessions this week',
@@ -3216,7 +3216,7 @@
             '<div class="session-dot"></div>' +
             '<div class="session-info">' +
               '<span class="session-name">' + sessionName + '</span>' +
-              '<span class="session-duration">' + fmtDuration(s.duration) + ' · ' + fmtTime(s.date) + '</span>' +
+              '<span class="session-duration">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
             '</div>' +
           '</div>' +
           '<button class="session-delete" data-idx="' + globalIndex + '" title="' + t('deleteSession') + '">' +
@@ -3393,7 +3393,7 @@
           daySessions.map(s =>
             '<div class="history-session">' +
               '<span class="history-session-name">' + (s.name || 'Deep Work') + '</span>' +
-              '<span class="history-session-detail">' + fmtDuration(s.duration) + ' · ' + fmtTime(s.date) + '</span>' +
+              '<span class="history-session-detail">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
             '</div>'
           ).join('') +
         '</div>' +
@@ -3826,7 +3826,7 @@
       }
 
       const name = nameInput.value.trim() || 'Deep Work';
-      const session = { name: name, duration: totalSeconds, date: new Date().toISOString() };
+      const session = { name: name, duration: totalSeconds, date: new Date().toISOString(), manual: true };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
 
