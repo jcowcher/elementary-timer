@@ -251,11 +251,19 @@
   .session-suggestion-item {
     padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--gray-700);
     cursor: pointer; transition: background 0.1s;
+    display: flex; align-items: center; justify-content: space-between;
   }
   .session-suggestion-item:hover,
   .session-suggestion-item.active {
     background: var(--orange-bg); color: var(--black);
   }
+  .suggestion-text { flex: 1; }
+  .suggestion-remove {
+    font-size: 0.65rem; color: var(--gray-400); padding: 0.15rem 0.3rem;
+    border-radius: 4px; opacity: 0; transition: opacity 0.1s, color 0.1s;
+  }
+  .session-suggestion-item:hover .suggestion-remove { opacity: 1; }
+  .suggestion-remove:hover { color: var(--orange); }
 
   /* Minee-style disc timer */
   .timer-wrap {
@@ -3834,24 +3842,38 @@
   }
 
   // Session name suggestions (shared helper)
+  let hiddenNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
+
+  function getVisibleNames() {
+    const all = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
+    return all.filter(n => !hiddenNames.includes(n));
+  }
+
   function setupSessionSuggestions(input, list) {
-    function getNames() {
-      return [...new Set(sessions.map(s => s.name || 'Deep Work'))];
-    }
     function showMatches() {
       const val = input.value.trim().toLowerCase();
-      const names = getNames();
+      const names = getVisibleNames();
       const matches = val ? names.filter(n => n.toLowerCase().includes(val)) : names;
       if (matches.length === 0) { list.classList.remove('open'); list.innerHTML = ''; return; }
       list.innerHTML = matches.map(n =>
-        '<li class="session-suggestion-item">' + n + '</li>'
+        '<li class="session-suggestion-item"><span class="suggestion-text">' + n + '</span><span class="suggestion-remove">&#10005;</span></li>'
       ).join('');
       list.classList.add('open');
-      list.querySelectorAll('.session-suggestion-item').forEach(item => {
-        item.addEventListener('mousedown', function(e) {
+      list.querySelectorAll('.suggestion-text').forEach(span => {
+        span.addEventListener('mousedown', function(e) {
           e.preventDefault();
           input.value = this.textContent;
           list.classList.remove('open');
+        });
+      });
+      list.querySelectorAll('.suggestion-remove').forEach(btn => {
+        btn.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          const name = this.previousElementSibling.textContent;
+          hiddenNames.push(name);
+          localStorage.setItem('et_hidden_names', JSON.stringify(hiddenNames));
+          showMatches();
         });
       });
     }
