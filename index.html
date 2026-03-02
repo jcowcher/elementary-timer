@@ -1860,10 +1860,6 @@
         e.stopPropagation();
         document.getElementById('authDropdown').classList.toggle('open');
       });
-      document.addEventListener('click', () => {
-        const dd = document.getElementById('authDropdown');
-        if (dd) dd.classList.remove('open');
-      });
       document.getElementById('signOutBtn').addEventListener('click', () => window.Clerk.signOut());
     } else {
       authArea.innerHTML = '<button class="auth-btn" id="signInBtn">' + t('signIn') + '</button>';
@@ -1877,6 +1873,12 @@
       });
     }
   }
+
+  // Single global listener to close auth dropdown (registered once)
+  document.addEventListener('click', () => {
+    const dd = document.getElementById('authDropdown');
+    if (dd) dd.classList.remove('open');
+  });
 
   async function loadAndMergeFromSupabase() {
     if (!currentUser || !supabaseClient) return;
@@ -1899,14 +1901,14 @@
         _sb_id: row.id,
         duration: row.duration,
         date: row.date,
-        name: row.name || 'Deep Work'
+        name: row.name || 'Deep Work',
+        manual: row.manual || false
       }));
 
-      const localSessions2 = JSON.parse(localStorage.getItem('et_sessions') || '[]');
       const cloudDates = new Set(cloudSessions.map(s => s.date));
 
       // Find local sessions not in cloud (failed syncs)
-      const localOnly = localSessions2.filter(s => !s._sb_id && !cloudDates.has(s.date));
+      const localOnly = localSessions.filter(s => !s._sb_id && !cloudDates.has(s.date));
 
       // Re-sync local-only sessions to cloud
       for (const s of localOnly) {
@@ -1941,10 +1943,11 @@
         name: s.name || 'Deep Work',
         date: s.date
       }));
-      const { error } = await supabaseClient
+      const { data: inserted, error } = await supabaseClient
         .from('timer_history')
-        .insert(rows);
-      if (!error) {
+        .insert(rows)
+        .select();
+      if (!error && inserted && inserted.length === rows.length) {
         localStorage.removeItem('et_sessions');
         await loadAndMergeFromSupabase();
       }
@@ -1962,7 +1965,8 @@
           user_id: currentUser.id,
           duration: session.duration,
           name: session.name,
-          date: session.date
+          date: session.date,
+          manual: session.manual || false
         })
         .select()
         .single();
@@ -1989,10 +1993,15 @@
 
   // Init auth when Clerk script loads
   if (document.querySelector('script[data-clerk-publishable-key]')) {
+    let clerkAttempts = 0;
     const checkClerk = setInterval(() => {
       if (window.Clerk) {
         clearInterval(checkClerk);
         initAuth();
+      } else if (++clerkAttempts > 100) {
+        clearInterval(checkClerk);
+        console.warn('Clerk failed to load after 10s');
+        updateAuthUI();
       }
     }, 100);
   }
@@ -2055,6 +2064,12 @@
 
   function fmtTime(dateStr) {
     return new Date(dateStr).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  }
+
+  function escapeHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
   }
 
   function updateDisplay() {
@@ -3219,6 +3234,7 @@
       statusLabel.className = 'time-label running-label';
       timerBody.classList.add('running');
       timerWrap.classList.add('active');
+      tick();
       interval = setInterval(tick, 1000);
     }
   });
@@ -3228,9 +3244,20 @@
   resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
 
   newResetBtn.addEventListener('click', async () => {
-    if (elapsed >= 5) {
-      const name = sessionInput.value.trim() || t('deepWork');
-      const session = { duration: elapsed, date: new Date().toISOString(), name: name };
+    const savedElapsed = elapsed;
+    const savedName = sessionInput.value.trim() || t('deepWork');
+
+    // Stop timer immediately before any async work
+    clearInterval(interval);
+    interval = null;
+    running = false;
+    elapsed = 0;
+    startTime = null;
+    elapsedBeforePause = 0;
+    sessionInput.value = '';
+
+    if (savedElapsed >= 5) {
+      const session = { duration: savedElapsed, date: new Date().toISOString(), name: savedName };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
       if (currentUser && supabaseClient) {
@@ -3241,14 +3268,6 @@
         }
       }
     }
-
-    clearInterval(interval);
-    interval = null;
-    running = false;
-    elapsed = 0;
-    startTime = null;
-    elapsedBeforePause = 0;
-    sessionInput.value = '';
 
     btnTextNew.textContent = t('start');
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
@@ -3281,18 +3300,17 @@
       todaySessions.forEach((s, i) => {
         const li = document.createElement('li');
         li.className = 'session-item';
-        const globalIndex = sessions.indexOf(s);
-        const sessionName = s.name || 'Deep Work';
+        const sessionName = s.name || t('deepWork');
 
         li.innerHTML =
           '<div class="session-left">' +
             '<div class="session-dot"></div>' +
             '<div class="session-info">' +
-              '<span class="session-name">' + sessionName + '</span>' +
+              '<span class="session-name">' + escapeHtml(sessionName) + '</span>' +
               '<span class="session-duration">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
             '</div>' +
           '</div>' +
-          '<button class="session-delete" data-idx="' + globalIndex + '" title="' + t('deleteSession') + '">' +
+          '<button class="session-delete" data-date="' + escapeHtml(s.date) + '" title="' + t('deleteSession') + '">' +
             '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>' +
           '</button>';
 
@@ -3309,7 +3327,7 @@
     const nameMap = {};
     const nameDisplay = {}; // preserve first-seen casing for display
     todaySessions.forEach(s => {
-      const n = s.name || 'Deep Work';
+      const n = s.name || t('deepWork');
       const key = n.toLowerCase();
       if (!nameMap[key]) { nameMap[key] = { total: 0, count: 0 }; nameDisplay[key] = n; }
       nameMap[key].total += s.duration;
@@ -3322,7 +3340,7 @@
       nameTotalsEl.innerHTML = '<div class="name-totals-label">' + t('byActivity') + '</div>' +
         sorted.map(key =>
           '<div class="name-total-row">' +
-            '<span class="name-total-name"><span class="name-total-dot"></span>' + nameDisplay[key] +
+            '<span class="name-total-name"><span class="name-total-dot"></span>' + escapeHtml(nameDisplay[key]) +
               '<span class="name-total-count">&times;' + nameMap[key].count + '</span></span>' +
             '<span class="name-total-time">' + fmtTotal(nameMap[key].total) + '</span>' +
           '</div>'
@@ -3335,15 +3353,18 @@
     // Wire delete buttons
     sessionList.querySelectorAll('.session-delete').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const idx = parseInt(btn.dataset.idx);
+        btn.disabled = true;
+        const dateKey = btn.dataset.date;
+        const idx = sessions.findIndex(s => s.date === dateKey);
+        if (idx === -1) return;
         const removed = sessions[idx];
         sessions.splice(idx, 1);
         localStorage.setItem('et_sessions', JSON.stringify(sessions));
-        if (removed && removed._sb_id && currentUser && supabaseClient) {
-          await deleteSessionFromSupabase(removed._sb_id);
-        }
         renderSessions();
         renderHistory();
+        if (removed._sb_id && currentUser && supabaseClient) {
+          await deleteSessionFromSupabase(removed._sb_id);
+        }
       });
     });
 
@@ -3465,7 +3486,7 @@
         '<div class="history-group-sessions">' +
           daySessions.map(s =>
             '<div class="history-session">' +
-              '<span class="history-session-name">' + (s.name || 'Deep Work') + '</span>' +
+              '<span class="history-session-name">' + escapeHtml(s.name || t('deepWork')) + '</span>' +
               '<span class="history-session-detail">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
             '</div>'
           ).join('') +
@@ -3664,11 +3685,11 @@
     if (trend.length > 1) {
       html += '<div class="dd-section-title">Daily Trend</div>';
       html += '<div class="dd-trend">';
-      trend.forEach(t => {
-        const pctH = maxTrendSec > 0 ? (t.secs / maxTrendSec * 100) : 0;
-        const opacity = 0.3 + 0.7 * (t.secs / maxTrendSec);
-        const d = new Date(t.day + 'T12:00:00');
-        const tipLabel = d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ': ' + fmtTotal(Math.round(t.secs));
+      trend.forEach(tr => {
+        const pctH = maxTrendSec > 0 ? (tr.secs / maxTrendSec * 100) : 0;
+        const opacity = maxTrendSec > 0 ? 0.3 + 0.7 * (tr.secs / maxTrendSec) : 0.3;
+        const d = new Date(tr.day + 'T12:00:00');
+        const tipLabel = d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ': ' + fmtTotal(Math.round(tr.secs));
         html += '<div class="dd-trend-bar-wrap"><div class="dd-trend-bar" style="height:' + pctH + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div><div class="dd-trend-tip">' + tipLabel + '</div></div>';
       });
       html += '</div>';
@@ -3871,7 +3892,7 @@
   let hiddenNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
 
   function getVisibleNames() {
-    const all = [...new Set(sessions.map(s => s.name || 'Deep Work'))];
+    const all = [...new Set(sessions.map(s => s.name || t('deepWork')))];
     return all.filter(n => !hiddenNames.includes(n));
   }
 
@@ -3882,7 +3903,7 @@
       const matches = val ? names.filter(n => n.toLowerCase().includes(val)) : names;
       if (matches.length === 0) { list.classList.remove('open'); list.innerHTML = ''; return; }
       list.innerHTML = matches.map(n =>
-        '<li class="session-suggestion-item"><span class="suggestion-text">' + n + '</span><span class="suggestion-remove">&#10005;</span></li>'
+        '<li class="session-suggestion-item"><span class="suggestion-text">' + escapeHtml(n) + '</span><span class="suggestion-remove">&#10005;</span></li>'
       ).join('');
       list.classList.add('open');
       list.querySelectorAll('.suggestion-text').forEach(span => {
@@ -3935,8 +3956,8 @@
     closeBtn.addEventListener('click', closeOverlay);
 
     submitBtn.addEventListener('click', async function() {
-      const h = parseInt(hoursInput.value) || 0;
-      const m = parseInt(minutesInput.value) || 0;
+      const h = Math.max(0, parseInt(hoursInput.value, 10) || 0);
+      const m = Math.max(0, parseInt(minutesInput.value, 10) || 0);
       const totalSeconds = h * 3600 + m * 60;
 
       if (totalSeconds < 60) {
@@ -3945,7 +3966,8 @@
         return;
       }
 
-      const name = nameInput.value.trim() || 'Deep Work';
+      submitBtn.disabled = true;
+      const name = nameInput.value.trim() || t('deepWork');
       const session = { name: name, duration: totalSeconds, date: new Date().toISOString(), manual: true };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
@@ -3961,6 +3983,7 @@
       renderSessions();
       renderHistory();
       closeOverlay();
+      submitBtn.disabled = false;
     });
   })();
 
