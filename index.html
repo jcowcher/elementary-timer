@@ -3869,6 +3869,12 @@
       statusLabel.className = 'time-label';
     }
 
+    // Shrink session list as sessions accumulate to keep totals visible
+    const count = todaySessions.length;
+    if (count <= 3) sessionList.style.maxHeight = '';
+    else if (count <= 5) sessionList.style.maxHeight = '180px';
+    else sessionList.style.maxHeight = '140px';
+
     updateStreak();
   }
 
