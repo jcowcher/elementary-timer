@@ -1326,6 +1326,80 @@
     75% { transform: translateX(4px); }
   }
 
+  /* Work type toggle */
+  .work-type-toggle {
+    display: flex; gap: 0.25rem; background: var(--gray-100);
+    border-radius: 100px; padding: 2px; margin-bottom: 1.25rem;
+  }
+  .work-type-btn {
+    background: none; border: none; padding: 0.35rem 0.85rem;
+    font-family: inherit; font-size: 0.72rem; font-weight: 500;
+    color: var(--gray-500); cursor: pointer; border-radius: 100px;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .work-type-btn.active-deep { background: var(--orange); color: var(--white); }
+  .work-type-btn.active-sustaining { background: var(--gray-400); color: var(--white); }
+
+  /* Sustaining session dot */
+  .session-dot.sustaining { background: var(--gray-400); }
+  .name-total-dot.sustaining { background: var(--gray-400); }
+
+  /* Stacked chart bars */
+  .chart-bar-wrap { display: flex; }
+  .chart-bar.sustaining-bar { background: var(--gray-400); border-radius: 0 3px 3px 0; }
+  .chart-bar.deep-bar { border-radius: 3px 0 0 3px; }
+  .chart-bar.deep-bar:last-child { border-radius: 3px; }
+  .chart-bar.sustaining-bar:first-child { border-radius: 3px 0 0 3px; }
+
+  /* History session type dot */
+  .history-session-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--orange); flex-shrink: 0; margin-right: 0.5rem;
+  }
+  .history-session-dot.sustaining { background: var(--gray-400); }
+  .history-session-left { display: flex; align-items: center; flex: 1; }
+
+  /* Daily total type breakdown */
+  .daily-type-breakdown { margin-top: 0.5rem; }
+  .daily-type-row {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.72rem; color: var(--gray-500); padding: 0.1rem 0;
+  }
+  .daily-type-dot {
+    width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+  }
+  .daily-type-dot.deep { background: var(--orange); }
+  .daily-type-dot.sustaining { background: var(--gray-400); }
+
+  /* Deep dive work type breakdown (Whoop-inspired) */
+  .dd-type-section { margin-bottom: 1rem; }
+  .dd-type-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0;
+  }
+  .dd-type-label {
+    font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; width: 80px; flex-shrink: 0;
+  }
+  .dd-type-label.deep { color: var(--orange); }
+  .dd-type-label.sustaining { color: var(--gray-400); }
+  .dd-type-bar-wrap {
+    flex: 1; height: 10px; background: var(--gray-100);
+    border-radius: 5px; overflow: hidden; position: relative;
+  }
+  .dd-type-bar {
+    height: 100%; border-radius: 5px; transition: width 0.3s;
+  }
+  .dd-type-bar.deep { background: var(--orange); }
+  .dd-type-bar.sustaining { background: var(--gray-400); }
+  .dd-type-dur {
+    font-size: 0.75rem; font-weight: 600; color: var(--black);
+    font-variant-numeric: tabular-nums; min-width: 42px; text-align: right;
+  }
+  .dd-type-pct {
+    font-size: 0.68rem; color: var(--gray-500); min-width: 32px; text-align: right;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     nav { padding: 0.75rem 0.75rem; justify-content: space-between; }
@@ -1447,6 +1521,10 @@
 
 <div class="main">
   <div class="timer-section">
+    <div class="work-type-toggle" id="mainWorkTypeToggle">
+      <button class="work-type-btn active-deep" data-type="deep">Deep Work</button>
+      <button class="work-type-btn" data-type="sustaining">Sustaining</button>
+    </div>
     <div class="session-input-wrap">
       <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" autocomplete="off">
       <ul class="session-suggestions" id="mainSessionSuggestions"></ul>
@@ -1589,6 +1667,10 @@
 
 <div class="add-session-screen" id="addSessionScreen">
   <div class="add-session-content">
+    <div class="work-type-toggle" id="addWorkTypeToggle">
+      <button class="work-type-btn active-deep" data-type="deep">Deep Work</button>
+      <button class="work-type-btn" data-type="sustaining">Sustaining</button>
+    </div>
     <div class="session-input-wrap add-session-input-wrap">
       <input type="text" class="add-session-name" placeholder="What did you work on?" id="addSessionName" maxlength="60" autocomplete="off">
       <ul class="session-suggestions" id="addSessionSuggestions"></ul>
@@ -1644,7 +1726,7 @@
       weekTotal: 'Week total', history: 'History', byActivity: 'By activity',
       signIn: 'Sign in', signOut: 'Sign out', thisWeek: 'This Week', lastWeek: 'Last Week',
       pastSessions: 'Past sessions will appear here', noSessions: 'No sessions this week',
-      deepWork: 'Deep Work', sessionSingular: 'session', sessionPlural: 'sessions',
+      deepWork: 'Deep Work', sustainingWork: 'Sustaining', sessionSingular: 'session', sessionPlural: 'sessions',
       previousWeek: 'Previous week', nextWeek: 'Next week',
       whatWorking: 'What are you working on?', tryTheme: 'Try a different quote theme...',
       clickDismiss: 'click anywhere to dismiss', privacyPolicy: 'Privacy Policy',
@@ -1656,7 +1738,7 @@
       weekTotal: 'Total semanal', history: 'Historial', byActivity: 'Por actividad',
       signIn: 'Iniciar sesión', signOut: 'Cerrar sesión', thisWeek: 'Esta semana', lastWeek: 'Semana pasada',
       pastSessions: 'Las sesiones pasadas aparecerán aquí', noSessions: 'Sin sesiones esta semana',
-      deepWork: 'Trabajo profundo', sessionSingular: 'sesión', sessionPlural: 'sesiones',
+      deepWork: 'Trabajo profundo', sustainingWork: 'Mantenimiento', sessionSingular: 'sesión', sessionPlural: 'sesiones',
       previousWeek: 'Semana anterior', nextWeek: 'Semana siguiente',
       whatWorking: '¿En qué estás trabajando?', tryTheme: 'Prueba un tema de citas diferente...',
       clickDismiss: 'haz clic en cualquier lugar para cerrar', privacyPolicy: 'Política de privacidad',
@@ -1668,7 +1750,7 @@
       weekTotal: 'Total semaine', history: 'Historique', byActivity: 'Par activité',
       signIn: 'Se connecter', signOut: 'Se déconnecter', thisWeek: 'Cette semaine', lastWeek: 'Semaine dernière',
       pastSessions: 'Les sessions passées apparaîtront ici', noSessions: 'Aucune session cette semaine',
-      deepWork: 'Travail profond', sessionSingular: 'session', sessionPlural: 'sessions',
+      deepWork: 'Travail profond', sustainingWork: 'Maintien', sessionSingular: 'session', sessionPlural: 'sessions',
       previousWeek: 'Semaine précédente', nextWeek: 'Semaine suivante',
       whatWorking: 'Sur quoi travaillez-vous ?', tryTheme: 'Essayez un autre thème de citations...',
       clickDismiss: 'cliquez n\'importe où pour fermer', privacyPolicy: 'Politique de confidentialité',
@@ -1680,7 +1762,7 @@
       weekTotal: 'Wochensumme', history: 'Verlauf', byActivity: 'Nach Aktivität',
       signIn: 'Anmelden', signOut: 'Abmelden', thisWeek: 'Diese Woche', lastWeek: 'Letzte Woche',
       pastSessions: 'Vergangene Sitzungen erscheinen hier', noSessions: 'Keine Sitzungen diese Woche',
-      deepWork: 'Fokusarbeit', sessionSingular: 'Sitzung', sessionPlural: 'Sitzungen',
+      deepWork: 'Fokusarbeit', sustainingWork: 'Erhaltung', sessionSingular: 'Sitzung', sessionPlural: 'Sitzungen',
       previousWeek: 'Vorherige Woche', nextWeek: 'Nächste Woche',
       whatWorking: 'Woran arbeitest du?', tryTheme: 'Probiere ein anderes Zitat-Thema...',
       clickDismiss: 'Klicke irgendwo zum Schließen', privacyPolicy: 'Datenschutzerklärung',
@@ -1692,7 +1774,7 @@
       weekTotal: 'Total semanal', history: 'Histórico', byActivity: 'Por atividade',
       signIn: 'Entrar', signOut: 'Sair', thisWeek: 'Esta semana', lastWeek: 'Semana passada',
       pastSessions: 'Sessões anteriores aparecerão aqui', noSessions: 'Sem sessões esta semana',
-      deepWork: 'Trabalho profundo', sessionSingular: 'sessão', sessionPlural: 'sessões',
+      deepWork: 'Trabalho profundo', sustainingWork: 'Manutenção', sessionSingular: 'sessão', sessionPlural: 'sessões',
       previousWeek: 'Semana anterior', nextWeek: 'Próxima semana',
       whatWorking: 'No que você está trabalhando?', tryTheme: 'Tente um tema de citações diferente...',
       clickDismiss: 'clique em qualquer lugar para fechar', privacyPolicy: 'Política de Privacidade',
@@ -1704,7 +1786,7 @@
       weekTotal: '週合計', history: '履歴', byActivity: 'アクティビティ別',
       signIn: 'ログイン', signOut: 'ログアウト', thisWeek: '今週', lastWeek: '先週',
       pastSessions: '過去のセッションがここに表示されます', noSessions: '今週のセッションはありません',
-      deepWork: 'ディープワーク', sessionSingular: 'セッション', sessionPlural: 'セッション',
+      deepWork: 'ディープワーク', sustainingWork: '維持作業', sessionSingular: 'セッション', sessionPlural: 'セッション',
       previousWeek: '前の週', nextWeek: '次の週',
       whatWorking: '何に取り組んでいますか？', tryTheme: '別の引用テーマを試す...',
       clickDismiss: 'どこかをクリックして閉じる', privacyPolicy: 'プライバシーポリシー',
@@ -1737,6 +1819,14 @@
     document.getElementById('privacyLink').textContent = t('privacyPolicy');
     document.getElementById('weekPrev').title = t('previousWeek');
     document.getElementById('weekNext').title = t('nextWeek');
+
+    // Update work type toggle labels
+    document.querySelectorAll('.work-type-toggle').forEach(toggle => {
+      toggle.querySelectorAll('.work-type-btn').forEach(btn => {
+        if (btn.dataset.type === 'deep') btn.textContent = t('deepWork');
+        else if (btn.dataset.type === 'sustaining') btn.textContent = t('sustainingWork');
+      });
+    });
 
     // Update button text based on timer state
     const currentBtnText = document.querySelector('#startPauseBtn span') ||
@@ -1812,6 +1902,26 @@
   let weekOffset = 0; // 0 = current week, -1 = last week, etc.
   let currentUser = null;
   let supabaseClient = null;
+  let currentWorkType = 'deep'; // 'deep' or 'sustaining'
+
+  // Work type toggle helper
+  function setupWorkTypeToggle(toggleEl, onChange) {
+    toggleEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('.work-type-btn');
+      if (!btn) return;
+      const type = btn.dataset.type;
+      toggleEl.querySelectorAll('.work-type-btn').forEach(b => {
+        b.className = 'work-type-btn' + (b.dataset.type === type ? (type === 'deep' ? ' active-deep' : ' active-sustaining') : '');
+      });
+      if (onChange) onChange(type);
+    });
+  }
+
+  // Main timer toggle
+  setupWorkTypeToggle(document.getElementById('mainWorkTypeToggle'), (type) => {
+    currentWorkType = type;
+    if (elapsed > 0) updateDiscFill(Math.min(elapsed / ONE_HOUR, 1));
+  });
 
   // ── Auth & Supabase ──────────────────────────────────
   function initSupabase() {
@@ -1902,7 +2012,8 @@
         duration: row.duration,
         date: row.date,
         name: row.name || 'Deep Work',
-        manual: row.manual || false
+        manual: row.manual || false,
+        type: row.type || 'deep'
       }));
 
       const cloudDates = new Set(cloudSessions.map(s => s.date));
@@ -1941,7 +2052,8 @@
         user_id: currentUser.id,
         duration: s.duration,
         name: s.name || 'Deep Work',
-        date: s.date
+        date: s.date,
+        type: s.type || 'deep'
       }));
       const { data: inserted, error } = await supabaseClient
         .from('timer_history')
@@ -1966,7 +2078,8 @@
           duration: session.duration,
           name: session.name,
           date: session.date,
-          manual: session.manual || false
+          manual: session.manual || false,
+          type: session.type || 'deep'
         })
         .select()
         .single();
@@ -2021,9 +2134,10 @@
   // Init disc fill
   function updateDiscFill(fraction) {
     const degrees = fraction * 360;
+    const color = currentWorkType === 'sustaining' ? 'var(--gray-400)' : 'var(--orange)';
     timerFill.style.background = fraction === 0
       ? 'var(--gray-200)'
-      : 'conic-gradient(var(--orange) ' + degrees + 'deg, var(--gray-200) ' + degrees + 'deg)';
+      : 'conic-gradient(' + color + ' ' + degrees + 'deg, var(--gray-200) ' + degrees + 'deg)';
   }
   updateDiscFill(0);
 
@@ -3246,6 +3360,7 @@
   newResetBtn.addEventListener('click', async () => {
     const savedElapsed = elapsed;
     const savedName = sessionInput.value.trim() || t('deepWork');
+    const savedType = currentWorkType;
 
     // Stop timer immediately before any async work
     clearInterval(interval);
@@ -3256,8 +3371,15 @@
     elapsedBeforePause = 0;
     sessionInput.value = '';
 
+    // Reset work type toggle to Deep Work
+    currentWorkType = 'deep';
+    const mainToggle = document.getElementById('mainWorkTypeToggle');
+    mainToggle.querySelectorAll('.work-type-btn').forEach(b => {
+      b.className = 'work-type-btn' + (b.dataset.type === 'deep' ? ' active-deep' : '');
+    });
+
     if (savedElapsed >= 5) {
-      const session = { duration: savedElapsed, date: new Date().toISOString(), name: savedName };
+      const session = { duration: savedElapsed, date: new Date().toISOString(), name: savedName, type: savedType };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
       if (currentUser && supabaseClient) {
@@ -3302,9 +3424,10 @@
         li.className = 'session-item';
         const sessionName = s.name || t('deepWork');
 
+        const dotClass = 'session-dot' + ((s.type || 'deep') === 'sustaining' ? ' sustaining' : '');
         li.innerHTML =
           '<div class="session-left">' +
-            '<div class="session-dot"></div>' +
+            '<div class="' + dotClass + '"></div>' +
             '<div class="session-info">' +
               '<span class="session-name">' + escapeHtml(sessionName) + '</span>' +
               '<span class="session-duration">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
@@ -3323,31 +3446,54 @@
 
     // Daily average is updated by renderHistory()
 
-    // Name totals breakdown (case-insensitive grouping)
+    // Name totals breakdown (case-insensitive grouping, grouped by name+type)
     const nameMap = {};
     const nameDisplay = {}; // preserve first-seen casing for display
     todaySessions.forEach(s => {
       const n = s.name || t('deepWork');
-      const key = n.toLowerCase();
-      if (!nameMap[key]) { nameMap[key] = { total: 0, count: 0 }; nameDisplay[key] = n; }
+      const sType = s.type || 'deep';
+      const key = n.toLowerCase() + '|' + sType;
+      if (!nameMap[key]) { nameMap[key] = { total: 0, count: 0, type: sType }; nameDisplay[key] = n; }
       nameMap[key].total += s.duration;
       nameMap[key].count++;
     });
     const uniqueKeys = Object.keys(nameMap);
-    if (uniqueKeys.length > 1 || (uniqueKeys.length === 1 && nameMap[uniqueKeys[0]].count > 1)) {
+    const totalEntries = uniqueKeys.reduce((sum, k) => sum + nameMap[k].count, 0);
+    if (uniqueKeys.length > 1 || (uniqueKeys.length === 1 && totalEntries > 1)) {
       const sorted = uniqueKeys.sort((a, b) => nameMap[b].total - nameMap[a].total);
       nameTotalsEl.style.display = '';
       nameTotalsEl.innerHTML = '<div class="name-totals-label">' + t('byActivity') + '</div>' +
-        sorted.map(key =>
-          '<div class="name-total-row">' +
-            '<span class="name-total-name"><span class="name-total-dot"></span>' + escapeHtml(nameDisplay[key]) +
+        sorted.map(key => {
+          const dotClass = 'name-total-dot' + (nameMap[key].type === 'sustaining' ? ' sustaining' : '');
+          return '<div class="name-total-row">' +
+            '<span class="name-total-name"><span class="' + dotClass + '"></span>' + escapeHtml(nameDisplay[key]) +
               '<span class="name-total-count">&times;' + nameMap[key].count + '</span></span>' +
             '<span class="name-total-time">' + fmtTotal(nameMap[key].total) + '</span>' +
-          '</div>'
-        ).join('');
+          '</div>';
+        }).join('');
     } else {
       nameTotalsEl.style.display = 'none';
       nameTotalsEl.innerHTML = '';
+    }
+
+    // Daily type breakdown (deep vs sustaining)
+    const deepSec = todaySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
+    const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
+    let breakdownEl = document.getElementById('dailyTypeBreakdown');
+    if (!breakdownEl) {
+      breakdownEl = document.createElement('div');
+      breakdownEl.id = 'dailyTypeBreakdown';
+      breakdownEl.className = 'daily-type-breakdown';
+      document.querySelector('.daily-total').appendChild(breakdownEl);
+    }
+    if (deepSec > 0 && sustainingSec > 0) {
+      breakdownEl.innerHTML =
+        '<div class="daily-type-row"><span class="daily-type-dot deep"></span>' + t('deepWork') + ': ' + fmtTotal(deepSec) + '</div>' +
+        '<div class="daily-type-row"><span class="daily-type-dot sustaining"></span>' + t('sustainingWork') + ': ' + fmtTotal(sustainingSec) + '</div>';
+      breakdownEl.style.display = '';
+    } else {
+      breakdownEl.style.display = 'none';
+      breakdownEl.innerHTML = '';
     }
 
     // Wire delete buttons
@@ -3436,25 +3582,34 @@
     weekNext.disabled = weekOffset >= 0;
     weekNext.style.opacity = weekOffset >= 0 ? '0.3' : '1';
 
-    // Build per-day totals
-    const dayTotals = days.map(d => {
+    // Build per-day totals (split by type)
+    const dayData = days.map(d => {
       const ds = d.toDateString();
-      return sessions
-        .filter(s => new Date(s.date).toDateString() === ds)
-        .reduce((sum, s) => sum + s.duration, 0);
+      const daySessions = sessions.filter(s => new Date(s.date).toDateString() === ds);
+      const deep = daySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
+      const sustaining = daySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
+      return { deep, sustaining, total: deep + sustaining };
     });
 
-    const maxTotal = Math.max(...dayTotals, 1);
+    const maxTotal = Math.max(...dayData.map(d => d.total), 1);
 
-    // Render bar chart
+    // Render bar chart (stacked: deep + sustaining)
     weekChart.innerHTML = days.map((d, i) => {
-      const pct = (dayTotals[i] / maxTotal) * 100;
+      const dd = dayData[i];
+      const deepPct = (dd.deep / maxTotal) * 100;
+      const sustainPct = (dd.sustaining / maxTotal) * 100;
       const isToday = d.toDateString() === today;
-      const barClass = isToday ? 'chart-bar today-bar' : 'chart-bar';
+      let bars = '';
+      if (dd.deep > 0) {
+        bars += '<div class="chart-bar deep-bar' + (isToday ? ' today-bar' : '') + '" style="width:' + deepPct + '%"></div>';
+      }
+      if (dd.sustaining > 0) {
+        bars += '<div class="chart-bar sustaining-bar" style="width:' + sustainPct + '%"></div>';
+      }
       return '<div class="chart-row">' +
         '<span class="chart-day">' + DAY_NAMES[i] + '</span>' +
-        '<div class="chart-bar-wrap"><div class="' + barClass + '" style="width:' + pct + '%"></div></div>' +
-        '<span class="chart-value">' + (dayTotals[i] > 0 ? fmtTotal(dayTotals[i]) : '—') + '</span>' +
+        '<div class="chart-bar-wrap">' + bars + '</div>' +
+        '<span class="chart-value">' + (dd.total > 0 ? fmtTotal(dd.total) : '—') + '</span>' +
       '</div>';
     }).join('');
 
@@ -3484,12 +3639,14 @@
           '</div>' +
         '</div>' +
         '<div class="history-group-sessions">' +
-          daySessions.map(s =>
-            '<div class="history-session">' +
-              '<span class="history-session-name">' + escapeHtml(s.name || t('deepWork')) + '</span>' +
+          daySessions.map(s => {
+            const hDotClass = 'history-session-dot' + ((s.type || 'deep') === 'sustaining' ? ' sustaining' : '');
+            return '<div class="history-session">' +
+              '<div class="history-session-left"><span class="' + hDotClass + '"></span>' +
+              '<span class="history-session-name">' + escapeHtml(s.name || t('deepWork')) + '</span></div>' +
               '<span class="history-session-detail">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
-            '</div>'
-          ).join('') +
+            '</div>';
+          }).join('') +
         '</div>' +
       '</div>';
     });
@@ -3650,6 +3807,26 @@
     let html = '<div class="dd-stats">';
     html += '<div class="dd-stat-card"><div class="dd-stat-label">Total Focus</div><div class="dd-stat-value">' + fmtTotal(totalFocusSec) + '</div></div>';
     html += '<div class="dd-stat-card"><div class="dd-stat-label">Peak Hour</div><div class="dd-stat-value">' + peakLabel + '</div></div>';
+    html += '</div>';
+
+    // Work type breakdown (Whoop-inspired)
+    const deepTotal = filtered.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
+    const sustainTotal = filtered.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
+    const deepPct = totalFocusSec > 0 ? Math.round(deepTotal / totalFocusSec * 100) : 0;
+    const sustainPct = totalFocusSec > 0 ? Math.round(sustainTotal / totalFocusSec * 100) : 0;
+
+    html += '<div class="dd-section-title">Work Type</div>';
+    html += '<div class="dd-type-section">';
+    html += '<div class="dd-type-row">' +
+      '<span class="dd-type-label deep">' + t('deepWork') + '</span>' +
+      '<div class="dd-type-bar-wrap"><div class="dd-type-bar deep" style="width:' + deepPct + '%"></div></div>' +
+      '<span class="dd-type-dur">' + fmtTotal(deepTotal) + '</span>' +
+      '<span class="dd-type-pct">' + deepPct + '%</span></div>';
+    html += '<div class="dd-type-row">' +
+      '<span class="dd-type-label sustaining">' + t('sustainingWork') + '</span>' +
+      '<div class="dd-type-bar-wrap"><div class="dd-type-bar sustaining" style="width:' + sustainPct + '%"></div></div>' +
+      '<span class="dd-type-dur">' + fmtTotal(sustainTotal) + '</span>' +
+      '<span class="dd-type-pct">' + sustainPct + '%</span></div>';
     html += '</div>';
 
     // Time of day
@@ -3945,11 +4122,19 @@
 
     setupSessionSuggestions(nameInput, document.getElementById('addSessionSuggestions'));
 
+    let addSessionWorkType = 'deep';
+    const addToggle = document.getElementById('addWorkTypeToggle');
+    setupWorkTypeToggle(addToggle, (type) => { addSessionWorkType = type; });
+
     function openOverlay() { screen.classList.add('active'); nameInput.focus(); }
     function closeOverlay() {
       screen.classList.remove('active');
       nameInput.value = ''; hoursInput.value = 0; minutesInput.value = 25;
       hoursInput.classList.remove('invalid'); minutesInput.classList.remove('invalid');
+      addSessionWorkType = 'deep';
+      addToggle.querySelectorAll('.work-type-btn').forEach(b => {
+        b.className = 'work-type-btn' + (b.dataset.type === 'deep' ? ' active-deep' : '');
+      });
     }
 
     btn.addEventListener('click', openOverlay);
@@ -3968,7 +4153,7 @@
 
       submitBtn.disabled = true;
       const name = nameInput.value.trim() || t('deepWork');
-      const session = { name: name, duration: totalSeconds, date: new Date().toISOString(), manual: true };
+      const session = { name: name, duration: totalSeconds, date: new Date().toISOString(), manual: true, type: addSessionWorkType };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
 
