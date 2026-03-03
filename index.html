@@ -3289,6 +3289,20 @@
     }
   });
 
+  // Keyboard shortcuts: Space = start/pause, R = finish session
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (document.getElementById('addSessionScreen').classList.contains('active')) return;
+    if (e.code === 'Space') {
+      e.preventDefault();
+      const spBtn = document.querySelector('.controls .btn-primary');
+      if (spBtn) spBtn.click();
+    } else if (e.key.toLowerCase() === 'r' && elapsed > 0) {
+      const rsBtn = document.querySelector('.controls .btn-secondary');
+      if (rsBtn) rsBtn.click();
+    }
+  });
+
   // Easter egg 2: Click logo 7 times (The Seven Percent Solution)
   let logoClicks = 0;
   let logoClickTimer = null;
