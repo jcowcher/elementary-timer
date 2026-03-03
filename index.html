@@ -437,7 +437,7 @@
     background: var(--orange-light);
   }
 
-  .btn-primary.sustaining { background: var(--gray-700); }
+  .btn-primary.sustaining { background: var(--gray-900); }
   .btn-primary.sustaining:hover { background: var(--gray-900); }
 
   .btn-secondary {
@@ -1341,15 +1341,15 @@
     transition: all 0.15s; white-space: nowrap;
   }
   .work-type-btn.active-deep { background: var(--orange); color: var(--white); }
-  .work-type-btn.active-sustaining { background: var(--gray-700); color: var(--white); }
+  .work-type-btn.active-sustaining { background: var(--gray-900); color: var(--white); }
 
   /* Sustaining session dot */
-  .session-dot.sustaining { background: var(--gray-700); }
-  .name-total-dot.sustaining { background: var(--gray-700); }
+  .session-dot.sustaining { background: var(--gray-900); }
+  .name-total-dot.sustaining { background: var(--gray-900); }
 
   /* Stacked chart bars */
   .chart-bar-wrap { display: flex; }
-  .chart-bar.sustaining-bar { background: var(--gray-700); border-radius: 0 3px 3px 0; }
+  .chart-bar.sustaining-bar { background: var(--gray-900); border-radius: 0 3px 3px 0; }
   .chart-bar.deep-bar { border-radius: 3px 0 0 3px; }
   .chart-bar.deep-bar:last-child { border-radius: 3px; }
   .chart-bar.sustaining-bar:first-child { border-radius: 3px 0 0 3px; }
@@ -1359,7 +1359,7 @@
     width: 5px; height: 5px; border-radius: 50%;
     background: var(--orange); flex-shrink: 0; margin-right: 0.5rem;
   }
-  .history-session-dot.sustaining { background: var(--gray-700); }
+  .history-session-dot.sustaining { background: var(--gray-900); }
   .history-session-left { display: flex; align-items: center; flex: 1; }
 
   /* Daily total type breakdown */
@@ -1372,7 +1372,7 @@
     width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
   }
   .daily-type-dot.deep { background: var(--orange); }
-  .daily-type-dot.sustaining { background: var(--gray-700); }
+  .daily-type-dot.sustaining { background: var(--gray-900); }
 
   /* Deep dive work type breakdown (Whoop-inspired) */
   .dd-type-section { margin-bottom: 1rem; }
@@ -1385,7 +1385,7 @@
     letter-spacing: 0.04em; width: 80px; flex-shrink: 0;
   }
   .dd-type-label.deep { color: var(--orange); }
-  .dd-type-label.sustaining { color: var(--gray-700); }
+  .dd-type-label.sustaining { color: var(--gray-900); }
   .dd-type-bar-wrap {
     flex: 1; height: 10px; background: var(--gray-100);
     border-radius: 5px; overflow: hidden; position: relative;
@@ -1394,7 +1394,7 @@
     height: 100%; border-radius: 5px; transition: width 0.3s;
   }
   .dd-type-bar.deep { background: var(--orange); }
-  .dd-type-bar.sustaining { background: var(--gray-700); }
+  .dd-type-bar.sustaining { background: var(--gray-900); }
   .dd-type-dur {
     font-size: 0.75rem; font-weight: 600; color: var(--black);
     font-variant-numeric: tabular-nums; min-width: 42px; text-align: right;
@@ -2142,7 +2142,7 @@
   // Init disc fill
   function updateDiscFill(fraction) {
     const degrees = fraction * 360;
-    const color = currentWorkType === 'sustaining' ? 'var(--gray-700)' : 'var(--orange)';
+    const color = currentWorkType === 'sustaining' ? 'var(--gray-900)' : 'var(--orange)';
     timerFill.style.background = fraction === 0
       ? 'var(--gray-200)'
       : 'conic-gradient(' + color + ' ' + degrees + 'deg, var(--gray-200) ' + degrees + 'deg)';
