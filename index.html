@@ -1189,7 +1189,7 @@
   .dd-hour-bar-bg { flex: 1; height: 8px; background: var(--gray-50); border-radius: 3px; overflow: hidden; }
   .dd-hour-bar-bg .dd-hour-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
   .dd-hour-bar.focus { background: #ff6600; }
-  .dd-hour-bar.work { background: var(--gray-500); }
+  .dd-hour-bar.work { background: #fff; border: 1.5px solid #ff6600; border-radius: 3px; box-sizing: border-box; }
   .dd-hour-val { font-size: 0.55rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
 
   .dd-trend-card {
@@ -3792,7 +3792,7 @@
             '<div class="' + dotClass + '"></div>' +
             '<div class="session-info">' +
               '<span class="session-name">' + escapeHtml(sessionName) + '</span>' +
-              '<span class="session-duration">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
+              '<span class="session-duration">' + fmtDuration(s.duration) + '</span>' +
             '</div>' +
           '</div>' +
           '<button class="session-delete" data-date="' + escapeHtml(s.date) + '" title="' + t('deleteSession') + '">' +
@@ -4129,7 +4129,9 @@
       const sustainSec = sustainBuckets[i];
       const totalSec = deepSec + sustainSec;
       const days = daysSeen[i].size;
-      return { hour: i, deepSec, sustainSec, totalSec, avgSec: days > 0 ? totalSec / days : 0 };
+      return { hour: i, deepSec, sustainSec, totalSec,
+        avgDeepSec: days > 0 ? deepSec / days : 0,
+        avgSec: days > 0 ? totalSec / days : 0 };
     });
   }
 
@@ -4222,8 +4224,8 @@
     html += '<div class="dd-hour-grid">';
     for (let h = 0; h < 24; h++) {
       const b = hourBuckets[h];
-      const focusPct = Math.min(100, Math.round(b.deepSec / 3600 * 100));
-      const workPct = Math.min(100, Math.round(b.totalSec / 3600 * 100));
+      const focusPct = Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
+      const workPct = Math.min(100, Math.round(b.avgSec / 3600 * 100));
       const label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
       html += '<div class="dd-hour-row">' +
         '<span class="dd-hour-label">' + label + '</span>' +
