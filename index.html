@@ -1193,11 +1193,11 @@
   .dd-hour-val { font-size: 0.55rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
 
   .dd-trend-card {
-    background: #1a1a1a; border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;
+    background: #1a1a1a; border-radius: 10px; padding: 0.6rem 0.75rem; margin-bottom: 0.5rem;
   }
-  .dd-trend-card .dd-section-title { color: #fff; }
-  .dd-trend-avg { font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-bottom: 0.6rem; }
-  .dd-trend-chart { position: relative; width: 100%; height: 100px; }
+  .dd-trend-card .dd-section-title { color: #fff; font-size: 0.75rem; margin-bottom: 0.15rem; }
+  .dd-trend-avg { font-size: 0.6rem; color: rgba(255,255,255,0.45); margin-bottom: 0.4rem; }
+  .dd-trend-chart { position: relative; width: 100%; height: 70px; }
   .dd-trend-chart svg { width: 100%; height: 100%; overflow: visible; }
   .dd-trend-labels { display: flex; justify-content: space-between; margin-top: 0.35rem; }
   .dd-trend-lbl { font-size: 0.55rem; color: rgba(255,255,255,0.4); }
@@ -4224,8 +4224,8 @@
     html += '<div class="dd-hour-grid">';
     for (let h = 0; h < 24; h++) {
       const b = hourBuckets[h];
-      const focusPct = Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
-      const workPct = Math.min(100, Math.round(b.avgSec / 3600 * 100));
+      const focusPct = b.avgDeepSec < 180 ? 0 : Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
+      const workPct = b.avgSec < 180 ? 0 : Math.min(100, Math.round(b.avgSec / 3600 * 100));
       const label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
       html += '<div class="dd-hour-row">' +
         '<span class="dd-hour-label">' + label + '</span>' +
