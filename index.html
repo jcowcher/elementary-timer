@@ -3794,7 +3794,7 @@
             '<div class="' + dotClass + '"></div>' +
             '<div class="session-info">' +
               '<span class="session-name">' + escapeHtml(sessionName) + '</span>' +
-              '<span class="session-duration">' + fmtDuration(s.duration) + '</span>' +
+              '<span class="session-duration">' + fmtTotal(s.duration) + '</span>' +
             '</div>' +
           '</div>' +
           '<button class="session-delete" data-date="' + escapeHtml(s.date) + '" title="' + t('deleteSession') + '">' +
@@ -4120,20 +4120,20 @@
   function aggregateByHourOfDay(hourlyMap) {
     const deepBuckets = new Array(24).fill(0);
     const sustainBuckets = new Array(24).fill(0);
-    const daysSeen = Array.from({ length: 24 }, () => new Set());
+    const activeDays = new Set();
     Object.entries(hourlyMap).forEach(([key, val]) => {
       const hour = parseInt(key.split(':')[1], 10);
       deepBuckets[hour] += val.deep;
       sustainBuckets[hour] += val.sustaining;
-      daysSeen[hour].add(key.split(':')[0]);
+      activeDays.add(key.split(':')[0]);
     });
+    const totalDays = Math.max(activeDays.size, 1);
     return deepBuckets.map((deepSec, i) => {
       const sustainSec = sustainBuckets[i];
       const totalSec = deepSec + sustainSec;
-      const days = daysSeen[i].size;
       return { hour: i, deepSec, sustainSec, totalSec,
-        avgDeepSec: days > 0 ? deepSec / days : 0,
-        avgSec: days > 0 ? totalSec / days : 0 };
+        avgDeepSec: deepSec / totalDays,
+        avgSec: totalSec / totalDays };
     });
   }
 
