@@ -1181,12 +1181,16 @@
   }
   .dd-tod-pct { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-top: 0.3rem; }
 
-  .dd-hour-grid { display: flex; flex-direction: column; gap: 1px; margin-bottom: 0.5rem; }
-  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; height: 18px; }
-  .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; }
-  .dd-hour-bar-bg { flex: 1; height: 10px; background: var(--gray-50); border-radius: 3px; overflow: hidden; }
-  .dd-hour-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
-  .dd-hour-val { width: 32px; font-size: 0.6rem; color: var(--gray-400); flex-shrink: 0; }
+  .dd-hour-grid { display: flex; flex-direction: column; gap: 2px; margin-bottom: 0.5rem; }
+  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; min-height: 28px; }
+  .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; align-self: flex-start; line-height: 14px; }
+  .dd-hour-bars { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+  .dd-hour-bar-line { display: flex; align-items: center; gap: 0.3rem; height: 12px; }
+  .dd-hour-bar-bg { flex: 1; height: 8px; background: var(--gray-50); border-radius: 3px; overflow: hidden; }
+  .dd-hour-bar-bg .dd-hour-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
+  .dd-hour-bar.focus { background: #ff6600; }
+  .dd-hour-bar.work { background: var(--gray-500); }
+  .dd-hour-val { font-size: 0.55rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
 
   .dd-trend { display: flex; align-items: flex-end; gap: 2px; height: 60px; margin-bottom: 0.5rem; }
   .dd-trend-bar-wrap { flex: 1; height: 100%; display: flex; align-items: flex-end; position: relative; }
@@ -4082,6 +4086,7 @@
     filteredSessions.forEach(s => {
       const end = new Date(s.date);
       const start = new Date(end.getTime() - s.duration * 1000);
+      const type = s.type || 'deep';
       let cursor = new Date(start);
       while (cursor < end) {
         const hourStart = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate(), cursor.getHours());
@@ -4094,7 +4099,9 @@
             String(hourStart.getMonth() + 1).padStart(2, '0') + '-' +
             String(hourStart.getDate()).padStart(2, '0') + ':' +
             String(hourStart.getHours()).padStart(2, '0');
-          map[key] = (map[key] || 0) + secs;
+          if (!map[key]) map[key] = { deep: 0, sustaining: 0 };
+          if (type === 'sustaining') map[key].sustaining += secs;
+          else map[key].deep += secs;
         }
         cursor = hourEnd;
       }
@@ -4103,20 +4110,21 @@
   }
 
   function aggregateByHourOfDay(hourlyMap) {
-    const buckets = new Array(24).fill(0);
-    const dayCounts = new Array(24).fill(0);
+    const deepBuckets = new Array(24).fill(0);
+    const sustainBuckets = new Array(24).fill(0);
     const daysSeen = Array.from({ length: 24 }, () => new Set());
-    Object.entries(hourlyMap).forEach(([key, secs]) => {
+    Object.entries(hourlyMap).forEach(([key, val]) => {
       const hour = parseInt(key.split(':')[1], 10);
-      buckets[hour] += secs;
+      deepBuckets[hour] += val.deep;
+      sustainBuckets[hour] += val.sustaining;
       daysSeen[hour].add(key.split(':')[0]);
     });
-    for (let i = 0; i < 24; i++) dayCounts[i] = daysSeen[i].size;
-    return buckets.map((totalSec, i) => ({
-      hour: i,
-      totalSec,
-      avgSec: dayCounts[i] > 0 ? totalSec / dayCounts[i] : 0
-    }));
+    return deepBuckets.map((deepSec, i) => {
+      const sustainSec = sustainBuckets[i];
+      const totalSec = deepSec + sustainSec;
+      const days = daysSeen[i].size;
+      return { hour: i, deepSec, sustainSec, totalSec, avgSec: days > 0 ? totalSec / days : 0 };
+    });
   }
 
   function aggregateByTimeOfDay(hourBuckets) {
@@ -4135,9 +4143,9 @@
 
   function getDailyTrend(hourlyMap) {
     const dayMap = {};
-    Object.entries(hourlyMap).forEach(([key, secs]) => {
+    Object.entries(hourlyMap).forEach(([key, val]) => {
       const day = key.split(':')[0];
-      dayMap[day] = (dayMap[day] || 0) + secs;
+      dayMap[day] = (dayMap[day] || 0) + val.deep + val.sustaining;
     });
     return Object.entries(dayMap).sort((a, b) => a[0].localeCompare(b[0])).map(([day, secs]) => ({ day, secs }));
   }
@@ -4208,13 +4216,17 @@
     html += '<div class="dd-hour-grid">';
     for (let h = 0; h < 24; h++) {
       const b = hourBuckets[h];
-      const pct = maxHourSec > 0 ? (b.totalSec / maxHourSec * 100) : 0;
-      const opacity = b.totalSec > 0 ? (0.3 + 0.7 * (b.totalSec / maxHourSec)) : 0;
+      const focusPct = Math.min(100, Math.round(b.deepSec / 3600 * 100));
+      const workPct = Math.min(100, Math.round(b.totalSec / 3600 * 100));
       const label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
       html += '<div class="dd-hour-row">' +
         '<span class="dd-hour-label">' + label + '</span>' +
-        '<div class="dd-hour-bar-bg"><div class="dd-hour-bar" style="width:' + pct + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div></div>' +
-        '<span class="dd-hour-val">' + (b.totalSec > 0 ? Math.round(b.totalSec / 3600 * 100) + '%' : '') + '</span></div>';
+        '<div class="dd-hour-bars">' +
+          '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar focus" style="width:' + focusPct + '%"></div></div>' +
+            '<span class="dd-hour-val">' + (focusPct > 0 ? 'Focus ' + focusPct + '%' : '') + '</span></div>' +
+          '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar work" style="width:' + workPct + '%"></div></div>' +
+            '<span class="dd-hour-val">' + (workPct > 0 ? 'Work ' + workPct + '%' : '') + '</span></div>' +
+        '</div></div>';
     }
     html += '</div>';
 
