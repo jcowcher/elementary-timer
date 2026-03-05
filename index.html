@@ -784,8 +784,8 @@
 
   /* History section */
   .history-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
     border-top: 1px solid var(--gray-200);
   }
 
@@ -3890,9 +3890,9 @@
 
     // Shrink session list as sessions accumulate to keep totals visible
     const count = todaySessions.length;
-    if (count <= 3) sessionList.style.maxHeight = '';
-    else if (count <= 5) sessionList.style.maxHeight = '180px';
-    else sessionList.style.maxHeight = '140px';
+    if (count <= 5) sessionList.style.maxHeight = '';
+    else if (count <= 8) sessionList.style.maxHeight = '260px';
+    else sessionList.style.maxHeight = '220px';
 
     updateStreak();
   }
