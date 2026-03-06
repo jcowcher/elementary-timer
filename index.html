@@ -1295,8 +1295,18 @@
     padding: 0.15rem 0.55rem; border-radius: 100px; line-height: 1;
     transition: background 0.15s, color 0.15s;
   }
+  .pomodoro-link { position: relative; overflow: visible; }
   .pomodoro-link:hover { background: var(--gray-200); color: var(--gray-600); }
   .pomodoro-link.active { background: #4a90d9; color: #fff; }
+  .pomo-tooltip {
+    display: none; position: absolute; top: calc(100% + 8px); right: 0;
+    background: #fff; color: var(--gray-500);
+    font-size: 0.65rem; font-weight: 400; padding: 0.5rem 0.7rem;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(255,102,0,0.08);
+    width: 220px; white-space: normal; line-height: 1.45; pointer-events: none; z-index: 20;
+    border: 1px solid rgba(255,102,0,0.15);
+  }
+  .pomodoro-link:hover .pomo-tooltip { display: block; }
   .add-session-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 18px; height: 18px; border-radius: 50%;
@@ -1652,7 +1662,7 @@
   <div class="session-section">
     <div class="section-header">
       <span class="section-title">Today's breakdown</span>
-      <button class="pomodoro-link" id="pomodoroBtn">Pomodoro</button>
+      <button class="pomodoro-link" id="pomodoroBtn">Pomodoro<span class="pomo-tooltip">25-minute focused work sessions with 5-minute breaks — a proven technique to maintain concentration</span></button>
     </div>
     <div class="session-count-below" id="sessionCount"></div>
     <ul class="session-list" id="sessionList"></ul>
@@ -1905,7 +1915,7 @@
 
     // Update Pomodoro button
     const pomoBtn = document.getElementById('pomodoroBtn');
-    if (pomoBtn) pomoBtn.textContent = pomodoroMode ? t('exitPomodoro') : t('pomodoro');
+    if (pomoBtn) pomoBtn.childNodes[0].textContent = pomodoroMode ? t('exitPomodoro') : t('pomodoro');
 
     // Update work type toggle labels
     document.querySelectorAll('.work-type-toggle').forEach(toggle => {
@@ -3549,7 +3559,7 @@
     elapsedBeforePause = 0;
 
     // Update button
-    pomodoroBtn.textContent = t('exitPomodoro');
+    pomodoroBtn.childNodes[0].textContent = t('exitPomodoro');
     pomodoroBtn.classList.add('active');
 
     // Show 25:00 countdown
@@ -3573,7 +3583,7 @@
     elapsedBeforePause = 0;
 
     // Update button
-    pomodoroBtn.textContent = t('pomodoro');
+    pomodoroBtn.childNodes[0].textContent = t('pomodoro');
     pomodoroBtn.classList.remove('active');
 
     // Reset display to normal count-up mode
