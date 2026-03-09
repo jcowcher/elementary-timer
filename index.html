@@ -1297,7 +1297,7 @@
   }
   .pomodoro-link { position: relative; overflow: visible; }
   .pomodoro-link:hover { background: var(--gray-200); color: var(--gray-600); }
-  .pomodoro-link.active { background: #4a90d9; color: #fff; }
+  .pomodoro-link.active { color: #fff; }
   .pomo-tooltip {
     display: none; position: absolute; top: calc(100% + 10px); right: 0;
     background: #fff; color: var(--gray-500);
@@ -2072,12 +2072,14 @@
   // Main timer toggle
   setupWorkTypeToggle(document.getElementById('mainWorkTypeToggle'), (type) => {
     currentWorkType = type;
-    if (elapsed > 0) updateDiscFill(Math.min(elapsed / ONE_HOUR, 1));
+    if (pomodoroMode) updateDiscFill(Math.max((pomodoroPhase === 'work' ? POMO_WORK : POMO_BREAK) - elapsed, 0) / (pomodoroPhase === 'work' ? POMO_WORK : POMO_BREAK));
+    else if (elapsed > 0) updateDiscFill(Math.min(elapsed / ONE_HOUR, 1));
     // Update start/pause button color
     const spBtn = document.getElementById('startPauseBtn') || document.querySelector('.btn-primary');
     if (spBtn) {
       spBtn.classList.toggle('sustaining', type === 'sustaining');
     }
+    syncPomoPillColor();
   });
 
   // ── Auth & Supabase ──────────────────────────────────
@@ -3546,6 +3548,12 @@
   // ── Pomodoro Functions ───────────────────────────────
   const pomodoroBtn = document.getElementById('pomodoroBtn');
 
+  function syncPomoPillColor() {
+    if (pomodoroMode) {
+      pomodoroBtn.style.background = currentWorkType === 'sustaining' ? 'var(--gray-900)' : 'var(--orange)';
+    }
+  }
+
   function enterPomodoro() {
     pomodoroMode = true;
     pomodoroPhase = 'work';
@@ -3561,6 +3569,7 @@
     // Update button
     pomodoroBtn.childNodes[0].textContent = t('exitPomodoro');
     pomodoroBtn.classList.add('active');
+    syncPomoPillColor();
 
     // Show 25:00 countdown
     updateDisplay();
@@ -3585,6 +3594,7 @@
     // Update button
     pomodoroBtn.childNodes[0].textContent = t('pomodoro');
     pomodoroBtn.classList.remove('active');
+    pomodoroBtn.style.background = '';
 
     // Reset display to normal count-up mode
     updateDisplay();
