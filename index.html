@@ -4622,16 +4622,19 @@
         '<li class="session-suggestion-item"><span class="suggestion-text">' + escapeHtml(n) + '</span><span class="suggestion-remove">&#10005;</span></li>'
       ).join('');
       list.classList.add('open');
+      list.querySelectorAll('.session-suggestion-item').forEach(item => {
+        item.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+        });
+      });
       list.querySelectorAll('.suggestion-text').forEach(span => {
         span.addEventListener('mousedown', function(e) {
-          e.preventDefault();
           input.value = this.textContent;
           list.classList.remove('open');
         });
       });
       list.querySelectorAll('.suggestion-remove').forEach(btn => {
         btn.addEventListener('mousedown', function(e) {
-          e.preventDefault();
           e.stopPropagation();
           const name = this.previousElementSibling.textContent;
           hiddenNames.push(name);
@@ -4643,7 +4646,7 @@
     input.addEventListener('focus', showMatches);
     input.addEventListener('input', showMatches);
     input.addEventListener('blur', function() {
-      setTimeout(() => list.classList.remove('open'), 150);
+      list.classList.remove('open');
     });
   }
 
