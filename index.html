@@ -430,6 +430,45 @@
     50% { box-shadow: 0 8px 40px rgba(255,102,0,0.15), 0 2px 8px rgba(0,0,0,0.06), inset 0 2px 4px rgba(255,255,255,0.8); }
   }
 
+  /* Lap badge */
+  .lap-badge {
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    border: 2px solid var(--orange);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--orange);
+    z-index: 4;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .lap-badge.visible {
+    opacity: 1;
+  }
+  .lap-badge.flash {
+    animation: lapFlash 0.6s ease-out;
+  }
+  @keyframes lapFlash {
+    0% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+    30% { transform: translateX(-50%) scale(1.4); filter: brightness(1.3); }
+    100% { transform: translateX(-50%) scale(1); filter: brightness(1); }
+  }
+  @keyframes ringFlash {
+    0% { filter: brightness(1); }
+    30% { filter: brightness(1.2); }
+    100% { filter: brightness(1); }
+  }
+
   /* Controls */
   .controls {
     display: flex;
@@ -1955,6 +1994,7 @@
     </div>
 
     <div class="timer-wrap" id="timerWrap">
+      <div class="lap-badge" id="lapBadge"></div>
       <div class="stopwatch-btn"></div>
       <div class="timer-body" id="timerBody">
         <div class="timer-fill" id="timerFill">
@@ -2360,6 +2400,7 @@
   let running = false;
   let startTime = null;        // Date.now() when timer started/resumed
   let elapsedBeforePause = 0;  // seconds accumulated before last pause
+  let completedLaps = 0;       // number of completed 60-minute laps
   let sessions;
   try { sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]'); }
   catch { sessions = []; }
@@ -2977,13 +3018,24 @@
 
     display.textContent = fmt(elapsed);
 
-    const fraction = Math.min(elapsed / ONE_HOUR, 1);
+    // Lap-based ring: resets each 60 minutes
+    const fraction = (elapsed % ONE_HOUR) / ONE_HOUR;
 
     // Update disc fill
     updateDiscFill(fraction);
 
+    // Update lap badge
+    const laps = Math.floor(elapsed / ONE_HOUR);
+    const lapBadge = document.getElementById('lapBadge');
+    if (laps >= 1) {
+      lapBadge.textContent = laps;
+      lapBadge.classList.add('visible');
+    } else {
+      lapBadge.classList.remove('visible');
+    }
+
     // Toggle digit styling based on fill
-    if (fraction > 0) {
+    if (elapsed > 0) {
       display.classList.remove('idle');
       display.classList.add('visible');
     } else {
@@ -4134,6 +4186,21 @@
       chime60Played = true;
       playSoftBell();
     }
+
+    // Lap completion flash
+    const prevLaps = Math.floor(prev / ONE_HOUR);
+    const curLaps = Math.floor(elapsed / ONE_HOUR);
+    if (curLaps > prevLaps && curLaps >= 1) {
+      completedLaps = curLaps;
+      const badge = document.getElementById('lapBadge');
+      badge.classList.remove('flash');
+      void badge.offsetWidth; // reflow to restart animation
+      badge.classList.add('flash');
+      timerFill.style.animation = 'ringFlash 0.6s ease-out';
+      timerFill.addEventListener('animationend', function() {
+        timerFill.style.animation = '';
+      }, { once: true });
+    }
   }
 
   // ── Pomodoro Functions ───────────────────────────────
@@ -4156,6 +4223,7 @@
     elapsed = 0;
     startTime = null;
     elapsedBeforePause = 0;
+    completedLaps = 0;
 
     // Update button
     pomodoroBtn.childNodes[0].textContent = t('exitPomodoro');
@@ -4181,6 +4249,7 @@
     elapsed = 0;
     startTime = null;
     elapsedBeforePause = 0;
+    completedLaps = 0;
 
     // Update button
     pomodoroBtn.childNodes[0].textContent = t('pomodoro');
@@ -4224,6 +4293,7 @@
     pomodoroPhase = 'break';
     elapsed = 0;
     elapsedBeforePause = 0;
+    completedLaps = 0;
     startTime = Date.now();
     statusLabel.textContent = t('breakTime');
     statusLabel.className = 'time-label running-label';
@@ -4242,6 +4312,7 @@
     elapsed = 0;
     startTime = null;
     elapsedBeforePause = 0;
+    completedLaps = 0;
 
     // Reset UI to ready-for-next-round state
     const currentBtn = document.querySelector('.btn-primary span');
@@ -4327,6 +4398,7 @@
     elapsed = 0;
     startTime = null;
     elapsedBeforePause = 0;
+    completedLaps = 0;
     chime60Played = false;
 
     if (pomodoroMode) {
