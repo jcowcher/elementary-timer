@@ -1535,7 +1535,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
+    padding: 14px 40px;
     max-width: 1100px;
     margin: 0 auto;
   }
@@ -1577,10 +1577,10 @@
   .landing-hero {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 80px 40px 60px;
+    padding: 40px 40px 28px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 80px;
+    gap: 48px;
     align-items: center;
   }
   .landing-hero-text h1 {
@@ -1588,7 +1588,7 @@
     font-weight: 500;
     line-height: 1.15;
     letter-spacing: -1px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
   }
   .landing-hero-text h1 em { font-style: normal; color: var(--orange); }
   .landing-hero-text .subtitle {
@@ -1619,16 +1619,16 @@
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 16px;
-    padding: 28px;
+    padding: 22px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.05);
   }
-  .landing-dd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .landing-dd-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
   .landing-dd-header h3 { font-size: 15px; font-weight: 500; }
   .landing-dd-tabs { display: flex; gap: 2px; background: var(--gray-100); border-radius: 6px; padding: 2px; }
   .landing-dd-tab { font-size: 11px; padding: 4px 10px; border-radius: 4px; color: var(--gray-500); }
   .landing-dd-tab.active { background: var(--white); color: var(--black); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .landing-dd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
-  .landing-dd-stat { background: var(--gray-100); border-radius: 10px; padding: 14px 16px; }
+  .landing-dd-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .landing-dd-stat { background: var(--gray-100); border-radius: 10px; padding: 12px 14px; }
   .landing-dd-stat-label { font-size: 11px; color: var(--gray-500); margin-bottom: 4px; }
   .landing-dd-stat-value { font-size: 22px; font-weight: 500; }
   .landing-heatmap-label { font-size: 12px; font-weight: 500; margin-bottom: 10px; }
@@ -1648,29 +1648,29 @@
   .landing-legend-cell { width: 10px; height: 10px; border-radius: 2px; }
 
   /* Landing modes section */
-  .landing-modes { max-width: 1100px; margin: 0 auto; padding: 40px 40px 80px; }
-  .landing-modes-label { font-size: 13px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 24px; }
+  .landing-modes { max-width: 1100px; margin: 0 auto; padding: 16px 40px 32px; }
+  .landing-modes-label { font-size: 13px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
   .landing-modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .landing-mode-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
     border-radius: 14px;
-    padding: 28px;
+    padding: 20px;
     transition: border-color 0.2s;
   }
   .landing-mode-card:hover { border-color: var(--orange-light); }
-  .landing-mode-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 20px; }
+  .landing-mode-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; font-size: 18px; }
   .landing-mode-card:first-child .landing-mode-icon { background: rgba(255,102,0,0.06); }
   .landing-mode-card:last-child .landing-mode-icon { background: var(--gray-100); }
   .landing-mode-card h3 { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
   .landing-mode-card p { font-size: 14px; line-height: 1.55; color: var(--gray-500); }
 
   @media (max-width: 768px) {
-    .landing-hero { grid-template-columns: 1fr; gap: 40px; padding: 40px 20px; }
+    .landing-hero { grid-template-columns: 1fr; gap: 32px; padding: 28px 20px 20px; }
     .landing-hero-text h1 { font-size: 30px; }
     .landing-modes-grid { grid-template-columns: 1fr; }
-    .landing-nav { padding: 16px 20px; }
-    .landing-modes { padding: 20px 20px 60px; }
+    .landing-nav { padding: 12px 20px; }
+    .landing-modes { padding: 12px 20px 40px; }
   }
 
   .site-footer {
@@ -1867,7 +1867,7 @@
       <div class="landing-mode-card">
         <div class="landing-mode-icon">&#x26A1;</div>
         <h3>Sustaining</h3>
-        <p>Lower-intensity work that keeps things moving — email, Slack, meetings, admin, planning. Necessary, but not the same.</p>
+        <p>Lower-intensity work that keeps things moving — email, Slack, meetings, admin, planning.</p>
       </div>
     </div>
   </section>
