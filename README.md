@@ -1,3 +1,4 @@
-Seeking to spend more time in deep work each day, building a deep work timer with some fun twists.
+The clock runs.
+Know how your time's spent.
 
 https://gemtimer.com
