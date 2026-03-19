@@ -1231,25 +1231,21 @@
   .dd-heatmap-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
   .dd-heatmap-title { color: var(--black); font-size: 0.8rem; font-weight: 600; }
   .dd-heatmap-months { display: flex; font-size: 0.6rem; color: var(--gray-400); padding-left: 28px; margin-bottom: 2px; gap: 2px; }
-  .dd-heatmap-months span { text-align: left; flex: 1; }
-  .dd-heatmap-fixed .dd-heatmap-months span { flex: none; width: 13px; }
+  .dd-heatmap-months span { text-align: left; width: 13px; }
   .dd-heatmap-body { display: flex; gap: 2px; }
   .dd-heatmap-days { display: flex; flex-direction: column; gap: 2px; padding-right: 4px; justify-content: flex-start; flex-shrink: 0; }
   .dd-heatmap-days span { font-size: 0.55rem; color: var(--gray-400); height: 11px; line-height: 11px; text-align: right; width: 22px; }
-  .dd-heatmap-grid { display: flex; gap: 2px; flex: 1; }
-  .dd-heatmap-col { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .dd-heatmap-grid { display: flex; gap: 2px; }
+  .dd-heatmap-col { display: flex; flex-direction: column; gap: 2px; }
   .dd-heatmap-cell {
-    width: auto; height: 0; padding-bottom: 100%; border-radius: 2px; background: var(--gray-200);
+    width: 11px; height: 11px; border-radius: 2px; background: var(--gray-200);
   }
-  .dd-heatmap-fixed .dd-heatmap-grid { flex: none; }
-  .dd-heatmap-fixed .dd-heatmap-col { flex: none; }
-  .dd-heatmap-fixed .dd-heatmap-cell { width: 11px; height: 11px; padding-bottom: 0; }
   .dd-heatmap-cell[data-level="1"] { background: rgba(255,102,0,0.25); }
   .dd-heatmap-cell[data-level="2"] { background: rgba(255,102,0,0.5); }
   .dd-heatmap-cell[data-level="3"] { background: rgba(255,102,0,0.75); }
   .dd-heatmap-cell[data-level="4"] { background: #ff6600; }
   .dd-heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 6px; font-size: 0.55rem; color: var(--gray-400); }
-  .dd-heatmap-legend .dd-heatmap-cell { width: 10px; height: 10px; cursor: default; }
+  .dd-heatmap-legend .dd-heatmap-cell { width: 10px; height: 10px; padding-bottom: 0; cursor: default; }
   .dd-heatmap-cell[title] { cursor: pointer; }
 
   .dd-empty { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 2rem 0; }
@@ -4628,9 +4624,8 @@
       }
     });
 
-    const isFixed = range === 'all';
     // Build HTML
-    let html = '<div class="dd-heatmap-card' + (isFixed ? ' dd-heatmap-fixed' : '') + '">';
+    let html = '<div class="dd-heatmap-card dd-heatmap-fixed">';
     html += '<div class="dd-heatmap-header"><span class="dd-heatmap-title">Activity</span></div>';
 
     // Month labels row
