@@ -1025,16 +1025,28 @@
   /* Theme picker */
   .theme-toggle {
     background: none;
-    border: none;
+    border: 1px solid var(--gray-200);
+    border-radius: 100px;
     font-family: inherit;
     font-size: 0.72rem;
-    color: var(--gray-400);
+    color: var(--gray-500);
     cursor: pointer;
-    padding: 0.25rem 0;
+    padding: 0.3rem 0.7rem 0.3rem 0.75rem;
     margin-top: 0.25rem;
-    transition: color 0.15s;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
   }
-  .theme-toggle:hover { color: var(--gray-700); }
+  .theme-toggle:hover {
+    color: var(--gray-700);
+    border-color: var(--gray-300);
+    background: #fafafa;
+  }
+  .theme-toggle-chevron {
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
 
   .theme-picker {
     position: relative;
@@ -2018,12 +2030,15 @@
       </button>
     </div>
 
-    <button class="theme-toggle" id="themeToggle">Film or TV quotes</button>
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeToggleLabel">Sherlock Holmes</span>
+      <svg class="theme-toggle-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
     <div class="theme-picker" id="themePicker">
-      <span class="theme-tooltip">Enter a movie or TV show to get quotes from it while you work</span>
+      <span class="theme-tooltip">Pick a film or TV show for quotes while you work</span>
       <div class="theme-input-wrap">
         <input type="text" class="theme-input" id="themeInput"
-          placeholder="Try a different quote theme..."
+          placeholder="Search themes..."
           autocomplete="off" data-1p-ignore="true" data-lpignore="true" maxlength="40">
         <span class="theme-search-icon">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -4082,6 +4097,36 @@
   let activeTimeTriggers = QUOTE_THEMES.sherlock.timeTriggers;
   let activeEasterEggs = QUOTE_THEMES.sherlock.easterEggs;
 
+  // Fetch quotes from Supabase for a given theme, returns array of {text, attr}
+  // Fetches a batch of 10 and caches them; falls back to hardcoded quotes on error
+  const _quoteCache = {};
+  async function fetchQuotesForTheme(themeName) {
+    if (_quoteCache[themeName] && _quoteCache[themeName].length > 0) {
+      activeQuotes = _quoteCache[themeName];
+      return;
+    }
+    try {
+      if (!supabaseClient) return; // not initialized yet, keep hardcoded
+      const { data, error } = await supabaseClient
+        .from('quotes')
+        .select('quote, character')
+        .eq('source_theme', themeName)
+        .limit(10);
+      if (error || !data || data.length === 0) return; // keep hardcoded fallback
+      const mapped = data.map(r => ({
+        text: '\u201c' + r.quote + '\u201d',
+        attr: r.character || themeName
+      }));
+      _quoteCache[themeName] = mapped;
+      // Only update if user hasn't switched themes while we were fetching
+      if (QUOTE_THEMES[activeThemeKey] && QUOTE_THEMES[activeThemeKey].name === themeName) {
+        activeQuotes = mapped;
+      }
+    } catch (e) {
+      // Silently fall back to hardcoded quotes
+    }
+  }
+
   function getRandomIdleQuote() {
     return activeIdleQuotes[Math.floor(Math.random() * activeIdleQuotes.length)];
   }
@@ -5266,13 +5311,23 @@
   });
 
   // ── Theme Switcher ──────────────────────────────────
-  document.getElementById('themeToggle').addEventListener('click', function() {
+  const themeToggleBtn = document.getElementById('themeToggle');
+  const themeToggleLabel = document.getElementById('themeToggleLabel');
+
+  themeToggleBtn.addEventListener('click', function() {
     var picker = document.getElementById('themePicker');
-    picker.classList.toggle('open');
-    if (picker.classList.contains('open')) {
-      this.style.display = 'none';
-      document.getElementById('themeInput').focus();
-    }
+    picker.classList.add('open');
+    this.style.display = 'none';
+    document.getElementById('themeInput').focus();
+  });
+
+  // Close picker when clicking outside
+  document.addEventListener('click', function(e) {
+    var picker = document.getElementById('themePicker');
+    if (!picker.classList.contains('open')) return;
+    if (picker.contains(e.target) || themeToggleBtn.contains(e.target)) return;
+    picker.classList.remove('open');
+    themeToggleBtn.style.display = 'inline-flex';
   });
 
   const themeInput = document.getElementById('themeInput');
@@ -5289,7 +5344,7 @@
     const theme = QUOTE_THEMES[key];
     if (!theme) return;
     activeThemeKey = key;
-    activeQuotes = theme.quotes;
+    activeQuotes = theme.quotes; // hardcoded fallback
     activeEmptyQuotes = theme.emptyQuotes;
     activeIdleQuotes = theme.idleQuotes;
     activeRunningLabels = theme.runningLabels;
@@ -5297,11 +5352,19 @@
     activeEasterEggs = theme.easterEggs;
     localStorage.setItem('et_quote_theme', key);
 
+    // Fetch quotes from Supabase (async, replaces hardcoded when ready)
+    fetchQuotesForTheme(theme.name);
+
     // Update UI
+    themeToggleLabel.textContent = theme.name;
     themeInput.value = theme.name;
-    themeInput.placeholder = 'Try a different quote theme...';
+    themeInput.placeholder = 'Search themes...';
     themeClear.style.display = key === 'sherlock' ? 'none' : 'block';
     themeSubmit.style.display = 'none';
+
+    // Close picker, show toggle
+    document.getElementById('themePicker').classList.remove('open');
+    themeToggleBtn.style.display = 'inline-flex';
 
     // Refresh visible quotes
     if (!running) {
@@ -5387,6 +5450,8 @@
       }
     } else if (e.key === 'Escape') {
       themeSuggestions.classList.remove('open');
+      document.getElementById('themePicker').classList.remove('open');
+      themeToggleBtn.style.display = 'inline-flex';
       themeInput.blur();
     }
   });
@@ -5404,7 +5469,7 @@
   themeClear.addEventListener('click', () => {
     switchTheme('sherlock');
     themeInput.value = '';
-    themeInput.placeholder = 'Try a different quote theme...';
+    themeInput.placeholder = 'Search themes...';
     themeClear.style.display = 'none';
     themeSubmit.style.display = 'none';
   });
@@ -5412,9 +5477,21 @@
   // Init — restore theme from localStorage
   const savedTheme = localStorage.getItem('et_quote_theme');
   if (savedTheme && QUOTE_THEMES[savedTheme]) {
-    switchTheme(savedTheme);
-    document.getElementById('themePicker').classList.add('open');
-    document.getElementById('themeToggle').style.display = 'none';
+    activeThemeKey = savedTheme;
+    const savedThemeObj = QUOTE_THEMES[savedTheme];
+    activeQuotes = savedThemeObj.quotes;
+    activeEmptyQuotes = savedThemeObj.emptyQuotes;
+    activeIdleQuotes = savedThemeObj.idleQuotes;
+    activeRunningLabels = savedThemeObj.runningLabels;
+    activeTimeTriggers = savedThemeObj.timeTriggers;
+    activeEasterEggs = savedThemeObj.easterEggs;
+    themeToggleLabel.textContent = savedThemeObj.name;
+    themeInput.value = savedThemeObj.name;
+    themeClear.style.display = savedTheme === 'sherlock' ? 'none' : 'block';
+    fetchQuotesForTheme(savedThemeObj.name);
+  } else {
+    // Default theme — fetch from Supabase
+    fetchQuotesForTheme('Sherlock Holmes');
   }
 
   statusLabel.textContent = getRandomIdleQuote();
