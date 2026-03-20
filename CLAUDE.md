@@ -1,0 +1,101 @@
+# CLAUDE.md
+
+GemTimer — minimalist focus timer and productivity tracker at gemtimer.com.
+
+## Tech Stack
+
+- **Frontend**: Single-page vanilla HTML/CSS/JS — everything lives in `index.html` (~5,675 lines, ~260KB). No framework, no build step, no package.json.
+- **Auth**: Clerk.js v5 (loaded from CDN). Custom sign-in form (not Clerk's mounted UI) for password manager compatibility.
+- **Database**: Supabase (PostgreSQL) — cloud session sync + quotes table. Migrations in `supabase/migrations/`.
+- **Storage**: localStorage-first, cloud sync for logged-in users. Key: `et_sessions`.
+- **Hosting**: Vercel (gemtimer.com). `vercel.json` redirects elementarytimer.com → gemtimer.com.
+- **Analytics**: Cloudflare Insights.
+- **DNS/Domain**: gemtimer.com (formerly elementarytimer.com).
+
+## Architecture
+
+**Single HTML file.** All CSS (`<style>`), JS (`<script>`), and HTML are in `index.html`. No modules, no bundler.
+
+**Offline-first sync pattern:**
+1. Sessions save to localStorage immediately
+2. For logged-in users, sessions also save to Supabase
+3. On load, cloud sessions merge with local; dedup runs on `date|duration|name` key
+4. `_sb_id` is written back to localStorage after Supabase save (prevents future duplicates)
+
+**Auth flow:** Clerk CDN script loads async → poll `window.Clerk` every 100ms (up to 10s) → custom sign-in state machine (email → password → OTP). OAuth providers also available.
+
+**Quotes system:** 36 film/TV themes × 15 quotes each. Primary source: Supabase `quotes` table. Fallback: hardcoded `QUOTE_THEMES` object in JS. Fetched on theme select with race condition guard (stale theme check after async return).
+
+## File Structure
+
+```
+index.html           # The entire app (HTML + CSS + JS)
+privacy.html         # Privacy policy
+vercel.json          # Domain redirects
+robots.txt / sitemap.xml
+favicon.png / og-image.png / linkedin-*.png
+google4d949a4962a07105.html  # Search Console verification
+supabase/migrations/ # DB schema + seed data for quotes
+CONTEXT.md           # Project overview (human-written)
+NOTES.md             # 17 non-obvious workarounds (read before touching tricky areas)
+.env.local           # Clerk + Supabase keys (gitignored)
+.github/workflows/   # GitHub Pages deploy (backup; primary is Vercel)
+```
+
+## Running Locally
+
+No build step. Open `index.html` in a browser, or:
+```
+npx serve .
+```
+Auth and cloud sync require the Clerk/Supabase keys in `.env.local` — but these are loaded from CDN in the HTML, so the app works unauthenticated without them.
+
+## Key Features (Shipped)
+
+- Timer with circular progress ring + lap counter (chimes at 60min via Web Audio API)
+- Deep Work vs. Sustaining work type toggle
+- Pomodoro mode (25/5)
+- Session history: add/edit/delete, grouped by day
+- Analytics: heatmap (GitHub-style), hourly focus map, streaks, weekly stats
+- 36 quote themes (Sherlock Holmes, Breaking Bad, Game of Thrones, etc.)
+- Theme picker with search + pill/chip UI
+- Clerk auth with Supabase sync
+- Multi-language (en, es, fr, de, pt, ja)
+- Mobile responsive, touch-optimized
+
+## Critical Workarounds (Don't Break These)
+
+Read `NOTES.md` for full details. The most dangerous ones:
+
+1. **Session dedup on load** — removing this will cause duplicate sessions to accumulate
+2. **`_sb_id` writeback** — removing this breaks local↔cloud matching, causing duplicates
+3. **Clerk polling** — without it, auth silently fails on slow connections
+4. **`void badge.offsetWidth`** — CSS animation reflow trick for lap badge; looks like dead code but isn't
+5. **`setTimeout(() => ctx.close(), 2500)`** — Web Audio cleanup; removing causes memory leaks on mobile
+6. **Quotes fetch race guard** — checks `activeThemeKey` after async return to discard stale results
+
+## Conventions
+
+- **No framework** — this is intentionally vanilla JS. Don't introduce React/Vue/etc.
+- **Single file** — all app code stays in `index.html`. This is a deliberate choice.
+- **localStorage key** — `et_sessions` (legacy from ElementaryTimer name, don't rename — would lose user data)
+- **Date format** — `YYYY-MM-DD` strings throughout
+- **Work types** — always `'deep'` or `'sustaining'` (lowercase strings)
+- **Session shape** — `{date, duration, name, type, manual, _sb_id}`
+- **Supabase table** — `timer_history` for sessions, `quotes` for theme quotes
+- **CSP headers** — defined in a `<meta>` tag; update if adding new external domains
+- **i18n** — translation keys in a JS object, `t(key)` function. Add translations to all 6 languages.
+
+## Supabase Schema
+
+**`timer_history`**: id, user_id, duration (seconds), date (YYYY-MM-DD), name, type, manual, created_at
+**`quotes`**: id, quote, source_theme, character, created_at. RLS: public read, admin write.
+
+## Non-Obvious Details
+
+- Spacebar = start/pause, R = finish session (keyboard shortcuts)
+- Easter eggs exist: typing certain keywords or clicking the logo 7 times triggers special quotes
+- Heatmap weeks always start Sunday, end Saturday (padding with empty days)
+- Hourly focus map splits sessions across hour boundaries
+- Streak counter peeks at yesterday if today is empty
+- `@media (hover: none)` resets all hover states for touch devices
