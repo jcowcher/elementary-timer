@@ -4524,15 +4524,49 @@
     renderHistory();
   });
 
+  // ── Midnight-split utilities ──────────────────────────
+  function toDateKey(d) {
+    var date = d instanceof Date ? d : new Date(d);
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
+  function splitSessionByDay(session) {
+    var end = new Date(session.date);
+    var start = new Date(end.getTime() - session.duration * 1000);
+    var splits = [];
+    var cursor = new Date(start);
+    while (cursor < end) {
+      var dayStart = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
+      var nextMidnight = new Date(dayStart.getTime() + 86400000);
+      var segEnd = nextMidnight < end ? nextMidnight : end;
+      var segStart = cursor > start ? cursor : start;
+      var secs = Math.max(0, (segEnd - segStart) / 1000);
+      if (secs > 0) {
+        splits.push({ dateStr: toDateKey(dayStart), duration: Math.round(secs) });
+      }
+      cursor = nextMidnight;
+    }
+    if (splits.length === 0) {
+      splits.push({ dateStr: toDateKey(end), duration: session.duration });
+    }
+    return splits;
+  }
+
+  function getSessionDurationForDay(session, dateKey) {
+    var splits = splitSessionByDay(session);
+    var match = splits.find(function(sp) { return sp.dateStr === dateKey; });
+    return match ? match.duration : 0;
+  }
+
   // Easter egg 5: Themed empty state messages
   function updateStreak() {
     const badge = document.getElementById('streakBadge');
     const countEl = document.getElementById('streakCount');
     if (!badge || !countEl) return;
 
-    // Get unique days with sessions
+    // Get unique days with sessions (using splits for midnight-crossing sessions)
     const daysWithSessions = new Set();
-    sessions.forEach(s => daysWithSessions.add(new Date(s.date).toDateString()));
+    sessions.forEach(s => splitSessionByDay(s).forEach(sp => daysWithSessions.add(sp.dateStr)));
 
     // Count consecutive days ending today (or yesterday if no session today yet)
     let streak = 0;
@@ -4541,13 +4575,13 @@
 
     // Start from today and go backwards
     while (true) {
-      if (daysWithSessions.has(check.toDateString())) {
+      if (daysWithSessions.has(toDateKey(check))) {
         streak++;
         check.setDate(check.getDate() - 1);
       } else if (streak === 0) {
         // No session today — check if yesterday starts a streak
         check.setDate(check.getDate() - 1);
-        if (daysWithSessions.has(check.toDateString())) {
+        if (daysWithSessions.has(toDateKey(check))) {
           streak++;
           check.setDate(check.getDate() - 1);
         } else {
@@ -4567,8 +4601,8 @@
   }
 
   function renderSessions() {
-    const today = new Date().toDateString();
-    const todaySessions = sessions.filter(s => new Date(s.date).toDateString() === today);
+    const todayKey = toDateKey(new Date());
+    const todaySessions = sessions.filter(s => getSessionDurationForDay(s, todayKey) > 0);
 
     sessionList.innerHTML = '';
 
@@ -4583,13 +4617,14 @@
         li.className = 'session-item';
         const sessionName = s.name || t('deepWork');
 
+        const todayDur = getSessionDurationForDay(s, todayKey);
         const dotClass = 'session-dot' + ((s.type || 'deep') === 'sustaining' ? ' sustaining' : '');
         li.innerHTML =
           '<div class="session-left">' +
             '<div class="' + dotClass + '"></div>' +
             '<div class="session-info">' +
               '<span class="session-name">' + escapeHtml(sessionName) + '</span>' +
-              '<span class="session-duration">' + fmtTotal(s.duration) + '</span>' +
+              '<span class="session-duration">' + fmtTotal(todayDur) + '</span>' +
             '</div>' +
           '</div>' +
           '<button class="session-delete" data-date="' + escapeHtml(s.date) + '" title="' + t('deleteSession') + '">' +
@@ -4600,7 +4635,7 @@
       });
     }
 
-    const totalSec = todaySessions.reduce((sum, s) => sum + s.duration, 0);
+    const totalSec = todaySessions.reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
     // Daily average is updated by renderHistory()
@@ -4613,7 +4648,7 @@
       const sType = s.type || 'deep';
       const key = n.toLowerCase() + '|' + sType;
       if (!nameMap[key]) { nameMap[key] = { total: 0, count: 0, type: sType }; nameDisplay[key] = n; }
-      nameMap[key].total += s.duration;
+      nameMap[key].total += getSessionDurationForDay(s, todayKey);
       nameMap[key].count++;
     });
     const uniqueKeys = Object.keys(nameMap);
@@ -4636,8 +4671,8 @@
     }
 
     // Daily type breakdown (deep vs sustaining)
-    const deepSec = todaySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
-    const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
+    const deepSec = todaySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
+    const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     let breakdownEl = document.getElementById('dailyTypeBreakdown');
     if (!breakdownEl) {
       breakdownEl = document.createElement('div');
@@ -4749,12 +4784,17 @@
     weekNext.disabled = weekOffset >= 0;
     weekNext.style.opacity = weekOffset >= 0 ? '0.3' : '1';
 
-    // Build per-day totals (split by type)
+    // Build per-day totals (split by type, with midnight-crossing splits)
     const dayData = days.map(d => {
-      const ds = d.toDateString();
-      const daySessions = sessions.filter(s => new Date(s.date).toDateString() === ds);
-      const deep = daySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
-      const sustaining = daySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
+      const dk = toDateKey(d);
+      let deep = 0, sustaining = 0;
+      sessions.forEach(s => {
+        const dur = getSessionDurationForDay(s, dk);
+        if (dur > 0) {
+          if ((s.type || 'deep') === 'sustaining') sustaining += dur;
+          else deep += dur;
+        }
+      });
       return { deep, sustaining, total: deep + sustaining };
     });
 
@@ -4789,12 +4829,12 @@
     let hasAny = false;
 
     groupDays.forEach(d => {
-      const ds = d.toDateString();
-      const daySessions = sessions.filter(s => new Date(s.date).toDateString() === ds);
+      const dk = toDateKey(d);
+      const daySessions = sessions.filter(s => getSessionDurationForDay(s, dk) > 0);
       if (daySessions.length === 0) return;
       hasAny = true;
 
-      const dayTotal = daySessions.reduce((sum, s) => sum + s.duration, 0);
+      const dayTotal = daySessions.reduce((sum, s) => sum + getSessionDurationForDay(s, dk), 0);
       const dateLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
       groupsHtml += '<div class="history-group">' +
@@ -4811,7 +4851,7 @@
             return '<div class="history-session">' +
               '<div class="history-session-left"><span class="' + hDotClass + '"></span>' +
               '<span class="history-session-name">' + escapeHtml(s.name || t('deepWork')) + '</span></div>' +
-              '<span class="history-session-detail">' + fmtDuration(s.duration) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
+              '<span class="history-session-detail">' + fmtDuration(getSessionDurationForDay(s, dk)) + (s.manual ? '' : ' · ' + fmtTime(s.date)) + '</span>' +
             '</div>';
           }).join('') +
         '</div>' +
@@ -4833,20 +4873,24 @@
       });
     });
 
-    // Update totals for the viewed week
-    const viewedWeekSessions = getWeekSessions(weekOffset);
+    // Update totals for the viewed week (using midnight splits)
+    let viewedTotalSec = 0;
     const viewedDaySet = new Set();
-    viewedWeekSessions.forEach(s => viewedDaySet.add(new Date(s.date).toDateString()));
-    const viewedTotalSec = viewedWeekSessions.reduce((sum, s) => sum + s.duration, 0);
+    days.forEach(d => {
+      const dk = toDateKey(d);
+      let dayTotal = 0;
+      sessions.forEach(s => { dayTotal += getSessionDurationForDay(s, dk); });
+      if (dayTotal > 0) viewedDaySet.add(dk);
+      viewedTotalSec += dayTotal;
+    });
     const viewedDays = viewedDaySet.size || 1;
     weeklyTotalEl.textContent = fmtTotal(Math.round(viewedTotalSec / viewedDays));
 
     if (weekOffset === 0) {
       // Current week: show today's total
       totalLabelEl.textContent = t('today');
-      const todaySec = sessions
-        .filter(s => new Date(s.date).toDateString() === today)
-        .reduce((sum, s) => sum + s.duration, 0);
+      const todayDk = toDateKey(new Date());
+      const todaySec = sessions.reduce((sum, s) => sum + getSessionDurationForDay(s, todayDk), 0);
       totalTimeEl.textContent = fmtTotal(todaySec);
     } else {
       // Past week: show week total instead
@@ -4962,12 +5006,12 @@
   }
 
   function buildHeatmapHTML(filtered, range) {
-    // Build daily totals map
+    // Build daily totals map (using midnight splits)
     const dailyMap = {};
     filtered.forEach(s => {
-      const d = new Date(s.date);
-      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-      dailyMap[key] = (dailyMap[key] || 0) + s.duration;
+      splitSessionByDay(s).forEach(sp => {
+        dailyMap[sp.dateStr] = (dailyMap[sp.dateStr] || 0) + sp.duration;
+      });
     });
 
     // Determine date range
