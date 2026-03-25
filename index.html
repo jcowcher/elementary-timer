@@ -2394,7 +2394,7 @@
           <button class="dd-range-btn active" data-range="week">Week</button>
           <button class="dd-range-btn" data-range="7d">7d</button>
           <button class="dd-range-btn" data-range="30d">30d</button>
-          <button class="dd-range-btn" data-range="all">All</button>
+          <button class="dd-range-btn" data-range="1y">1y</button>
         </div>
       </div>
       <div id="deepDiveContent"></div>
@@ -5245,7 +5245,12 @@
   let ddRange = 'week';
 
   function getFilteredSessions(range) {
-    if (range === 'all') return sessions.slice();
+    if (range === '1y') {
+      const cutoff = new Date();
+      cutoff.setFullYear(cutoff.getFullYear() - 1);
+      const cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth() + 1).padStart(2, '0') + '-' + String(cutoff.getDate()).padStart(2, '0');
+      return sessions.filter(s => s.date >= cutoffStr);
+    }
     const now = new Date();
     if (range === 'week') {
       const day = now.getDay();
@@ -5339,39 +5344,22 @@
       });
     });
 
-    // Determine date range
+    // Determine date range — rolling 1 year, weeks start on Monday
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let startDate;
-    if (range === '30d') {
-      startDate = new Date(today);
-      startDate.setDate(startDate.getDate() - 29);
-    } else {
-      // "all" — go back to earliest session or 1 year, whichever is less
-      const dates = Object.keys(dailyMap).sort();
-      if (dates.length > 0) {
-        startDate = new Date(dates[0] + 'T00:00:00');
-        const oneYearAgo = new Date(today);
-        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-        if (startDate < oneYearAgo) startDate = oneYearAgo;
-      } else {
-        startDate = new Date(today);
-        startDate.setDate(startDate.getDate() - 29);
-      }
-    }
+    let startDate = new Date(today);
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    startDate.setDate(startDate.getDate() + 1); // 365 days ago
 
-    // Rewind startDate to nearest Sunday (GitHub starts weeks on Sunday)
+    // Rewind startDate to nearest Monday (ISO week start)
     const startDay = startDate.getDay();
-    if (startDay !== 0) startDate.setDate(startDate.getDate() - startDay);
+    const rewind = startDay === 0 ? 6 : startDay - 1; // Mon=0 rewind
+    startDate.setDate(startDate.getDate() - rewind);
 
-    // For "all" view, extend to end of year
+    // End on the Sunday of the current week
     let endDate = new Date(today);
-    if (range === 'all') {
-      endDate = new Date(today.getFullYear(), 11, 31);
-      // Extend to end of that week (Saturday)
-      const endDay = endDate.getDay();
-      if (endDay !== 6) endDate.setDate(endDate.getDate() + (6 - endDay));
-    }
+    const endDay = endDate.getDay();
+    if (endDay !== 0) endDate.setDate(endDate.getDate() + (7 - endDay));
 
     // Build weeks array
     const weeks = [];
@@ -5439,9 +5427,9 @@
     html += '</div>';
 
     html += '<div class="dd-heatmap-body">';
-    // Day labels — all 7 days
+    // Day labels — Mon–Sun (ISO order)
     html += '<div class="dd-heatmap-days">';
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     dayNames.forEach(n => { html += '<span>' + n + '</span>'; });
     html += '</div>';
 
@@ -5502,7 +5490,7 @@
     r1Left += '<div class="dd-stat-card"><div class="dd-stat-label">Peak Hour</div><div class="dd-stat-value">' + peakLabel + '</div></div>';
     r1Left += '</div>';
     var heatmapHTML = '';
-    if (ddRange === 'all') {
+    if (ddRange === '1y') {
       heatmapHTML = buildHeatmapHTML(filtered, ddRange);
     }
 
@@ -5655,7 +5643,7 @@
 
     // === ASSEMBLE ===
     var html = '<div class="dd-overlay-body">';
-    if (ddRange === 'all') {
+    if (ddRange === '1y') {
       // All view: heatmap full width, stats+worktype left, hour-by-hour right, trend bottom
       if (heatmapHTML) html += '<div class="dd-heatmap-top">' + heatmapHTML + '</div>';
       html += '<div class="dd-overlay-grid">';
