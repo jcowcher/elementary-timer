@@ -1791,8 +1791,70 @@
   }
 
   /* Landing modes section */
+  .landing-clock {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--gray-400);
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+    padding: 0.25rem 0 0;
+  }
+  .landing-why-link {
+    font-size: 14px;
+    color: var(--gray-500);
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .landing-why-link:hover { color: var(--black); text-decoration: underline; }
+  .why-overlay {
+    position: fixed;
+    inset: 0;
+    background: #FAFAF8;
+    z-index: 9999;
+    overflow-y: auto;
+    display: none;
+    padding: 80px 40px 100px;
+  }
+  .why-overlay.active { display: block; }
+  .why-overlay-content {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .why-overlay-content h2 {
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+  }
+  .why-overlay-content p {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--gray-500);
+    margin-bottom: 16px;
+  }
+  .why-overlay-close {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--black);
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.2s;
+  }
+  .why-overlay-close:hover { opacity: 0.7; }
   .landing-modes { padding: 16px 0 32px; }
-  .landing-modes-label { font-size: 13px; color: var(--gray-500); text-transform: uppercase; letter-spacing: 1px; margin: -16px 0 28px; }
   .landing-modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .landing-mode-card {
     background: var(--white);
@@ -1817,7 +1879,8 @@
     .landing-modes-grid { grid-template-columns: 1fr; }
     .landing-nav { padding: 10px 20px; }
     .landing-modes { padding: 8px 0 24px; }
-    .landing-modes-label { margin: -8px 0 12px; }
+    .why-overlay { padding: 60px 20px 80px; }
+    .why-overlay-content h2 { font-size: 26px; }
     .landing-mode-card { padding: 16px; }
     .landing-mode-card p { font-size: 13px; }
   }
@@ -1939,12 +2002,14 @@
 <div class="landing" id="landingPage">
   <nav class="landing-nav">
     <div class="landing-logo">Gem<span>Timer</span></div>
+    <a class="landing-why-link" id="landingWhyLink">The Why</a>
     <div class="landing-nav-right">
       <a class="venture-badge" href="https://gemka.co" target="_blank" rel="noopener">A GemKa venture</a>
       <button class="landing-btn-ghost" id="landingSignIn">Sign in</button>
       <button class="landing-btn-primary" id="landingGetStarted">Get started</button>
     </div>
   </nav>
+  <div class="landing-clock" id="landingClock"></div>
 
   <div class="landing-inner">
     <section class="landing-hero">
@@ -1977,7 +2042,6 @@
     </section>
 
     <section class="landing-modes">
-      <div class="landing-modes-label">Focus</div>
       <div class="landing-modes-grid">
         <div class="landing-mode-card">
           <h3>Deep Work</h3>
@@ -1989,6 +2053,15 @@
         </div>
       </div>
     </section>
+  </div>
+
+  <div class="why-overlay" id="whyOverlay">
+    <div class="why-overlay-content">
+      <h2>The Why</h2>
+      <p>Placeholder — the copy for this section is coming soon. This overlay will explain the philosophy behind GemTimer: why tracking deep work matters, how the tool was born, and what it means to know where your time goes.</p>
+      <p>More placeholder text here. Replace this with the real content when ready.</p>
+    </div>
+    <button class="why-overlay-close" id="whyOverlayClose">&times;</button>
   </div>
 </div>
 
@@ -2967,6 +3040,28 @@
     btn.addEventListener('click', openSignIn);
     document.getElementById('landingGetStarted').addEventListener('click', openSignIn);
     document.getElementById('landingCta').addEventListener('click', openSignIn);
+
+    // Landing clock (matches jeremycowcher.com style)
+    var clockEl = document.getElementById('landingClock');
+    if (clockEl) {
+      function tickClock() {
+        var d = new Date();
+        var date = d.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' });
+        var time = d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        clockEl.innerHTML = date + '&emsp;&emsp;' + time;
+      }
+      tickClock();
+      setInterval(tickClock, 1000);
+    }
+
+    // "The Why" overlay
+    var whyLink = document.getElementById('landingWhyLink');
+    var whyOverlay = document.getElementById('whyOverlay');
+    var whyClose = document.getElementById('whyOverlayClose');
+    if (whyLink && whyOverlay) {
+      whyLink.addEventListener('click', function() { whyOverlay.classList.add('active'); });
+      whyClose.addEventListener('click', function() { whyOverlay.classList.remove('active'); });
+    }
   })();
 
   // Init disc fill
