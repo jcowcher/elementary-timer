@@ -1240,10 +1240,10 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 16px;
+    margin: 16px auto 16px;
     max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
+    width: 100%;
+    box-sizing: border-box;
   }
   .dd-title { font-size: 1.15rem; font-weight: 700; color: var(--black); flex: 1; }
   .dd-close {
@@ -1266,6 +1266,53 @@
     transition: opacity 0.2s;
   }
   .dd-close:hover { opacity: 0.7; }
+
+  .dd-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    max-width: 1100px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 0 16px;
+    box-sizing: border-box;
+  }
+  .dd-nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .dd-nav .nav-date {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.75rem;
+    font-size: 14px;
+    color: var(--gray-500);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+  .dd-nav .auth-avatar {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--orange);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    letter-spacing: -0.04em;
+  }
 
   .dd-range-toggle {
     display: flex; gap: 0.25rem; background: var(--gray-100);
@@ -2333,6 +2380,11 @@
     </button>
 
     <div class="deep-dive-panel" id="deepDivePanel">
+      <div class="dd-nav">
+        <a class="nav-logo-btn logo" href="/">Gem<span>Timer</span></a>
+        <span class="nav-date" id="ddNavDate"></span>
+        <div class="auth-avatar" id="ddNavAvatar"></div>
+      </div>
       <div class="dd-header">
         <span class="dd-title">Deep dive</span>
         <div class="dd-range-toggle" id="ddRangeToggle">
@@ -3246,11 +3298,14 @@
   updateDiscFill(0);
 
   // Set live date + time in nav
+  var ddNavDate=document.getElementById('ddNavDate');
   function tickNav(){
     var d=new Date();
     var date=d.toLocaleDateString('en-US',{month:'numeric',day:'numeric',year:'numeric'});
     var time=d.toLocaleTimeString('en-US',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    navDate.innerHTML='<span class="clock-half clock-date">'+date+'</span><span class="clock-half clock-time">'+time+'</span>';
+    var html='<span class="clock-half clock-date">'+date+'</span><span class="clock-half clock-time">'+time+'</span>';
+    navDate.innerHTML=html;
+    ddNavDate.innerHTML=html;
   }
   tickNav();setInterval(tickNav,1000);
 
@@ -5628,6 +5683,9 @@
 
   deepDiveBtn.addEventListener('click', () => {
     deepDivePanel.classList.add('open');
+    var av=document.getElementById('authAvatar');
+    var ddAv=document.getElementById('ddNavAvatar');
+    if(av&&ddAv)ddAv.textContent=av.textContent.trim();
     renderDeepDive();
   });
 
