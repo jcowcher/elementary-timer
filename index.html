@@ -1215,23 +1215,47 @@
   .deep-dive-btn:hover { border-color: var(--orange); color: var(--orange); }
   .deep-dive-btn svg { width: 14px; height: 14px; }
 
-  .deep-dive-panel { display: none; }
+  .deep-dive-panel {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--white);
+    z-index: 9999;
+    overflow-y: auto;
+    padding: 24px 40px 32px;
+  }
   .deep-dive-panel.open { display: block; }
 
   .dd-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    margin-bottom: 16px;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
   }
-  .dd-back {
-    background: none; border: none; cursor: pointer; padding: 0.2rem;
-    color: var(--gray-500); display: flex; align-items: center;
-    transition: color 0.15s;
-  }
-  .dd-back:hover { color: var(--black); }
-  .dd-back svg { width: 18px; height: 18px; }
   .dd-title { font-size: 0.95rem; font-weight: 600; color: var(--black); flex: 1; }
+  .dd-close {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--black);
+    color: #fff;
+    border: none;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.2s;
+  }
+  .dd-close:hover { opacity: 0.7; }
 
   .dd-range-toggle {
     display: flex; gap: 0.25rem; background: var(--gray-100);
@@ -1245,7 +1269,11 @@
   }
   .dd-range-btn.active { background: var(--white); color: var(--black); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
-  .dd-stats { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+  .dd-overlay-body { max-width: 1100px; margin: 0 auto; }
+  .dd-overlay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
+  .dd-overlay-left, .dd-overlay-right { min-width: 0; }
+  .dd-overlay-full { grid-column: 1 / -1; }
+  .dd-stats { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
   .dd-stat-card {
     flex: 1; background: var(--gray-50); border: 1px solid var(--gray-100);
     border-radius: var(--radius); padding: 0.6rem 0.75rem;
@@ -1253,7 +1281,8 @@
   .dd-stat-label { font-size: 0.65rem; color: var(--gray-500); margin-bottom: 0.2rem; }
   .dd-stat-value { font-size: 1.1rem; font-weight: 700; color: var(--black); }
 
-  .dd-section-title { font-size: 0.72rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; margin: 1rem 0 0.5rem; }
+  .dd-section-title { font-size: 0.72rem; font-weight: 600; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.04em; margin: 0.75rem 0 0.4rem; }
+  .dd-section-title:first-child { margin-top: 0; }
 
   .dd-tod-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
   .dd-tod-card {
@@ -1271,7 +1300,7 @@
   .dd-tod-pct { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-top: 0.3rem; }
 
   .dd-hour-grid { display: flex; flex-direction: column; gap: 2px; margin-bottom: 0.5rem; }
-  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; min-height: 28px; }
+  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; min-height: 24px; }
   .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; align-self: flex-start; line-height: 14px; }
   .dd-hour-bars { flex: 1; display: flex; flex-direction: column; gap: 1px; }
   .dd-hour-bar-line { display: flex; align-items: center; gap: 0.3rem; height: 12px; }
@@ -1280,6 +1309,13 @@
   .dd-hour-bar.focus { background: #ff6600; }
   .dd-hour-bar.work { background: #fff; border: 1.5px solid #ff6600; border-radius: 3px; box-sizing: border-box; }
   .dd-hour-val { font-size: 0.65rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
+
+  .dd-activity-list { display: flex; flex-direction: column; gap: 4px; }
+  .dd-activity-row { display: flex; align-items: center; gap: 0.5rem; }
+  .dd-activity-name { font-size: 0.72rem; color: var(--black); width: 90px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dd-activity-bar-wrap { flex: 1; height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden; }
+  .dd-activity-bar { height: 100%; background: var(--orange); border-radius: 4px; transition: width 0.3s; }
+  .dd-activity-dur { font-size: 0.68rem; color: var(--gray-500); min-width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
 
   .dd-trend-card {
     background: var(--gray-100); border-radius: 12px; padding: 0.75rem 0.5rem 0.5rem; margin-bottom: 0.5rem;
@@ -1554,7 +1590,7 @@
   .daily-type-dot.sustaining { background: var(--gray-900); }
 
   /* Deep dive work type breakdown (Whoop-inspired) */
-  .dd-type-section { margin-bottom: 1rem; }
+  .dd-type-section { margin-bottom: 0.5rem; }
   .dd-type-row {
     display: flex; align-items: center; gap: 0.6rem;
     padding: 0.5rem 0;
@@ -1603,10 +1639,12 @@
 
     .timer-wrap { width: 280px; height: 280px; }
     .time-digits { font-size: 2.8rem; }
+    .deep-dive-panel { padding: 16px 16px 32px; }
+    .dd-overlay-grid { grid-template-columns: 1fr; }
     .dd-stats { flex-direction: column; }
     .dd-tod-grid { grid-template-columns: 1fr; }
     .dd-hour-grid { gap: 0; }
-    .dd-hour-row { height: 16px; }
+    .dd-hour-row { min-height: 16px; }
   }
 
   /* Footer */
@@ -2049,7 +2087,6 @@
     .theme-clear:hover { color: var(--gray-400); }
     .theme-submit:hover { background: var(--orange); }
     .deep-dive-btn:hover { border-color: var(--gray-300); color: var(--gray-500); }
-    .dd-back:hover { color: var(--gray-500); }
     .feedback-fab:hover { background: var(--gray-700); transform: none; }
     .feedback-modal .feedback-cancel:hover { background: var(--gray-100); }
     .feedback-modal .feedback-submit:hover { background: var(--orange); }
@@ -2274,9 +2311,6 @@
 
     <div class="deep-dive-panel" id="deepDivePanel">
       <div class="dd-header">
-        <button class="dd-back" id="ddBack" title="Back">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
-        </button>
         <span class="dd-title">Deep dive</span>
         <div class="dd-range-toggle" id="ddRangeToggle">
           <button class="dd-range-btn active" data-range="week">Week</button>
@@ -2286,6 +2320,7 @@
         </div>
       </div>
       <div id="deepDiveContent"></div>
+      <button class="dd-close" id="ddClose">&times;</button>
     </div>
   </div>
 </div>
@@ -5124,7 +5159,7 @@
   const deepDiveBtn = document.getElementById('deepDiveBtn');
   const deepDivePanel = document.getElementById('deepDivePanel');
   const deepDiveContent = document.getElementById('deepDiveContent');
-  const ddBack = document.getElementById('ddBack');
+  const ddClose = document.getElementById('ddClose');
   const ddRangeToggle = document.getElementById('ddRangeToggle');
   let ddRange = 'week';
 
@@ -5375,108 +5410,139 @@
     const maxTodSec = Math.max(...todGroups.map(g => g.totalSec), 1);
     const maxTrendSec = Math.max(...trend.map(t => t.secs), 1);
 
-    let html = '<div class="dd-stats">';
-    html += '<div class="dd-stat-card"><div class="dd-stat-label">Total Focus</div><div class="dd-stat-value">' + fmtTotal(totalFocusSec) + '</div></div>';
-    html += '<div class="dd-stat-card"><div class="dd-stat-label">Peak Hour</div><div class="dd-stat-value">' + peakLabel + '</div></div>';
-    html += '</div>';
+    // === LEFT COLUMN ===
+    var left = '';
+
+    // Stats
+    left += '<div class="dd-stats">';
+    left += '<div class="dd-stat-card"><div class="dd-stat-label">Total Focus</div><div class="dd-stat-value">' + fmtTotal(totalFocusSec) + '</div></div>';
+    left += '<div class="dd-stat-card"><div class="dd-stat-label">Peak Hour</div><div class="dd-stat-value">' + peakLabel + '</div></div>';
+    left += '</div>';
 
     // Heatmap for 30d and all ranges
     if (ddRange === '30d' || ddRange === 'all') {
-      html += buildHeatmapHTML(filtered, ddRange);
+      left += buildHeatmapHTML(filtered, ddRange);
     }
 
-    // Work type breakdown (Whoop-inspired)
+    // Work type breakdown
     const deepTotal = filtered.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
     const sustainTotal = filtered.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
     const deepPct = totalFocusSec > 0 ? Math.round(deepTotal / totalFocusSec * 100) : 0;
     const sustainPct = totalFocusSec > 0 ? Math.round(sustainTotal / totalFocusSec * 100) : 0;
 
-    html += '<div class="dd-section-title">Work Type</div>';
-    html += '<div class="dd-type-section">';
-    html += '<div class="dd-type-row">' +
+    left += '<div class="dd-section-title">Work Type</div>';
+    left += '<div class="dd-type-section">';
+    left += '<div class="dd-type-row">' +
       '<span class="dd-type-label deep">' + t('deepWork') + '</span>' +
       '<div class="dd-type-bar-wrap"><div class="dd-type-bar deep" style="width:' + deepPct + '%"></div></div>' +
       '<span class="dd-type-dur">' + fmtTotal(deepTotal) + '</span>' +
       '<span class="dd-type-pct">' + deepPct + '%</span></div>';
-    html += '<div class="dd-type-row">' +
+    left += '<div class="dd-type-row">' +
       '<span class="dd-type-label sustaining">' + t('sustainingWork') + '</span>' +
       '<div class="dd-type-bar-wrap"><div class="dd-type-bar sustaining" style="width:' + sustainPct + '%"></div></div>' +
       '<span class="dd-type-dur">' + fmtTotal(sustainTotal) + '</span>' +
       '<span class="dd-type-pct">' + sustainPct + '%</span></div>';
-    html += '</div>';
+    left += '</div>';
 
     // Time of day
-    html += '<div class="dd-section-title">Time of Day</div>';
-    html += '<div class="dd-tod-grid">';
+    left += '<div class="dd-section-title">Time of Day</div>';
+    left += '<div class="dd-tod-grid">';
     todGroups.forEach(g => {
       const pct = maxTodSec > 0 ? (g.totalSec / maxTodSec * 100) : 0;
       const opacity = 0.3 + 0.7 * (g.totalSec / maxTodSec);
-      html += '<div class="dd-tod-card">' +
+      left += '<div class="dd-tod-card">' +
         '<div class="dd-tod-name">' + g.name + '</div>' +
         '<div class="dd-tod-hours">' + g.range + '</div>' +
         '<div class="dd-tod-bar-bg"><div class="dd-tod-bar" style="width:' + pct + '%;background:rgba(255,102,0,' + opacity.toFixed(2) + ')"></div></div>' +
         '<div class="dd-tod-pct">' + fmtTotal(g.totalSec) + '</div></div>';
     });
-    html += '</div>';
+    left += '</div>';
 
-    // Hour by hour
-    html += '<div class="dd-section-title">Hour by Hour</div>';
-    html += '<div class="dd-hour-grid">';
-    for (let h = 0; h < 24; h++) {
-      const b = hourBuckets[h];
-      const focusPct = b.avgDeepSec < 180 ? 0 : Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
-      const workPct = b.avgSec < 180 ? 0 : Math.min(100, Math.round(b.avgSec / 3600 * 100));
-      const label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
-      html += '<div class="dd-hour-row">' +
+    // By Activity
+    var activityMap = {};
+    filtered.forEach(function(s) {
+      var name = s.name || 'Unnamed';
+      activityMap[name] = (activityMap[name] || 0) + s.duration;
+    });
+    var activities = Object.entries(activityMap).sort(function(a, b) { return b[1] - a[1]; });
+    var maxActivitySec = activities.length > 0 ? activities[0][1] : 1;
+
+    left += '<div class="dd-section-title">By Activity</div>';
+    left += '<div class="dd-activity-list">';
+    activities.forEach(function(entry) {
+      var name = entry[0], secs = entry[1];
+      var pct = Math.round(secs / maxActivitySec * 100);
+      left += '<div class="dd-activity-row">' +
+        '<span class="dd-activity-name" title="' + name.replace(/"/g, '&quot;') + '">' + name + '</span>' +
+        '<div class="dd-activity-bar-wrap"><div class="dd-activity-bar" style="width:' + pct + '%"></div></div>' +
+        '<span class="dd-activity-dur">' + fmtTotal(secs) + '</span></div>';
+    });
+    left += '</div>';
+
+    // === RIGHT COLUMN (Hour by Hour — only hours with data) ===
+    var right = '';
+    right += '<div class="dd-section-title">Hour by Hour</div>';
+    right += '<div class="dd-hour-grid">';
+    for (var h = 0; h < 24; h++) {
+      var b = hourBuckets[h];
+      if (b.totalSec === 0) continue;
+      var focusPct = b.avgDeepSec < 180 ? 0 : Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
+      var workPct = b.avgSec < 180 ? 0 : Math.min(100, Math.round(b.avgSec / 3600 * 100));
+      var label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
+      right += '<div class="dd-hour-row">' +
         '<span class="dd-hour-label">' + label + '</span>';
       if (focusPct > 0 || workPct > 0) {
-        html += '<div class="dd-hour-bars">';
-        if (focusPct > 0) html += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar focus" style="width:' + focusPct + '%"></div></div>' +
+        right += '<div class="dd-hour-bars">';
+        if (focusPct > 0) right += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar focus" style="width:' + focusPct + '%"></div></div>' +
             '<span class="dd-hour-val">Focus ' + focusPct + '%</span></div>';
-        if (workPct > 0) html += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar work" style="width:' + workPct + '%"></div></div>' +
+        if (workPct > 0) right += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar work" style="width:' + workPct + '%"></div></div>' +
             '<span class="dd-hour-val">Work ' + workPct + '%</span></div>';
-        html += '</div>';
+        right += '</div>';
       }
-      html += '</div>';
+      right += '</div>';
     }
-    html += '</div>';
+    right += '</div>';
 
-    // Daily trend — Opal-style area chart
+    // === ASSEMBLE ===
+    var html = '<div class="dd-overlay-body">';
+    html += '<div class="dd-overlay-grid">';
+    html += '<div class="dd-overlay-left">' + left + '</div>';
+    html += '<div class="dd-overlay-right">' + right + '</div>';
+
+    // === FULL-WIDTH: Daily Trend ===
     if (trend.length > 1) {
-      const avgSec = trend.reduce((s, t) => s + t.secs, 0) / trend.length;
-      const chartW = 100, chartH = 80, padT = 4, padB = 4;
-      const n = trend.length;
-      const maxH = Math.ceil(maxTrendSec / 3600);
-      const yMax = Math.max(maxH, 1) * 3600;
-      const stepX = n > 1 ? chartW / (n - 1) : chartW / 2;
+      var avgSec = trend.reduce(function(s, t) { return s + t.secs; }, 0) / trend.length;
+      var chartW = 100, chartH = 80, padT = 4, padB = 4;
+      var n = trend.length;
+      var maxH = Math.ceil(maxTrendSec / 3600);
+      var yMax = Math.max(maxH, 1) * 3600;
+      var stepX = n > 1 ? chartW / (n - 1) : chartW / 2;
 
-      // Compute points
-      const points = trend.map((tr, i) => {
-        const x = n > 1 ? i * stepX : chartW / 2;
-        const y = padT + (chartH - padT - padB) * (1 - tr.secs / yMax);
-        return { x, y, tr };
+      var points = trend.map(function(tr, i) {
+        var x = n > 1 ? i * stepX : chartW / 2;
+        var y = padT + (chartH - padT - padB) * (1 - tr.secs / yMax);
+        return { x: x, y: y, tr: tr };
       });
 
-      // Smooth cubic bezier path
       function smoothPath(pts) {
         if (pts.length < 2) return 'M' + pts[0].x + ' ' + pts[0].y;
-        let d = 'M' + pts[0].x + ' ' + pts[0].y;
-        for (let i = 0; i < pts.length - 1; i++) {
-          const cp = (pts[i + 1].x - pts[i].x) * 0.3;
+        var d = 'M' + pts[0].x + ' ' + pts[0].y;
+        for (var i = 0; i < pts.length - 1; i++) {
+          var cp = (pts[i + 1].x - pts[i].x) * 0.3;
           d += ' C' + (pts[i].x + cp) + ' ' + pts[i].y + ',' +
             (pts[i + 1].x - cp) + ' ' + pts[i + 1].y + ',' +
             pts[i + 1].x + ' ' + pts[i + 1].y;
         }
         return d;
       }
-      const lineD = smoothPath(points);
-      const areaD = lineD + ' L' + points[points.length - 1].x + ' ' + chartH + ' L' + points[0].x + ' ' + chartH + ' Z';
+      var lineD = smoothPath(points);
+      var areaD = lineD + ' L' + points[points.length - 1].x + ' ' + chartH + ' L' + points[0].x + ' ' + chartH + ' Z';
 
-      // Y-axis ticks
-      const yTicks = [];
-      const yStep = maxH <= 3 ? 1 : maxH <= 8 ? 2 : 3;
-      for (let h = 0; h <= maxH; h += yStep) yTicks.push(h);
+      var yTicks = [];
+      var yStep = maxH <= 3 ? 1 : maxH <= 8 ? 2 : 3;
+      for (var yh = 0; yh <= maxH; yh += yStep) yTicks.push(yh);
 
+      html += '<div class="dd-overlay-full">';
       html += '<div class="dd-trend-card">';
       html += '<div class="dd-trend-header"><span class="dd-trend-title">Daily Trend</span>' +
         '<span class="dd-trend-avg">Avg ' + fmtTotal(Math.round(avgSec)) + ' / day</span></div>';
@@ -5486,77 +5552,64 @@
       html += '<defs><linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">' +
         '<stop offset="0%" stop-color="#ff6600" stop-opacity="0.35"/>' +
         '<stop offset="100%" stop-color="#ff6600" stop-opacity="0.03"/></linearGradient></defs>';
-      // Grid lines
-      yTicks.forEach(h => {
-        const gy = padT + (chartH - padT - padB) * (1 - (h * 3600) / yMax);
+      yTicks.forEach(function(h) {
+        var gy = padT + (chartH - padT - padB) * (1 - (h * 3600) / yMax);
         html += '<line x1="0" y1="' + gy + '" x2="' + chartW + '" y2="' + gy + '" stroke="rgba(0,0,0,0.06)" stroke-width="0.3"/>';
       });
       html += '<path d="' + areaD + '" fill="url(#trendGrad)"/>';
       html += '<path d="' + lineD + '" fill="none" stroke="#ff6600" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/>';
-      points.forEach((p, i) => {
+      points.forEach(function(p, i) {
         html += '<circle class="dd-trend-dot" cx="' + p.x + '" cy="' + p.y + '" r="1.2" fill="#ff6600" data-idx="' + i + '"/>';
       });
       html += '</svg></div>';
-      // Y-axis labels
       html += '<div class="dd-trend-yaxis">';
-      yTicks.slice().reverse().forEach(h => { html += '<span class="dd-trend-ytick">' + h + 'h</span>'; });
+      yTicks.slice().reverse().forEach(function(h) { html += '<span class="dd-trend-ytick">' + h + 'h</span>'; });
       html += '</div></div>';
-      // Day labels
       html += '<div class="dd-trend-labels">';
-      trend.forEach((tr, i) => {
-        const d = new Date(tr.day + 'T12:00:00');
-        const dayStr = d.toLocaleDateString([], { weekday: 'short' });
+      trend.forEach(function(tr, i) {
+        var d = new Date(tr.day + 'T12:00:00');
+        var dayStr = d.toLocaleDateString([], { weekday: 'short' });
         if (n <= 10 || i === 0 || i === n - 1 || i % Math.max(1, Math.floor(n / 7)) === 0) {
           html += '<span class="dd-trend-lbl">' + dayStr + '</span>';
         }
       });
-      html += '</div></div>';
+      html += '</div></div></div>';
     }
+
+    html += '</div></div>';
 
     deepDiveContent.innerHTML = html;
 
     // Tooltip interaction for trend dots
     if (trend.length > 1) {
-      const chart = deepDiveContent.querySelector('.dd-trend-chart');
-      const tip = document.getElementById('ddTrendTip');
+      var chart = deepDiveContent.querySelector('.dd-trend-chart');
+      var tip = document.getElementById('ddTrendTip');
       if (chart && tip) {
-        chart.querySelectorAll('.dd-trend-dot').forEach(dot => {
+        chart.querySelectorAll('.dd-trend-dot').forEach(function(dot) {
           dot.addEventListener('mouseenter', function(e) {
-            const idx = parseInt(this.getAttribute('data-idx'), 10);
-            const tr = trend[idx];
-            const d = new Date(tr.day + 'T12:00:00');
+            var idx = parseInt(this.getAttribute('data-idx'), 10);
+            var tr = trend[idx];
+            var d = new Date(tr.day + 'T12:00:00');
             tip.textContent = d.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ': ' + fmtTotal(Math.round(tr.secs));
-            const rect = chart.getBoundingClientRect();
-            const dotRect = this.getBoundingClientRect();
+            var rect = chart.getBoundingClientRect();
+            var dotRect = this.getBoundingClientRect();
             tip.style.left = (dotRect.left - rect.left + dotRect.width / 2) + 'px';
             tip.style.top = (dotRect.top - rect.top) + 'px';
             tip.style.display = 'block';
           });
-          dot.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+          dot.addEventListener('mouseleave', function() { tip.style.display = 'none'; });
         });
       }
     }
   }
 
   deepDiveBtn.addEventListener('click', () => {
-    document.querySelector('.session-section .section-header').style.display = 'none';
-    document.getElementById('sessionList').style.display = 'none';
-    document.getElementById('nameTotals').style.display = 'none';
-    document.querySelector('.daily-total').style.display = 'none';
-    document.getElementById('historySection').style.display = 'none';
-    deepDiveBtn.style.display = 'none';
     deepDivePanel.classList.add('open');
     renderDeepDive();
   });
 
-  ddBack.addEventListener('click', () => {
+  ddClose.addEventListener('click', () => {
     deepDivePanel.classList.remove('open');
-    document.querySelector('.session-section .section-header').style.display = '';
-    document.getElementById('sessionList').style.display = '';
-    document.getElementById('nameTotals').style.display = '';
-    document.querySelector('.daily-total').style.display = '';
-    document.getElementById('historySection').style.display = '';
-    deepDiveBtn.style.display = '';
   });
 
   ddRangeToggle.addEventListener('click', (e) => {
