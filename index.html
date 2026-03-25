@@ -1358,16 +1358,14 @@
   }
   .dd-tod-pct { font-size: 0.85rem; font-weight: 700; color: var(--black); margin-top: 0.3rem; }
 
-  .dd-hour-grid { display: flex; flex-direction: column; gap: 0; overflow: hidden; }
-  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; min-height: 0; }
-  .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; align-self: flex-start; line-height: 14px; }
-  .dd-hour-bars { flex: 1; display: flex; flex-direction: column; gap: 1px; }
-  .dd-hour-bar-line { display: flex; align-items: center; gap: 0.2rem; height: 7px; }
-  .dd-hour-bar-bg { flex: 1; height: 5px; background: var(--gray-50); border-radius: 3px; overflow: hidden; }
-  .dd-hour-bar-bg .dd-hour-bar { height: 100%; border-radius: 3px; transition: width 0.3s; }
-  .dd-hour-bar.focus { background: #ff6600; }
-  .dd-hour-bar.work { background: #fff; border: 1.5px solid #ff6600; border-radius: 3px; box-sizing: border-box; }
-  .dd-hour-val { font-size: 0.55rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; }
+  .dd-hour-grid { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+  .dd-hour-row { display: flex; align-items: center; gap: 0.4rem; height: 14px; }
+  .dd-hour-label { width: 28px; font-size: 0.6rem; color: var(--gray-400); text-align: right; flex-shrink: 0; line-height: 1; }
+  .dd-hour-bar-bg { flex: 1; height: 6px; background: var(--gray-50); border-radius: 3px; overflow: hidden; display: flex; }
+  .dd-hour-bar-bg .dd-hour-bar { height: 100%; transition: width 0.3s; }
+  .dd-hour-bar.deep { background: var(--orange); }
+  .dd-hour-bar.sustaining { background: var(--gray-700); }
+  .dd-hour-val { font-size: 0.55rem; color: var(--gray-400); flex-shrink: 0; white-space: nowrap; min-width: 24px; text-align: right; }
 
   .dd-activity-list { display: flex; flex-direction: column; gap: 3px; overflow: hidden; max-height: 126px; }
   .dd-activity-row { display: flex; align-items: center; gap: 0.5rem; }
@@ -1703,8 +1701,7 @@
     .dd-overlay-grid { grid-template-columns: 1fr; overflow: hidden; }
     .dd-stats { flex-direction: column; }
     .dd-tod-grid { grid-template-columns: 1fr; }
-    .dd-hour-grid { gap: 0; }
-    .dd-hour-row { min-height: 16px; }
+    .dd-hour-row { height: 12px; }
   }
 
   /* Footer */
@@ -5558,26 +5555,25 @@
     });
     r2Left += '</div>';
 
-    // === ROW 2 RIGHT: Hour by Hour (skip empty/near-zero) ===
+    // === ROW 2 RIGHT: Hour by Hour (single stacked bar per hour) ===
     var r2Right = '';
     r2Right += '<div class="dd-section-title">Hour by hour</div>';
     r2Right += '<div class="dd-hour-grid">';
     for (var h = 0; h < 24; h++) {
       var b = hourBuckets[h];
       if (b.totalSec < 60) continue;
-      var focusPct = b.avgDeepSec < 180 ? 0 : Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
-      var workPct = b.avgSec < 180 ? 0 : Math.min(100, Math.round(b.avgSec / 3600 * 100));
-      if (focusPct === 0 && workPct === 0) continue;
+      var deepPct = Math.min(100, Math.round(b.avgDeepSec / 3600 * 100));
+      var sustainPct = Math.min(100, Math.round((b.avgSec - b.avgDeepSec) / 3600 * 100));
+      var totalPct = Math.min(100, deepPct + sustainPct);
+      if (totalPct === 0) continue;
       var label = ((h % 12) || 12) + (h < 12 ? 'a' : 'p');
       r2Right += '<div class="dd-hour-row">' +
-        '<span class="dd-hour-label">' + label + '</span>';
-      r2Right += '<div class="dd-hour-bars">';
-      if (focusPct > 0) r2Right += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar focus" style="width:' + focusPct + '%"></div></div>' +
-          '<span class="dd-hour-val">Focus ' + focusPct + '%</span></div>';
-      if (workPct > 0) r2Right += '<div class="dd-hour-bar-line"><div class="dd-hour-bar-bg"><div class="dd-hour-bar work" style="width:' + workPct + '%"></div></div>' +
-          '<span class="dd-hour-val">Work ' + workPct + '%</span></div>';
-      r2Right += '</div>';
-      r2Right += '</div>';
+        '<span class="dd-hour-label">' + label + '</span>' +
+        '<div class="dd-hour-bar-bg">';
+      if (deepPct > 0) r2Right += '<div class="dd-hour-bar deep" style="width:' + deepPct + '%"></div>';
+      if (sustainPct > 0) r2Right += '<div class="dd-hour-bar sustaining" style="width:' + sustainPct + '%"></div>';
+      r2Right += '</div>' +
+        '<span class="dd-hour-val">' + totalPct + '%</span></div>';
     }
     r2Right += '</div>';
 
@@ -5649,15 +5645,24 @@
       r3Right += '</div></div>';
     }
 
-    // === ASSEMBLE: optional heatmap row + 2-col grid + trend bottom ===
+    // === ASSEMBLE ===
     var html = '<div class="dd-overlay-body">';
-    if (heatmapHTML) html += '<div class="dd-heatmap-top">' + heatmapHTML + '</div>';
-    html += '<div class="dd-overlay-grid">';
-    html += '<div class="dd-overlay-cell">' + r1Left + '</div>';
-    html += '<div class="dd-overlay-cell">' + r1Right + '</div>';
-    html += '<div class="dd-overlay-cell">' + r2Left + '</div>';
-    html += '<div class="dd-overlay-cell">' + r2Right + '</div>';
-    html += '</div>';
+    if (ddRange === 'all') {
+      // All view: heatmap full width, stats+worktype left, hour-by-hour right, trend bottom
+      if (heatmapHTML) html += '<div class="dd-heatmap-top">' + heatmapHTML + '</div>';
+      html += '<div class="dd-overlay-grid">';
+      html += '<div class="dd-overlay-cell">' + r1Left + r1Right + '</div>';
+      html += '<div class="dd-overlay-cell">' + r2Right + '</div>';
+      html += '</div>';
+    } else {
+      // Week/7d/30d: standard 4-cell grid
+      html += '<div class="dd-overlay-grid">';
+      html += '<div class="dd-overlay-cell">' + r1Left + '</div>';
+      html += '<div class="dd-overlay-cell">' + r1Right + '</div>';
+      html += '<div class="dd-overlay-cell">' + r2Left + '</div>';
+      html += '<div class="dd-overlay-cell">' + r2Right + '</div>';
+      html += '</div>';
+    }
     if (r3Right) html += '<div class="dd-trend-bottom">' + r3Right + '</div>';
     html += '</div>';
 
