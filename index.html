@@ -5413,12 +5413,21 @@
     let html = '<div class="dd-heatmap-card dd-heatmap-fixed">';
     html += '<div class="dd-heatmap-header"><span class="dd-heatmap-title">Activity</span></div>';
 
-    // Month labels row
+    // Month labels row — skip labels that would overlap (need ≥3 columns gap)
+    const minGap = 3;
+    let lastLabelIdx = -minGap;
+    const visibleMonths = [];
+    months.forEach(m => {
+      if (m.idx - lastLabelIdx >= minGap) {
+        visibleMonths.push(m);
+        lastLabelIdx = m.idx;
+      }
+    });
     html += '<div class="dd-heatmap-months">';
     let mi = 0;
     for (let wi = 0; wi < weeks.length; wi++) {
-      if (mi < months.length && months[mi].idx === wi) {
-        html += '<span>' + months[mi].label + '</span>';
+      if (mi < visibleMonths.length && visibleMonths[mi].idx === wi) {
+        html += '<span>' + visibleMonths[mi].label + '</span>';
         mi++;
       } else {
         html += '<span></span>';
