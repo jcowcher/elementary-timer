@@ -1893,6 +1893,8 @@
     .landing-nav { padding: 10px 20px; }
     .landing-nav::after { left: 20px; right: 20px; }
     .landing-modes { padding: 8px 20px 24px; }
+    .landing-footer { padding: 0.5rem 20px; }
+    .landing-footer::before { left: 20px; right: 20px; }
     .why-overlay { padding: 60px 20px 80px; }
     .why-overlay-content h2 { font-size: 26px; }
     .landing-mode-card { padding: 16px; }
@@ -1918,11 +1920,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 1.25rem;
-    border-top: 1px solid var(--gray-200);
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0.5rem 40px;
+    border-top: none;
     background: #FAFAF8;
     font-size: 0.72rem;
     z-index: 10;
+  }
+  .landing-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 40px;
+    right: 40px;
+    border-top: 1px solid var(--gray-200);
   }
   .landing-footer-center {
     display: flex;
