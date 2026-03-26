@@ -2921,9 +2921,33 @@
         .eq('user_id', currentUser.id)
         .order('date', { ascending: true });
       if (error) throw error;
-      document.title = 'ROWS: ' + (data ? data.length : 'null');
+
+      const localSessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
+      if (localSessions.length > 0 && data.length === 0) {
+        await migrateLocalToSupabase(localSessions);
+        return;
+      }
+
+      const cloudSessions = (data || []).map(row => ({
+        _sb_id: row.id, duration: row.duration, date: row.date,
+        name: row.name || 'Deep Work', manual: row.manual || false, type: row.type || 'deep'
+      }));
+      const localOnly = localSessions.filter(s => !s._sb_id);
+
+      sessions = [...cloudSessions, ...localOnly];
+      sessions.sort((a, b) => new Date(a.date) - new Date(b.date));
+      const seenKeys = new Set();
+      sessions = sessions.filter(s => {
+        const key = s.date + '|' + s.duration + '|' + (s.name || '');
+        if (seenKeys.has(key)) return false;
+        seenKeys.add(key);
+        return true;
+      });
+      localStorage.setItem('et_sessions', JSON.stringify(sessions));
+      document.title = 'MERGED: ' + sessions.length + ' sessions';
     } catch (e) {
       document.title = 'ERR: ' + e.message;
+      sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
     }
   }
 
