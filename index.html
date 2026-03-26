@@ -1322,6 +1322,7 @@
     transition: opacity 0.15s;
   }
   .dd-nav .auth-avatar:hover { opacity: 0.85; }
+  .dd-auth-dropdown { top: 46px; right: 0; }
 
   .dd-range-toggle {
     display: flex; gap: 0.25rem; background: var(--gray-100);
@@ -2392,7 +2393,8 @@
       <div class="dd-nav">
         <a class="nav-logo-btn logo" href="/">Gem<span>Timer</span></a>
         <span class="nav-date" id="ddNavDate"></span>
-        <div class="auth-avatar" id="ddNavAvatar"><div class="auth-dropdown" id="ddAuthDropdown"><button id="ddSignOutBtn">Sign out</button></div></div>
+        <div class="auth-avatar" id="ddNavAvatar"></div>
+        <div class="auth-dropdown dd-auth-dropdown" id="ddAuthDropdown"><button id="ddSignOutBtn">Sign out</button></div>
       </div>
       <div class="dd-header">
         <span class="dd-title">Deep dive</span>
@@ -5720,7 +5722,7 @@
     document.body.classList.add('dd-open');
     var av=document.getElementById('authAvatar');
     var ddAv=document.getElementById('ddNavAvatar');
-    if(av&&ddAv){var tn=av.childNodes[0];var initials=tn?tn.textContent.trim():'';if(ddAv.firstChild&&ddAv.firstChild.nodeType===3)ddAv.firstChild.textContent=initials;else ddAv.insertBefore(document.createTextNode(initials),ddAv.firstChild);}
+    if(av&&ddAv){var tn=av.childNodes[0];ddAv.textContent=tn?tn.textContent.trim():'';}
     renderDeepDive();
   });
 
