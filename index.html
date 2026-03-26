@@ -2400,13 +2400,6 @@
 </div>
 
 <script>
-window.onerror = function(msg, url, line) {
-  document.title = 'ERR L' + line + ': ' + msg;
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:8px;z-index:99999;font-size:12px;';
-  d.textContent = 'JS Error line ' + line + ': ' + msg;
-  document.body.appendChild(d);
-};
   // Elements
   const display = document.getElementById('display');
   const timerWrap = document.getElementById('timerWrap');
@@ -2755,16 +2748,14 @@ window.onerror = function(msg, url, line) {
       window.Clerk.addListener(async ({ user }) => {
         currentUser = user;
         updateAuthUI();
-        // Auto-close sign-in overlay on successful auth
+        // Always force-hide sign-in overlay on auth change
         if (user) {
-          const overlay = document.getElementById('clerkOverlay');
-          if (overlay.style.display !== 'none') {
-            overlay.style.display = 'none';
-            resetSignInForm();
-          }
+          var overlay = document.getElementById('clerkOverlay');
+          overlay.style.display = 'none';
+          resetSignInForm();
           initSupabase();
-          await loadAndMergeFromSupabase();
-          await loadActiveTimer();
+          try { await loadAndMergeFromSupabase(); } catch (e) { console.error('merge error:', e); }
+          try { await loadActiveTimer(); } catch (e) { console.error('active timer error:', e); }
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
           renderSessions();
