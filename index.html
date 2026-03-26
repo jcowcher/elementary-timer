@@ -1163,6 +1163,7 @@
     margin: 10px auto 10px;
     max-width: 1100px;
     width: 100%;
+    padding: 0 40px;
     box-sizing: border-box;
   }
   .dd-title { font-size: 1.15rem; font-weight: 700; color: var(--black); flex: 1; }
@@ -1251,7 +1252,7 @@
   .dd-range-btn.active { background: var(--white); color: var(--black); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
 
   #deepDiveContent { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
-  .dd-overlay-body { max-width: 1100px; margin: 0 auto; flex: 1; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; }
+  .dd-overlay-body { max-width: 1100px; margin: 0 auto; flex: 1; overflow: hidden; display: flex; flex-direction: column; width: 100%; box-sizing: border-box; padding: 0 40px; }
   .dd-heatmap-top { flex-shrink: 0; margin-bottom: 8px; }
   .dd-overlay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; flex: 1; overflow: hidden; min-height: 0; }
   .dd-trend-bottom { flex-shrink: 0; padding-top: 4px; padding-bottom: 16px; }
@@ -1324,15 +1325,15 @@
   }
   .dd-heatmap-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
   .dd-heatmap-title { color: var(--black); font-size: 0.8rem; font-weight: 600; }
-  .dd-heatmap-months { display: flex; font-size: 0.6rem; color: var(--gray-400); padding-left: 32px; margin-bottom: 2px; gap: 2px; }
-  .dd-heatmap-months span { text-align: left; width: 13px; }
-  .dd-heatmap-body { display: flex; gap: 2px; width: fit-content; }
-  .dd-heatmap-days { display: flex; flex-direction: column; gap: 2px; padding-right: 4px; justify-content: flex-start; flex-shrink: 0; }
-  .dd-heatmap-days span { font-size: 0.5rem; color: var(--gray-400); height: 11px; line-height: 11px; text-align: right; width: 26px; }
-  .dd-heatmap-grid { display: flex; gap: 2px; flex-shrink: 0; width: fit-content; }
-  .dd-heatmap-col { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+  .dd-heatmap-months { display: flex; font-size: 0.6rem; color: var(--gray-400); padding-left: 32px; margin-bottom: 3px; gap: 3px; }
+  .dd-heatmap-months span { text-align: left; width: 17px; }
+  .dd-heatmap-body { display: flex; gap: 3px; width: fit-content; }
+  .dd-heatmap-days { display: flex; flex-direction: column; gap: 3px; padding-right: 4px; justify-content: flex-start; flex-shrink: 0; }
+  .dd-heatmap-days span { font-size: 0.5rem; color: var(--gray-400); height: 14px; line-height: 14px; text-align: right; width: 26px; }
+  .dd-heatmap-grid { display: flex; gap: 3px; flex-shrink: 0; width: fit-content; }
+  .dd-heatmap-col { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
   .dd-heatmap-cell {
-    width: 11px; min-width: 11px; max-width: 11px; height: 11px; border-radius: 2px; background: var(--gray-200); flex-shrink: 0;
+    width: 14px; min-width: 14px; max-width: 14px; height: 14px; border-radius: 2px; background: var(--gray-200); flex-shrink: 0;
   }
   .dd-heatmap-cell[data-level="0"] { background: var(--gray-200); }
   .dd-heatmap-cell[data-level="1"] { background: rgba(255,102,0,0.25); }
@@ -1340,7 +1341,7 @@
   .dd-heatmap-cell[data-level="3"] { background: rgba(255,102,0,0.75); }
   .dd-heatmap-cell[data-level="4"] { background: #ff6600; }
   .dd-heatmap-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 6px; font-size: 0.55rem; color: var(--gray-400); }
-  .dd-heatmap-legend .dd-heatmap-cell { width: 10px; height: 10px; padding-bottom: 0; cursor: default; }
+  .dd-heatmap-legend .dd-heatmap-cell { width: 12px; height: 12px; padding-bottom: 0; cursor: default; }
   .dd-heatmap-cell[title] { cursor: pointer; }
 
   .dd-empty { text-align: center; color: var(--gray-400); font-size: 0.8rem; padding: 2rem 0; }
@@ -1625,6 +1626,8 @@
     .deep-dive-panel { padding: 12px 16px 0; }
     .dd-nav { padding: 0 20px 10px; }
     .dd-nav::after { left: 20px; right: 20px; }
+    .dd-header { padding: 0 20px; }
+    .dd-overlay-body { padding: 0 20px; }
     .dd-overlay-grid { grid-template-columns: 1fr; overflow: hidden; }
     .dd-stats { flex-direction: column; }
     .dd-tod-grid { grid-template-columns: 1fr; }
