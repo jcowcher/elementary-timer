@@ -822,8 +822,6 @@
   .name-totals-label {
     font-size: 0.7rem;
     font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
     color: var(--gray-400);
     margin-bottom: 0.4rem;
   }
@@ -5216,11 +5214,11 @@
     const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     var wtBreakdown = document.getElementById('workTypeBreakdown');
     if (deepSec > 0 || sustainingSec > 0) {
-      var html = '<div class="work-type-breakdown-title">By type of work</div>';
-      if (deepSec > 0) html += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot deep"></span><span class="work-type-breakdown-label">Deep Work</span><span class="work-type-breakdown-time">' + fmtTotal(deepSec) + '</span></div>';
-      if (sustainingSec > 0) html += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot sustaining"></span><span class="work-type-breakdown-label">Sustaining</span><span class="work-type-breakdown-time">' + fmtTotal(sustainingSec) + '</span></div>';
-      wtBreakdown.innerHTML = html;
-      wtBreakdown.style.display = '';
+      var wtHtml = '<div class="work-type-breakdown-title">By type of work</div>';
+      if (deepSec > 0) wtHtml += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot deep"></span><span class="work-type-breakdown-label">Deep Work</span><span class="work-type-breakdown-time">' + fmtTotal(deepSec) + '</span></div>';
+      if (sustainingSec > 0) wtHtml += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot sustaining"></span><span class="work-type-breakdown-label">Sustaining</span><span class="work-type-breakdown-time">' + fmtTotal(sustainingSec) + '</span></div>';
+      wtBreakdown.innerHTML = wtHtml;
+      wtBreakdown.style.display = 'block';
     } else {
       wtBreakdown.style.display = 'none';
       wtBreakdown.innerHTML = '';
