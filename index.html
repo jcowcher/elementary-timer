@@ -2846,8 +2846,16 @@
             overlay.style.display = 'none';
             resetSignInForm();
           }
-          initSupabase();
-          await loadAndMergeFromSupabase();
+          // Debug: raw fetch test, no Supabase client
+          setTimeout(function() {
+            fetch(SUPABASE_URL + '/rest/v1/timer_history?select=id&limit=1', {
+              headers: { 'apikey': SUPABASE_ANON_KEY }
+            }).then(function(r) { return r.json(); }).then(function(d) {
+              document.title = 'FETCH OK: ' + JSON.stringify(d).substring(0, 50);
+            }).catch(function(e) {
+              document.title = 'FETCH ERR: ' + e.message;
+            });
+          }, 3000);
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
           renderSessions();
