@@ -94,7 +94,7 @@
     bottom: 0;
     left: 40px;
     right: 40px;
-    border-bottom: 1px solid var(--gray-200);
+    border-bottom: 2px solid var(--orange);
   }
 
   .logo {
@@ -252,15 +252,16 @@
   }
 
   .timer-section {
-    flex: 1;
+    flex: 0 0 auto;
+    width: 320px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding-right: 2rem;
+    align-items: flex-start;
+    padding-right: 1.5rem;
   }
   .sessions-column {
-    width: 220px;
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
     border-left: 0.5px solid var(--gray-200);
     border-right: 0.5px solid var(--gray-200);
     padding: 0 1.25rem;
@@ -269,8 +270,8 @@
     overscroll-behavior: contain;
   }
   .stats-column {
-    width: 220px;
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
     padding-left: 1.25rem;
   }
 
@@ -339,8 +340,8 @@
   /* Minee-style disc timer */
   .timer-wrap {
     position: relative;
-    width: 340px;
-    height: 340px;
+    width: 300px;
+    height: 300px;
     margin-bottom: 1.25rem;
     margin-top: 0.5rem;
   }
@@ -1651,7 +1652,7 @@
       padding: 2.5rem 1.25rem 3rem;
     }
 
-    .timer-section { padding-right: 0; }
+    .timer-section { padding-right: 0; width: auto; align-items: center; }
     .sessions-column {
       width: 100%; max-width: 360px;
       border-left: none; border-right: none;
@@ -2341,7 +2342,7 @@
         </div>
       </div>
       <div class="week-chart" id="weekChart"></div>
-      <div id="historyGroups"></div>
+      <div id="historyGroups" style="display:none"></div>
     </div>
 
     <button class="deep-dive-btn" id="deepDiveBtn">
