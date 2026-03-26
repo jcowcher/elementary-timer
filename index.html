@@ -114,6 +114,7 @@
   }
 
   .nav-auth {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 0.6rem;
@@ -180,10 +181,6 @@
   .auth-avatar:hover {
     opacity: 0.85;
   }
-  .auth-avatar:has(.auth-dropdown.open) {
-    opacity: 1;
-  }
-
   .auth-dropdown {
     display: none;
     position: absolute;
@@ -2889,7 +2886,7 @@
       const firstName = currentUser.firstName || '';
       const lastName = currentUser.lastName || '';
       const initial = firstName ? (firstName.charAt(0) + (lastName ? lastName.charAt(0) : '')).toUpperCase() : ((currentUser.emailAddresses && currentUser.emailAddresses[0] ? currentUser.emailAddresses[0].emailAddress : 'U').charAt(0).toUpperCase());
-      authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '<div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">' + t('signOut') + '</button></div></div>';
+      authArea.innerHTML = '<div class="auth-avatar" id="authAvatar">' + initial + '</div><div class="auth-dropdown" id="authDropdown"><button id="signOutBtn">' + t('signOut') + '</button></div>';
       document.getElementById('authAvatar').addEventListener('click', (e) => {
         e.stopPropagation();
         document.getElementById('authDropdown').classList.toggle('open');
