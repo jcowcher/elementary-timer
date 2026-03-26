@@ -881,7 +881,7 @@
   .history-header {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 1rem;
   }
 
@@ -1991,7 +1991,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 40px;
-    border-top: 2px solid var(--orange);
+    border-top: 1px solid var(--gray-200);
     background: var(--white);
     font-size: 0.72rem;
     margin-top: 2rem;
@@ -2321,6 +2321,7 @@
   </div>
 
   <div class="stats-column">
+    <span class="history-title">History</span>
     <div class="daily-total">
       <div class="totals-row">
         <div class="total-block">
@@ -2336,8 +2337,7 @@
 
     <div class="history-section" id="historySection">
       <div class="history-header">
-        <span class="history-title">History</span>
-        <div class="week-nav">
+        <div class="week-nav" style="width:100%; justify-content:center;">
           <button class="week-nav-btn" id="weekPrev" title="Previous week">
             <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
           </button>
