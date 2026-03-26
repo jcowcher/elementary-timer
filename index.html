@@ -2827,8 +2827,11 @@
     if (!window.supabase || supabaseClient) return;
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       accessToken: async () => {
-        const t = await window.Clerk?.session?.getToken();
-        return t ?? null;
+        try {
+          var p = window.Clerk?.session?.getToken();
+          if (!p) return null;
+          return await Promise.race([p, new Promise(function(r) { setTimeout(function() { r(null); }, 5000); })]);
+        } catch (e) { return null; }
       }
     });
   }
@@ -2847,7 +2850,7 @@
             resetSignInForm();
           }
           initSupabase();
-          await loadAndMergeFromSupabase();
+          loadAndMergeFromSupabase().catch(function(e) { console.error('merge error:', e); });
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
           renderSessions();
