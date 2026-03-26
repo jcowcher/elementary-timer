@@ -1045,8 +1045,7 @@
     font-style: italic;
   }
 
-  /* Theme selector */
-  .theme-selector { position: relative; display: inline-block; margin-top: 0.25rem; }
+  /* Theme picker */
   .theme-toggle {
     background: none;
     border: 1px solid var(--gray-200);
@@ -1056,71 +1055,156 @@
     color: var(--gray-500);
     cursor: pointer;
     padding: 0.3rem 0.7rem 0.3rem 0.75rem;
+    margin-top: 0.25rem;
     transition: all 0.15s;
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
   }
-  .theme-toggle:hover { color: var(--orange); border-color: var(--orange); }
-  .theme-toggle.open { color: var(--gray-700); border-color: var(--gray-300); background: var(--gray-50); }
-  .theme-toggle-chevron { flex-shrink: 0; opacity: 0.5; transition: transform 0.15s; }
-  .theme-toggle.open .theme-toggle-chevron { transform: rotate(180deg); }
-
-  .theme-dropdown {
-    display: none;
-    position: absolute;
-    top: calc(100% + 4px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 240px;
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    z-index: 100;
-    overflow: hidden;
+  .theme-toggle:hover {
+    color: var(--gray-700);
+    border-color: var(--gray-300);
+    background: #fafafa;
   }
-  .theme-dropdown.open { display: block; }
+  .theme-toggle-chevron {
+    flex-shrink: 0;
+    opacity: 0.5;
+  }
 
-  .theme-dropdown-search {
+  .theme-picker {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin-top: 0.25rem;
+    display: none;
+  }
+  .theme-picker.open { display: block; }
+
+  .theme-tooltip {
+    display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%); background: #fff; color: var(--gray-500);
+    font-size: 0.65rem; font-weight: 400; padding: 0.5rem 0.7rem;
+    border-radius: 8px; box-shadow: 0 4px 12px rgba(255,102,0,0.08);
+    width: 220px; white-space: normal; line-height: 1.45; pointer-events: none; z-index: 20;
+    border: 1px solid rgba(255,102,0,0.15); text-align: center;
+  }
+  .theme-picker:hover .theme-tooltip { display: block; }
+
+  .theme-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    border: 1px solid #f8f8f8;
+    background: #f8f8f8;
+    border-radius: 100px;
+  }
+
+  .theme-search-icon {
+    position: absolute;
+    left: 22px;
+    color: var(--gray-400);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+  }
+
+  .theme-input:focus ~ .theme-search-icon,
+  .theme-input:not(:placeholder-shown) ~ .theme-search-icon { display: none; }
+
+  .theme-input {
     width: 100%;
     border: none;
-    border-bottom: 1px solid var(--gray-100);
+    background: none;
     outline: none;
     font-family: inherit;
     font-size: 0.78rem;
-    color: var(--black);
-    padding: 0.55rem 0.75rem;
-    background: none;
-    box-sizing: border-box;
-  }
-  .theme-dropdown-search::placeholder { color: var(--gray-400); }
-
-  .theme-dropdown-list {
-    list-style: none;
-    max-height: 240px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .theme-dropdown-item {
-    padding: 0.45rem 0.75rem;
-    font-size: 0.78rem;
-    color: var(--gray-700);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    transition: background 0.1s;
-  }
-  .theme-dropdown-item:hover { background: var(--gray-50); }
-  .theme-dropdown-item.highlight { background: var(--gray-50); }
-  .theme-dropdown-item.selected { color: var(--orange); font-weight: 500; }
-  .theme-dropdown-item.selected::after { content: '✓'; font-size: 0.7rem; }
-  .theme-dropdown-empty {
-    padding: 0.75rem;
-    font-size: 0.75rem;
     color: var(--gray-400);
     text-align: center;
+    padding: 0.4rem 1.5rem;
+  }
+
+  .theme-input::placeholder { color: var(--gray-700); font-style: italic; }
+  .theme-input:focus { color: var(--black); }
+  .theme-input:focus::placeholder { color: var(--gray-400); }
+
+  .theme-clear {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: var(--gray-400);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    line-height: 1;
+    display: none;
+  }
+
+  .theme-clear:hover { color: var(--gray-700); }
+
+  .theme-submit {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--orange);
+    border: none;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background 0.15s;
+  }
+
+  .theme-submit:hover { background: var(--orange-light); }
+
+  .theme-submit svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: var(--white);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .theme-suggestions {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 240px;
+    max-height: 200px;
+    overflow-y: auto;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    list-style: none;
+    z-index: 50;
+  }
+
+  .theme-suggestions.open { display: block; }
+
+  .theme-suggestion-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    color: var(--gray-700);
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+
+  .theme-suggestion-item:hover,
+  .theme-suggestion-item.active {
+    background: var(--orange-bg);
+    color: var(--black);
   }
 
   /* Deep dive Analytics */
@@ -2080,8 +2164,8 @@
     .session-delete:hover { color: var(--gray-400); }
     .week-nav-btn:hover { background: none; color: var(--gray-500); }
     .history-group-header:hover { background: none; }
-    .theme-toggle:hover { color: var(--gray-500); border-color: var(--gray-200); }
-    .theme-dropdown-item:hover { background: none; }
+    .theme-clear:hover { color: var(--gray-400); }
+    .theme-submit:hover { background: var(--orange); }
     .deep-dive-btn:hover { border-color: var(--gray-300); color: var(--gray-500); }
     .feedback-fab:hover { background: var(--gray-700); transform: none; }
     .feedback-modal .feedback-cancel:hover { background: var(--gray-100); }
@@ -2237,15 +2321,27 @@
       </button>
     </div>
 
-    <div class="theme-selector" id="themeSelector">
-      <button class="theme-toggle" id="themeToggle" title="Pick a film or TV show for quotes while you work">
-        <span id="themeToggleLabel">Sherlock Holmes</span>
-        <svg class="theme-toggle-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <div class="theme-dropdown" id="themeDropdown">
-        <input type="text" class="theme-dropdown-search" id="themeSearch" placeholder="Search themes..." autocomplete="off" data-1p-ignore="true" data-lpignore="true">
-        <ul class="theme-dropdown-list" id="themeList"></ul>
+    <button class="theme-toggle" id="themeToggle">
+      <span id="themeToggleLabel">Sherlock Holmes</span>
+      <svg class="theme-toggle-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="theme-picker" id="themePicker">
+      <span class="theme-tooltip">Pick a film or TV show for quotes while you work</span>
+      <div class="theme-input-wrap">
+        <input type="text" class="theme-input" id="themeInput"
+          placeholder="Search themes..."
+          autocomplete="off" data-1p-ignore="true" data-lpignore="true" maxlength="40">
+        <span class="theme-search-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </span>
+        <button class="theme-submit" id="themeSubmit">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <button class="theme-clear" id="themeClear" title="Reset to Sherlock Holmes">&times;</button>
       </div>
+      <ul class="theme-suggestions" id="themeSuggestions"></ul>
     </div>
   </div>
 
@@ -2527,8 +2623,8 @@
     document.querySelector('.section-title').textContent = t('todaysSessions');
     document.querySelector('.history-title').textContent = t('history');
     document.getElementById('avgLabel').textContent = t('dailyAvg');
-    var themeSearchEl = document.getElementById('themeSearch');
-    if (themeSearchEl) themeSearchEl.placeholder = t('tryTheme');
+    document.getElementById('themeInput').placeholder = t('tryTheme');
+    document.getElementById('themeClear').title = t('resetSherlock');
     document.querySelector('.quote-dismiss').textContent = t('clickDismiss');
     document.getElementById('privacyLink').textContent = t('privacyPolicy');
     document.getElementById('weekPrev').title = t('previousWeek');
@@ -2732,12 +2828,8 @@
     if (!window.supabase || supabaseClient) return;
     supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       accessToken: async () => {
-        try {
-          const p = window.Clerk?.session?.getToken();
-          if (!p) return null;
-          const t = await Promise.race([p, new Promise(r => setTimeout(() => r(null), 5000))]);
-          return t ?? null;
-        } catch (e) { return null; }
+        const t = await window.Clerk?.session?.getToken();
+        return t ?? null;
       }
     });
   }
@@ -2748,14 +2840,16 @@
       window.Clerk.addListener(async ({ user }) => {
         currentUser = user;
         updateAuthUI();
-        // Always force-hide sign-in overlay on auth change
+        // Auto-close sign-in overlay on successful auth
         if (user) {
-          var overlay = document.getElementById('clerkOverlay');
-          overlay.style.display = 'none';
-          resetSignInForm();
+          const overlay = document.getElementById('clerkOverlay');
+          if (overlay.style.display !== 'none') {
+            overlay.style.display = 'none';
+            resetSignInForm();
+          }
           initSupabase();
-          try { await loadAndMergeFromSupabase(); } catch (e) { console.error('merge error:', e); }
-          try { await loadActiveTimer(); } catch (e) { console.error('active timer error:', e); }
+          await loadAndMergeFromSupabase();
+          await loadActiveTimer();
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
           renderSessions();
@@ -2955,8 +3049,7 @@
     if (!currentUser || !supabaseClient) return;
     try {
       const row = Object.assign({ user_id: currentUser.id, updated_at: new Date().toISOString() }, fields);
-      const { error } = await supabaseClient.from('active_timer').upsert(row, { onConflict: 'user_id' });
-      if (error) console.error('syncActiveTimer error:', error);
+      await supabaseClient.from('active_timer').upsert(row, { onConflict: 'user_id' });
     } catch (e) {
       console.error('Failed to sync active timer:', e);
     }
@@ -2979,15 +3072,8 @@
     }, 1500);
   }
 
-  let _activeTimerLoaded = false;
-
   async function loadActiveTimer() {
     if (!currentUser || !supabaseClient) return;
-    // Only load once per session — prevent Clerk listener re-entry
-    if (_activeTimerLoaded) return;
-    // Don't overwrite a locally running timer
-    if (running || elapsed > 0) return;
-    _activeTimerLoaded = true;
     try {
       var res = await supabaseClient.from('active_timer').select('*').eq('user_id', currentUser.id).maybeSingle();
       if (res.error) throw res.error;
@@ -2996,15 +3082,11 @@
 
       var currentElapsed;
       if (data.is_running && data.started_at) {
-        var startMs = new Date(data.started_at).getTime();
-        if (isNaN(startMs)) { currentElapsed = data.accumulated || 0; }
-        else { currentElapsed = (data.accumulated || 0) + Math.floor((Date.now() - startMs) / 1000); }
+        currentElapsed = data.accumulated + Math.floor((Date.now() - new Date(data.started_at).getTime()) / 1000);
       } else {
-        currentElapsed = data.accumulated || 0;
+        currentElapsed = data.accumulated;
       }
-      // Sanity: clamp to 0..86400 (24 hours max)
-      if (isNaN(currentElapsed) || currentElapsed < 0) currentElapsed = 0;
-      if (currentElapsed > 86400) currentElapsed = 0;
+      if (currentElapsed < 0) currentElapsed = 0;
 
       if (data.pomodoro_mode) {
         resumePomodoroFromSync(data, currentElapsed);
@@ -3017,8 +3099,6 @@
   }
 
   function resumeNormalFromSync(data, currentElapsed) {
-    // Clear any existing timer to prevent duplicate intervals
-    if (interval) { clearInterval(interval); interval = null; }
     elapsed = currentElapsed;
     elapsedBeforePause = currentElapsed;
     currentWorkType = data.work_type || 'deep';
@@ -3066,8 +3146,6 @@
   }
 
   function resumePomodoroFromSync(data, currentElapsed) {
-    // Clear any existing timer to prevent duplicate intervals
-    if (interval) { clearInterval(interval); interval = null; }
     var target = (data.pomodoro_phase === 'break') ? POMO_BREAK : POMO_WORK;
 
     // Phase expired while away
@@ -4744,7 +4822,6 @@
     display.classList.add('visible');
     statusLabel.textContent = t('pomodoro');
     statusLabel.className = 'time-label idle-label';
-    _activeTimerLoaded = false;
     deleteActiveTimer();
   }
 
@@ -4774,7 +4851,6 @@
     statusLabel.className = 'time-label idle-label';
     timerBody.classList.remove('running');
     timerWrap.classList.remove('active');
-    _activeTimerLoaded = false;
     deleteActiveTimer();
   }
 
@@ -4829,7 +4905,6 @@
     startTime = null;
     elapsedBeforePause = 0;
     completedLaps = 0;
-    _activeTimerLoaded = false;
     deleteActiveTimer();
 
     // Reset UI to ready-for-next-round state
@@ -4916,8 +4991,7 @@
     const savedElapsed = elapsed;
     const savedName = sessionInput.value.trim() || t('deepWork');
     const savedType = currentWorkType;
-    _activeTimerLoaded = false;
-    await deleteActiveTimer();
+    deleteActiveTimer();
 
     // Stop timer immediately before any async work
     clearInterval(interval);
@@ -5887,26 +5961,63 @@
   // ── Theme Switcher ──────────────────────────────────
   const themeToggleBtn = document.getElementById('themeToggle');
   const themeToggleLabel = document.getElementById('themeToggleLabel');
-  const themeDropdown = document.getElementById('themeDropdown');
-  const themeSearch = document.getElementById('themeSearch');
-  const themeListEl = document.getElementById('themeList');
-  let themeHighlightIdx = -1;
+
+  themeToggleBtn.addEventListener('click', function() {
+    var picker = document.getElementById('themePicker');
+    picker.classList.add('open');
+    this.style.display = 'none';
+    document.getElementById('themeInput').focus();
+  });
+
+  // Close picker when clicking outside
+  document.addEventListener('click', function(e) {
+    var picker = document.getElementById('themePicker');
+    if (!picker.classList.contains('open')) return;
+    if (picker.contains(e.target) || themeToggleBtn.contains(e.target)) return;
+    picker.classList.remove('open');
+    themeToggleBtn.style.display = 'inline-flex';
+  });
+
+  const themeInput = document.getElementById('themeInput');
+  const themeSuggestions = document.getElementById('themeSuggestions');
+  const themeClear = document.getElementById('themeClear');
+  const themeSubmit = document.getElementById('themeSubmit');
+
+  function updateThemeSubmit() {
+    const hasText = themeInput.value.trim().length > 0;
+    themeSubmit.style.display = hasText ? 'flex' : 'none';
+  }
 
   function switchTheme(key) {
     const theme = QUOTE_THEMES[key];
     if (!theme) return;
     activeThemeKey = key;
-    activeQuotes = theme.quotes;
+    activeQuotes = theme.quotes; // hardcoded fallback
     activeEmptyQuotes = theme.emptyQuotes;
     activeIdleQuotes = theme.idleQuotes;
     activeRunningLabels = theme.runningLabels;
     activeTimeTriggers = theme.timeTriggers;
     activeEasterEggs = theme.easterEggs;
     localStorage.setItem('et_quote_theme', key);
+
+    // Fetch quotes from Supabase (async, replaces hardcoded when ready)
     fetchQuotesForTheme(theme.name);
+
+    // Update UI
     themeToggleLabel.textContent = theme.name;
-    closeThemeDropdown();
-    if (!running) statusLabel.textContent = getRandomIdleQuote();
+    themeInput.value = theme.name;
+    themeInput.placeholder = 'Search themes...';
+    themeClear.style.display = key === 'sherlock' ? 'none' : 'block';
+    themeSubmit.style.display = 'none';
+
+    // Close picker, show toggle
+    document.getElementById('themePicker').classList.remove('open');
+    themeToggleBtn.style.display = 'inline-flex';
+
+    // Refresh visible quotes
+    if (!running) {
+      statusLabel.textContent = getRandomIdleQuote();
+    }
     renderSessions();
   }
 
@@ -5927,86 +6038,88 @@
     return results;
   }
 
-  function renderThemeList(filter) {
-    var matches = findThemes(filter || '');
-    themeHighlightIdx = -1;
+  let activeSuggestionIdx = -1;
+
+  function renderSuggestions(matches) {
     if (matches.length === 0) {
-      themeListEl.innerHTML = '<li class="theme-dropdown-empty">No themes found</li>';
+      themeSuggestions.classList.remove('open');
+      themeSuggestions.innerHTML = '';
+      activeSuggestionIdx = -1;
       return;
     }
-    themeListEl.innerHTML = matches.map(function(m) {
-      return '<li class="theme-dropdown-item' + (m.key === activeThemeKey ? ' selected' : '') + '" data-key="' + m.key + '">' + m.name + '</li>';
-    }).join('');
-    themeListEl.querySelectorAll('.theme-dropdown-item').forEach(function(item) {
-      item.addEventListener('mousedown', function(e) {
+    activeSuggestionIdx = -1;
+    themeSuggestions.innerHTML = matches.map((m, i) =>
+      '<li class="theme-suggestion-item" data-key="' + m.key + '">' + m.name + '</li>'
+    ).join('');
+    themeSuggestions.classList.add('open');
+
+    themeSuggestions.querySelectorAll('.theme-suggestion-item').forEach(item => {
+      item.addEventListener('mousedown', (e) => {
         e.preventDefault();
         switchTheme(item.dataset.key);
+        themeSuggestions.classList.remove('open');
+        themeInput.blur();
       });
     });
   }
 
-  function openThemeDropdown() {
-    themeDropdown.classList.add('open');
-    themeToggleBtn.classList.add('open');
-    themeSearch.value = '';
-    renderThemeList('');
-    themeSearch.focus();
-    // Scroll selected item into view
-    setTimeout(function() {
-      var sel = themeListEl.querySelector('.selected');
-      if (sel) sel.scrollIntoView({ block: 'nearest' });
-    }, 0);
-  }
-
-  function closeThemeDropdown() {
-    themeDropdown.classList.remove('open');
-    themeToggleBtn.classList.remove('open');
-    themeSearch.value = '';
-  }
-
-  themeToggleBtn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    if (themeDropdown.classList.contains('open')) {
-      closeThemeDropdown();
-    } else {
-      openThemeDropdown();
-    }
+  themeInput.addEventListener('input', () => {
+    updateThemeSubmit();
+    renderSuggestions(findThemes(themeInput.value));
   });
 
-  document.addEventListener('click', function(e) {
-    if (!themeDropdown.classList.contains('open')) return;
-    var sel = document.getElementById('themeSelector');
-    if (sel && sel.contains(e.target)) return;
-    closeThemeDropdown();
+  themeInput.addEventListener('focus', () => {
+    themeInput.select();
+    renderSuggestions(findThemes(themeInput.value));
   });
 
-  themeSearch.addEventListener('input', function() {
-    renderThemeList(this.value);
+  themeInput.addEventListener('blur', () => {
+    setTimeout(() => themeSuggestions.classList.remove('open'), 150);
   });
 
-  themeSearch.addEventListener('keydown', function(e) {
-    var items = themeListEl.querySelectorAll('.theme-dropdown-item');
+  themeInput.addEventListener('keydown', (e) => {
+    const items = themeSuggestions.querySelectorAll('.theme-suggestion-item');
+    if (!items.length) return;
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      themeHighlightIdx = Math.min(themeHighlightIdx + 1, items.length - 1);
-      items.forEach(function(it, i) { it.classList.toggle('highlight', i === themeHighlightIdx); });
-      if (items[themeHighlightIdx]) items[themeHighlightIdx].scrollIntoView({ block: 'nearest' });
+      activeSuggestionIdx = Math.min(activeSuggestionIdx + 1, items.length - 1);
+      items.forEach((it, i) => it.classList.toggle('active', i === activeSuggestionIdx));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      themeHighlightIdx = Math.max(themeHighlightIdx - 1, 0);
-      items.forEach(function(it, i) { it.classList.toggle('highlight', i === themeHighlightIdx); });
-      if (items[themeHighlightIdx]) items[themeHighlightIdx].scrollIntoView({ block: 'nearest' });
+      activeSuggestionIdx = Math.max(activeSuggestionIdx - 1, 0);
+      items.forEach((it, i) => it.classList.toggle('active', i === activeSuggestionIdx));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      if (themeHighlightIdx >= 0 && items[themeHighlightIdx]) {
-        switchTheme(items[themeHighlightIdx].dataset.key);
-      } else if (items.length > 0) {
-        switchTheme(items[0].dataset.key);
+      if (activeSuggestionIdx >= 0 && items[activeSuggestionIdx]) {
+        switchTheme(items[activeSuggestionIdx].dataset.key);
+        themeSuggestions.classList.remove('open');
+        themeInput.blur();
       }
     } else if (e.key === 'Escape') {
-      closeThemeDropdown();
-      themeToggleBtn.focus();
+      themeSuggestions.classList.remove('open');
+      document.getElementById('themePicker').classList.remove('open');
+      themeToggleBtn.style.display = 'inline-flex';
+      themeInput.blur();
     }
+  });
+
+  themeSubmit.addEventListener('click', (e) => {
+    e.preventDefault();
+    const matches = findThemes(themeInput.value);
+    if (matches.length > 0) {
+      switchTheme(matches[0].key);
+      themeSuggestions.classList.remove('open');
+      themeInput.blur();
+    }
+  });
+
+  themeClear.addEventListener('click', () => {
+    switchTheme('sherlock');
+    themeInput.value = '';
+    themeInput.placeholder = 'Search themes...';
+    themeClear.style.display = 'none';
+    themeSubmit.style.display = 'none';
   });
 
   // Init — restore theme from localStorage
@@ -6021,8 +6134,11 @@
     activeTimeTriggers = savedThemeObj.timeTriggers;
     activeEasterEggs = savedThemeObj.easterEggs;
     themeToggleLabel.textContent = savedThemeObj.name;
+    themeInput.value = savedThemeObj.name;
+    themeClear.style.display = savedTheme === 'sherlock' ? 'none' : 'block';
     fetchQuotesForTheme(savedThemeObj.name);
   } else {
+    // Default theme — fetch from Supabase
     fetchQuotesForTheme('Sherlock Holmes');
   }
 
