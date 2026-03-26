@@ -252,15 +252,14 @@
   }
 
   .timer-section {
-    flex: 0 0 auto;
-    width: 320px;
+    flex: 1 1 50%;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     padding-right: 1.5rem;
   }
   .sessions-column {
-    flex: 1;
+    flex: 0 0 25%;
     min-width: 0;
     border-left: 0.5px solid var(--gray-200);
     border-right: 0.5px solid var(--gray-200);
@@ -268,11 +267,13 @@
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     overscroll-behavior: contain;
+    box-sizing: border-box;
   }
   .stats-column {
-    flex: 1;
+    flex: 0 0 25%;
     min-width: 0;
     padding-left: 1.25rem;
+    box-sizing: border-box;
   }
 
   .timer-heading-input {
@@ -340,8 +341,8 @@
   /* Minee-style disc timer */
   .timer-wrap {
     position: relative;
-    width: 300px;
-    height: 300px;
+    width: 340px;
+    height: 340px;
     margin-bottom: 1.25rem;
     margin-top: 0.5rem;
   }
