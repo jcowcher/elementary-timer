@@ -290,28 +290,25 @@
 
   .session-suggestions {
     display: none; position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-    width: 240px; max-height: 200px; overflow-y: auto;
+    width: 240px; max-height: 240px; overflow-y: auto; overscroll-behavior: contain;
     background: var(--white); border: 1px solid var(--gray-200);
-    border-radius: var(--radius); box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     list-style: none; z-index: 50; margin-top: 4px;
   }
   .session-suggestions.open { display: block; }
   .session-suggestion-item {
-    padding: 0.5rem 0.75rem; font-size: 0.8rem; color: var(--gray-700);
+    padding: 0.45rem 0.75rem; font-size: 0.78rem; color: var(--gray-700);
     cursor: pointer; transition: background 0.1s;
     display: flex; align-items: center; justify-content: space-between;
   }
-  .session-suggestion-item:hover,
-  .session-suggestion-item.active {
-    background: var(--orange-bg); color: var(--black);
-  }
+  .session-suggestion-item:hover { background: var(--gray-50); }
   .suggestion-text { flex: 1; }
   .suggestion-remove {
-    font-size: 0.65rem; color: var(--gray-400); padding: 0.15rem 0.3rem;
+    font-size: 0.6rem; color: var(--gray-300); padding: 0.15rem 0.3rem;
     border-radius: 4px; opacity: 0; transition: opacity 0.1s, color 0.1s;
   }
   .session-suggestion-item:hover .suggestion-remove { opacity: 1; }
-  .suggestion-remove:hover { color: var(--orange); }
+  .suggestion-remove:hover { color: var(--gray-500); }
 
   /* Minee-style disc timer */
   .timer-wrap {
@@ -6011,15 +6008,16 @@
   // Session name suggestions (shared helper)
   let hiddenNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
 
-  function getVisibleNames() {
-    const all = [...new Set(sessions.map(s => s.name || t('deepWork')))];
+  function getVisibleNames(workType) {
+    var filtered = workType ? sessions.filter(s => (s.type || 'deep') === workType) : sessions;
+    const all = [...new Set(filtered.map(s => s.name || t('deepWork')))];
     return all.filter(n => !hiddenNames.includes(n));
   }
 
-  function setupSessionSuggestions(input, list) {
+  function setupSessionSuggestions(input, list, getWorkType) {
     function showMatches() {
       const val = input.value.trim().toLowerCase();
-      const names = getVisibleNames();
+      const names = getVisibleNames(getWorkType ? getWorkType() : null);
       const matches = val ? names.filter(n => n.toLowerCase().includes(val)) : names;
       if (matches.length === 0) { list.classList.remove('open'); list.innerHTML = ''; return; }
       list.innerHTML = matches.map(n =>
@@ -6054,7 +6052,7 @@
     });
   }
 
-  setupSessionSuggestions(sessionInput, document.getElementById('mainSessionSuggestions'));
+  setupSessionSuggestions(sessionInput, document.getElementById('mainSessionSuggestions'), function() { return currentWorkType; });
   sessionInput.addEventListener('input', function() { syncActivityName(this.value.trim()); });
 
   // Add Session overlay
@@ -6067,9 +6065,8 @@
     const hoursInput = document.getElementById('addSessionHours');
     const minutesInput = document.getElementById('addSessionMinutes');
 
-    setupSessionSuggestions(nameInput, document.getElementById('addSessionSuggestions'));
-
     let addSessionWorkType = 'deep';
+    setupSessionSuggestions(nameInput, document.getElementById('addSessionSuggestions'), function() { return addSessionWorkType; });
     const addToggle = document.getElementById('addWorkTypeToggle');
     setupWorkTypeToggle(addToggle, (type) => { addSessionWorkType = type; });
 
