@@ -1559,13 +1559,13 @@
   .history-session-left { display: flex; align-items: center; flex: 1; }
 
   /* Daily total type breakdown */
-  .daily-type-breakdown { margin-top: 0.5rem; }
+  .daily-type-breakdown { margin-top: 0.4rem; display: flex; gap: 0.75rem; }
   .daily-type-row {
-    display: flex; align-items: center; gap: 0.4rem;
-    font-size: 0.72rem; color: var(--gray-500); padding: 0.1rem 0;
+    display: flex; align-items: center; gap: 0.3rem;
+    font-size: 0.72rem; color: var(--gray-500);
   }
   .daily-type-dot {
-    width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0;
+    width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
   }
   .daily-type-dot.deep { background: var(--orange); }
   .daily-type-dot.sustaining { background: var(--gray-900); }
@@ -5119,8 +5119,8 @@
     }
     if (deepSec > 0 && sustainingSec > 0) {
       breakdownEl.innerHTML =
-        '<div class="daily-type-row"><span class="daily-type-dot deep"></span>' + t('deepWork') + ': ' + fmtTotal(deepSec) + '</div>' +
-        '<div class="daily-type-row"><span class="daily-type-dot sustaining"></span>' + t('sustainingWork') + ': ' + fmtTotal(sustainingSec) + '</div>';
+        '<div class="daily-type-row"><span class="daily-type-dot deep"></span>' + fmtTotal(deepSec) + '</div>' +
+        '<div class="daily-type-row"><span class="daily-type-dot sustaining"></span>' + fmtTotal(sustainingSec) + '</div>';
       breakdownEl.style.display = '';
     } else {
       breakdownEl.style.display = 'none';
