@@ -2851,7 +2851,12 @@
           }
           initSupabase();
           setTimeout(function() {
-            loadAndMergeFromSupabase().catch(function(e) { console.error('merge error:', e); });
+            document.title = 'CALLING getToken...';
+            window.Clerk.session.getToken().then(function(t) {
+              document.title = 'TOKEN: ' + (t ? 'got it' : 'null');
+            }).catch(function(e) {
+              document.title = 'TOKEN ERR: ' + e.message;
+            });
           }, 3000);
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
