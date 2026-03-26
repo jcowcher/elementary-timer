@@ -1990,8 +1990,9 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
     padding: 0.5rem 40px;
-    border-top: 1px solid var(--gray-200);
+    border-top: none;
     background: var(--white);
     font-size: 0.72rem;
     margin-top: 2rem;
@@ -2000,6 +2001,14 @@
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
+  }
+  .site-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 40px;
+    right: 40px;
+    border-top: 1px solid var(--gray-200);
   }
 
   .landing-footer {
