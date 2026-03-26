@@ -1595,6 +1595,34 @@
   .chart-bar.deep-bar:last-child { border-radius: 3px; }
   .chart-bar.sustaining-bar:first-child { border-radius: 3px 0 0 3px; }
 
+  /* Work type breakdown in timer column */
+  .work-type-breakdown {
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 300px;
+  }
+  .work-type-breakdown-title {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--gray-400);
+    margin-bottom: 0.35rem;
+  }
+  .work-type-breakdown-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0;
+    font-size: 0.8rem;
+    color: var(--black);
+  }
+  .work-type-breakdown-dot {
+    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  }
+  .work-type-breakdown-dot.deep { background: var(--orange); }
+  .work-type-breakdown-dot.sustaining { background: var(--gray-900); }
+  .work-type-breakdown-label { font-weight: 500; }
+  .work-type-breakdown-time { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+
   /* History session type dot */
   .history-session-dot {
     width: 5px; height: 5px; border-radius: 50%;
@@ -1604,16 +1632,6 @@
   .history-session-left { display: flex; align-items: center; flex: 1; }
 
   /* Daily total type breakdown */
-  .daily-type-breakdown { margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.25rem; }
-  .daily-type-row {
-    display: flex; align-items: center; gap: 0.35rem;
-    font-size: 0.72rem; color: var(--gray-500);
-  }
-  .daily-type-dot {
-    width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
-  }
-  .daily-type-dot.deep { background: var(--orange); }
-  .daily-type-dot.sustaining { background: var(--gray-900); }
 
   /* Deep dive work type breakdown (Whoop-inspired) */
   .dd-type-section { margin-bottom: 0.5rem; }
@@ -2327,6 +2345,7 @@
         <ul class="theme-dropdown-list" id="themeList"></ul>
       </div>
     </div>
+    <div class="work-type-breakdown" id="workTypeBreakdown" style="display:none"></div>
   </div>
 
   <div class="sessions-column">
@@ -5192,24 +5211,19 @@
       nameTotalsEl.innerHTML = '';
     }
 
-    // Daily type breakdown (deep vs sustaining)
+    // Work type breakdown (deep vs sustaining) — rendered in timer column
     const deepSec = todaySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
-    let breakdownEl = document.getElementById('dailyTypeBreakdown');
-    if (!breakdownEl) {
-      breakdownEl = document.createElement('div');
-      breakdownEl.id = 'dailyTypeBreakdown';
-      breakdownEl.className = 'daily-type-breakdown';
-      document.querySelector('.daily-total').appendChild(breakdownEl);
-    }
-    if (deepSec > 0 && sustainingSec > 0) {
-      breakdownEl.innerHTML =
-        '<div class="daily-type-row"><span class="daily-type-dot deep"></span>' + fmtTotal(deepSec) + '</div>' +
-        '<div class="daily-type-row"><span class="daily-type-dot sustaining"></span>' + fmtTotal(sustainingSec) + '</div>';
-      breakdownEl.style.display = '';
+    var wtBreakdown = document.getElementById('workTypeBreakdown');
+    if (deepSec > 0 || sustainingSec > 0) {
+      var html = '<div class="work-type-breakdown-title">By type of work</div>';
+      if (deepSec > 0) html += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot deep"></span><span class="work-type-breakdown-label">Deep Work</span><span class="work-type-breakdown-time">' + fmtTotal(deepSec) + '</span></div>';
+      if (sustainingSec > 0) html += '<div class="work-type-breakdown-row"><span class="work-type-breakdown-dot sustaining"></span><span class="work-type-breakdown-label">Sustaining</span><span class="work-type-breakdown-time">' + fmtTotal(sustainingSec) + '</span></div>';
+      wtBreakdown.innerHTML = html;
+      wtBreakdown.style.display = '';
     } else {
-      breakdownEl.style.display = 'none';
-      breakdownEl.innerHTML = '';
+      wtBreakdown.style.display = 'none';
+      wtBreakdown.innerHTML = '';
     }
 
     // Wire delete buttons
