@@ -284,7 +284,14 @@
     position: relative; display: flex; flex-direction: column; align-items: center;
     width: 100%; max-width: 300px; margin-bottom: 1.5rem;
   }
-  .session-input-wrap .timer-heading-input { margin-bottom: 0; }
+  .session-input-wrap .timer-heading-input { margin-bottom: 0; padding-right: 1.8rem; }
+  .session-input-chevron {
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    pointer-events: none; color: var(--gray-400); opacity: 0.5;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .session-input-wrap:focus-within .session-input-chevron { transform: translateY(-50%) rotate(180deg); }
+  .timer-heading-input:not(:placeholder-shown) ~ .session-input-chevron { opacity: 0; }
   .add-session-input-wrap { margin-bottom: 2.5rem; }
   .add-session-input-wrap .add-session-name { margin-bottom: 0; }
 
@@ -2211,6 +2218,7 @@
     </div>
     <div class="session-input-wrap">
       <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" autocomplete="off">
+      <svg class="session-input-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       <ul class="session-suggestions" id="mainSessionSuggestions"></ul>
     </div>
 
