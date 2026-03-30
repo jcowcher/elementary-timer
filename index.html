@@ -2537,6 +2537,9 @@
   const nameTotalsEl = document.getElementById('nameTotals');
   const totalLabelEl = document.getElementById('totalLabel');
 
+  // Hidden activity names (synced to cloud for logged-in users)
+  let hiddenNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
+
   // ── i18n Translations ─────────────────────────────
   const TRANSLATIONS = {
     en: { label: 'English', flag: '🇺🇸',
@@ -2866,6 +2869,7 @@
           }
           initSupabase();
           await loadAndMergeFromSupabase();
+          await loadHiddenActivitiesFromSupabase();
           await loadActiveTimer();
         } else {
           sessions = JSON.parse(localStorage.getItem('et_sessions') || '[]');
@@ -3027,6 +3031,45 @@
         .eq('user_id', currentUser.id);
     } catch (e) {
       console.error('Failed to delete from Supabase:', e);
+    }
+  }
+
+  // ── Hidden Activities Sync (cross-device) ──────────────
+  async function loadHiddenActivitiesFromSupabase() {
+    if (!currentUser || !supabaseClient) return;
+    try {
+      const { data, error } = await supabaseClient
+        .from('hidden_activities')
+        .select('name')
+        .eq('user_id', currentUser.id);
+      if (error) throw error;
+      const cloudNames = (data || []).map(r => r.name);
+      const localNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
+      const merged = [...new Set([...localNames, ...cloudNames])];
+      hiddenNames = merged;
+      localStorage.setItem('et_hidden_names', JSON.stringify(merged));
+      // Upload any local-only hidden names to cloud
+      const localOnly = localNames.filter(n => !cloudNames.includes(n));
+      if (localOnly.length > 0) {
+        await supabaseClient.from('hidden_activities').upsert(
+          localOnly.map(n => ({ user_id: currentUser.id, name: n })),
+          { onConflict: 'user_id,name' }
+        );
+      }
+    } catch (e) {
+      console.error('Failed to load hidden activities:', e);
+    }
+  }
+
+  async function saveHiddenActivityToSupabase(name) {
+    if (!currentUser || !supabaseClient) return;
+    try {
+      await supabaseClient.from('hidden_activities').upsert(
+        { user_id: currentUser.id, name: name },
+        { onConflict: 'user_id,name' }
+      );
+    } catch (e) {
+      console.error('Failed to save hidden activity:', e);
     }
   }
 
@@ -5563,12 +5606,26 @@
       });
     });
 
-    // Determine date range — rolling 1 year, weeks start on Monday
+    // Determine date range — weeks start on Monday
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    let startDate = new Date(today);
-    startDate.setFullYear(startDate.getFullYear() - 1);
-    startDate.setDate(startDate.getDate() + 1); // 365 days ago
+
+    // If Jan 1 of the current year is less than 9 months ago, show calendar-year view;
+    // otherwise switch to rolling 12-month view
+    const jan1 = new Date(today.getFullYear(), 0, 1);
+    const nineMonthsAgo = new Date(today);
+    nineMonthsAgo.setMonth(nineMonthsAgo.getMonth() - 9);
+
+    let startDate;
+    if (jan1 >= nineMonthsAgo) {
+      // Calendar-year view (Jan 1 → now)
+      startDate = new Date(jan1);
+    } else {
+      // Rolling 1-year view
+      startDate = new Date(today);
+      startDate.setFullYear(startDate.getFullYear() - 1);
+      startDate.setDate(startDate.getDate() + 1);
+    }
 
     // Rewind startDate to nearest Monday (ISO week start)
     const startDay = startDate.getDay();
@@ -6114,8 +6171,6 @@
   }
 
   // Session name suggestions (shared helper)
-  let hiddenNames = JSON.parse(localStorage.getItem('et_hidden_names') || '[]');
-
   function getVisibleNames(workType) {
     var filtered = workType ? sessions.filter(s => (s.type || 'deep') === workType) : sessions;
     const all = [...new Set(filtered.map(s => s.name || t('deepWork')))];
@@ -6151,6 +6206,7 @@
           const name = this.previousElementSibling.textContent;
           hiddenNames.push(name);
           localStorage.setItem('et_hidden_names', JSON.stringify(hiddenNames));
+          saveHiddenActivityToSupabase(name);
           showMatches();
         });
       });
