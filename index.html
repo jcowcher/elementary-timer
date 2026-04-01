@@ -2445,33 +2445,34 @@
 
 <!-- Sign-in overlay -->
 <div id="clerkOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;">
-  <div style="position:relative;background:var(--white);border-radius:12px;padding:2rem;width:340px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,0.2);">
-    <button id="clerkClose" style="position:absolute;top:-12px;right:-12px;width:28px;height:28px;border-radius:50%;border:none;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:1;color:#555;">&times;</button>
-    <h2 style="font-size:1.15rem;font-weight:600;margin-bottom:1.25rem;text-align:center;color:var(--black);">Sign in to Gem<span style="color:var(--orange)">Timer</span></h2>
+  <div style="position:relative;background:var(--white);border-radius:12px;padding:2.25rem 2rem 1.75rem;width:370px;max-width:90vw;box-shadow:0 16px 48px rgba(0,0,0,0.2);">
+    <button id="clerkClose" style="position:absolute;top:1rem;right:1rem;width:24px;height:24px;border:none;background:none;cursor:pointer;font-size:20px;color:var(--gray-400);display:flex;align-items:center;justify-content:center;padding:0;line-height:1;">&times;</button>
+    <h2 id="signInHeading" style="font-size:1.4rem;font-weight:700;margin-bottom:1.5rem;text-align:center;color:var(--black);">Log in to Gem<span style="color:var(--orange)">Timer</span></h2>
+    <div id="signInOAuth" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;"></div>
+    <div id="signInDivider" style="display:none;align-items:center;gap:0.75rem;color:var(--gray-400);font-size:0.75rem;margin-bottom:1rem;"><div style="flex:1;height:1px;background:var(--gray-200);"></div>or<div style="flex:1;height:1px;background:var(--gray-200);"></div></div>
     <form id="signInForm" autocomplete="on">
       <div id="signInError" style="display:none;background:#fff0f0;border:1px solid #ffcdd2;color:#c62828;font-size:0.8rem;padding:0.5rem 0.75rem;border-radius:var(--radius);margin-bottom:0.75rem;"></div>
-      <label for="signInEmail" style="display:block;font-size:0.78rem;font-weight:500;color:var(--gray-700);margin-bottom:0.3rem;">Email</label>
-      <input id="signInEmail" name="email" type="email" autocomplete="username email" required
-        style="width:100%;padding:0.55rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.85rem;outline:none;transition:border-color 0.15s;margin-bottom:0.75rem;"
+      <input id="signInEmail" name="email" type="email" autocomplete="username email" placeholder="Email" required
+        style="width:100%;padding:0.65rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.15s;margin-bottom:0.6rem;box-sizing:border-box;"
         onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--gray-200)'" />
-      <div id="signInPasswordWrap" style="display:none;">
-        <label for="signInPassword" style="display:block;font-size:0.78rem;font-weight:500;color:var(--gray-700);margin-bottom:0.3rem;">Password</label>
-        <input id="signInPassword" name="password" type="password" autocomplete="current-password"
-          style="width:100%;padding:0.55rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.85rem;outline:none;transition:border-color 0.15s;margin-bottom:0.75rem;"
+      <div id="signInPasswordWrap">
+        <input id="signInPassword" name="password" type="password" autocomplete="current-password" placeholder="Password"
+          style="width:100%;padding:0.65rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.15s;margin-bottom:0.5rem;box-sizing:border-box;"
           onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--gray-200)'" />
       </div>
       <div id="signInCodeWrap" style="display:none;">
-        <label for="signInCode" style="display:block;font-size:0.78rem;font-weight:500;color:var(--gray-700);margin-bottom:0.3rem;">Verification code</label>
-        <input id="signInCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code"
-          style="width:100%;padding:0.55rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.85rem;outline:none;transition:border-color 0.15s;margin-bottom:0.75rem;"
+        <input id="signInCode" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Verification code"
+          style="width:100%;padding:0.65rem 0.75rem;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.9rem;outline:none;transition:border-color 0.15s;margin-bottom:0.5rem;box-sizing:border-box;"
           onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--gray-200)'" />
       </div>
+      <div id="signInForgotWrap" style="text-align:right;margin-bottom:1rem;">
+        <a href="#" id="signInForgot" style="font-size:0.78rem;color:var(--gray-500);text-decoration:none;">Forgot Password?</a>
+      </div>
       <button id="signInSubmit" type="submit"
-        style="width:100%;padding:0.6rem;background:var(--orange);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:background 0.15s;"
-        onmouseover="this.style.background='var(--orange-light)'" onmouseout="this.style.background='var(--orange)'">Continue</button>
+        style="width:100%;padding:0.65rem;background:var(--black);color:#fff;border:none;border-radius:20px;font-family:inherit;font-size:0.88rem;font-weight:600;cursor:pointer;transition:opacity 0.15s;letter-spacing:0.02em;"
+        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">LOG IN</button>
     </form>
-    <div id="signInOAuth" style="margin-top:1rem;display:flex;flex-direction:column;gap:0.5rem;"></div>
-    <p id="signInToggle" style="text-align:center;font-size:0.78rem;color:var(--gray-500);margin-top:1rem;">Don't have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Sign up</a></p>
+    <p id="signInToggle" style="text-align:center;font-size:0.82rem;color:var(--gray-500);margin-top:1.25rem;">Don't have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Create one here</a></p>
   </div>
 </div>
 
@@ -3278,9 +3279,10 @@
     const form = document.getElementById('signInForm');
     form.reset();
     document.getElementById('signInError').style.display = 'none';
-    document.getElementById('signInPasswordWrap').style.display = 'none';
+    document.getElementById('signInPasswordWrap').style.display = 'block';
     document.getElementById('signInCodeWrap').style.display = 'none';
-    document.getElementById('signInSubmit').textContent = 'Continue';
+    document.getElementById('signInForgotWrap').style.display = 'block';
+    document.getElementById('signInSubmit').textContent = 'LOG IN';
     document.getElementById('signInSubmit').disabled = false;
     document.getElementById('signInEmail').disabled = false;
     signInAttempt = null;
@@ -3290,15 +3292,20 @@
 
   function setSignInMode(mode) {
     signInMode = mode;
-    const heading = document.querySelector('#clerkOverlay h2');
-    const toggleLink = document.getElementById('signInToggleLink');
+    const heading = document.getElementById('signInHeading');
     const toggleText = document.getElementById('signInToggle');
+    const submitBtn = document.getElementById('signInSubmit');
+    const forgotWrap = document.getElementById('signInForgotWrap');
     if (mode === 'sign_up') {
       heading.textContent = 'Create your account';
-      toggleText.innerHTML = 'Already have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Sign in</a>';
+      submitBtn.textContent = 'CREATE ACCOUNT';
+      forgotWrap.style.display = 'none';
+      toggleText.innerHTML = 'Already have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Log in</a>';
     } else {
-      heading.innerHTML = 'Sign in to Gem<span style="color:var(--orange)">Timer</span>';
-      toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Sign up</a>';
+      heading.innerHTML = 'Log in to Gem<span style="color:var(--orange)">Timer</span>';
+      submitBtn.textContent = 'LOG IN';
+      forgotWrap.style.display = 'block';
+      toggleText.innerHTML = 'Don\'t have an account? <a href="#" id="signInToggleLink" style="color:var(--orange);text-decoration:none;font-weight:500;">Create one here</a>';
     }
     document.getElementById('signInToggleLink').addEventListener('click', (e) => {
       e.preventDefault();
@@ -3327,25 +3334,29 @@
 
   function renderOAuthButtons() {
     const container = document.getElementById('signInOAuth');
+    const divider = document.getElementById('signInDivider');
     container.innerHTML = '';
+    divider.style.display = 'none';
     if (!window.Clerk || !window.Clerk.environment) return;
     const strategies = (window.Clerk.environment.userSettings &&
       window.Clerk.environment.userSettings.socialProviderStrategies) || [];
     if (strategies.length === 0) return;
-    // Add divider
-    const divider = document.createElement('div');
-    divider.style.cssText = 'display:flex;align-items:center;gap:0.75rem;color:var(--gray-400);font-size:0.75rem;';
-    divider.innerHTML = '<div style="flex:1;height:1px;background:var(--gray-200);"></div>or<div style="flex:1;height:1px;background:var(--gray-200);"></div>';
-    container.appendChild(divider);
+    divider.style.display = 'flex';
+    const providerIcons = {
+      oauth_google: '<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.98-6.19a24.09 24.09 0 0 0 0 21.56l7.98-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>',
+      oauth_apple: '<svg width="18" height="18" viewBox="0 0 24 24"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.53-3.2 0-1.44.68-2.13.48-3.08-.4C3.79 16.17 4.36 9.43 8.7 9.17c1.45.07 2.45.95 3.3.95.86 0 2.48-1.17 4.18-.99 1.69.12 2.82.88 3.54 2.18-3.24 1.96-2.47 6.27.62 7.49-.73 1.87-1.67 3.72-3.29 5.48zM12.03 9.13C11.86 6.75 13.8 4.78 16 4.59c.32 2.78-2.52 4.86-3.97 4.54z"/></svg>',
+      oauth_github: '<svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>'
+    };
     const providerNames = { oauth_google: 'Google', oauth_apple: 'Apple', oauth_github: 'GitHub', oauth_microsoft: 'Microsoft', oauth_facebook: 'Facebook' };
     strategies.forEach(strategy => {
       const btn = document.createElement('button');
       btn.type = 'button';
       const name = providerNames[strategy] || strategy.replace('oauth_', '');
-      btn.textContent = 'Continue with ' + name;
-      btn.style.cssText = 'width:100%;padding:0.55rem;background:none;border:1px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;font-size:0.82rem;font-weight:500;color:var(--gray-700);cursor:pointer;transition:all 0.15s;';
-      btn.onmouseover = function() { this.style.borderColor = 'var(--gray-400)'; };
-      btn.onmouseout = function() { this.style.borderColor = 'var(--gray-200)'; };
+      const icon = providerIcons[strategy] || '';
+      btn.innerHTML = (icon ? icon + '&nbsp;&nbsp;' : '') + 'Continue with ' + name;
+      btn.style.cssText = 'width:100%;padding:0.6rem;background:none;border:1px solid var(--gray-200);border-radius:20px;font-family:inherit;font-size:0.85rem;font-weight:500;color:var(--gray-700);cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.25rem;box-sizing:border-box;';
+      btn.onmouseover = function() { this.style.borderColor = 'var(--gray-400)'; this.style.background = 'var(--gray-50,#f9f9f9)'; };
+      btn.onmouseout = function() { this.style.borderColor = 'var(--gray-200)'; this.style.background = 'none'; };
       btn.addEventListener('click', async () => {
         try {
           await window.Clerk.client.signIn.authenticateWithRedirect({
@@ -3388,17 +3399,17 @@
           if (signUpAttempt.status === 'missing_requirements') {
             const needsPassword = signUpAttempt.requiredFields && signUpAttempt.requiredFields.includes('password');
             if (needsPassword && !password) {
-              document.getElementById('signInPasswordWrap').style.display = 'block';
-              submitBtn.textContent = 'Create account';
+              submitBtn.textContent = 'CREATE ACCOUNT';
               submitBtn.disabled = false;
               return;
             }
             await signUpAttempt.prepareEmailAddressVerification({ strategy: 'email_code' });
             document.getElementById('signInEmail').disabled = true;
             document.getElementById('signInPasswordWrap').style.display = 'none';
+            document.getElementById('signInForgotWrap').style.display = 'none';
             document.getElementById('signInCodeWrap').style.display = 'block';
             document.getElementById('signInCode').focus();
-            submitBtn.textContent = 'Verify';
+            submitBtn.textContent = 'VERIFY';
             submitBtn.disabled = false;
             return;
           }
@@ -3409,7 +3420,7 @@
             return;
           }
         }
-        submitBtn.textContent = signUpAttempt ? 'Verify' : 'Create account';
+        submitBtn.textContent = signUpAttempt ? 'VERIFY' : 'CREATE ACCOUNT';
         submitBtn.disabled = false;
         return;
       }
@@ -3436,36 +3447,28 @@
       // Needs first factor
       if (signInAttempt.status === 'needs_first_factor') {
         const factors = signInAttempt.supportedFirstFactors || [];
-        const hasPassword = factors.some(f => f.strategy === 'password');
         const hasEmailCode = factors.some(f => f.strategy === 'email_code');
 
-        if (hasPassword && !password) {
-          document.getElementById('signInPasswordWrap').style.display = 'block';
-          document.getElementById('signInPassword').focus();
-          document.getElementById('signInEmail').disabled = true;
-          submitBtn.textContent = 'Sign in';
-          submitBtn.disabled = false;
-          return;
-        }
         if (hasEmailCode) {
           const emailFactor = factors.find(f => f.strategy === 'email_code');
           await signInAttempt.prepareFirstFactor({ strategy: 'email_code', emailAddressId: emailFactor.emailAddressId });
           document.getElementById('signInEmail').disabled = true;
           document.getElementById('signInPasswordWrap').style.display = 'none';
+          document.getElementById('signInForgotWrap').style.display = 'none';
           document.getElementById('signInCodeWrap').style.display = 'block';
           document.getElementById('signInCode').focus();
-          submitBtn.textContent = 'Verify';
+          submitBtn.textContent = 'VERIFY';
           submitBtn.disabled = false;
           return;
         }
       }
 
-      submitBtn.textContent = 'Continue';
+      submitBtn.textContent = 'LOG IN';
       submitBtn.disabled = false;
     } catch (err) {
       const msg = err.errors ? (err.errors[0].longMessage || err.errors[0].message) : 'Something went wrong. Please try again.';
       showSignInError(msg);
-      submitBtn.textContent = signInAttempt ? 'Sign in' : 'Continue';
+      submitBtn.textContent = signInMode === 'sign_up' ? 'CREATE ACCOUNT' : 'LOG IN';
       submitBtn.disabled = false;
     }
   });
@@ -3474,6 +3477,26 @@
     e.preventDefault();
     resetSignInForm();
     setSignInMode(signInMode === 'sign_in' ? 'sign_up' : 'sign_in');
+  });
+
+  document.getElementById('signInForgot').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('signInEmail').value.trim();
+    if (!email) {
+      showSignInError('Please enter your email first.');
+      return;
+    }
+    try {
+      signInAttempt = await window.Clerk.client.signIn.create({ strategy: 'reset_password_email_code', identifier: email });
+      document.getElementById('signInPasswordWrap').style.display = 'none';
+      document.getElementById('signInForgotWrap').style.display = 'none';
+      document.getElementById('signInCodeWrap').style.display = 'block';
+      document.getElementById('signInCode').focus();
+      document.getElementById('signInEmail').disabled = true;
+      document.getElementById('signInSubmit').textContent = 'VERIFY';
+    } catch (err) {
+      showSignInError(err.errors ? err.errors[0].longMessage || err.errors[0].message : 'Could not send reset email.');
+    }
   });
 
   const earlySignInBtn = document.getElementById('signInBtn');
