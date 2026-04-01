@@ -1504,29 +1504,38 @@
   }
 
   .add-session-time-display {
+    display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+  }
+  .add-session-date {
+    font-size: 0.85rem; font-weight: 500; font-family: inherit;
+    color: var(--gray-400); background: none; border: none; outline: none;
+    text-align: center; cursor: pointer; letter-spacing: 0.04em;
+  }
+  .add-session-date:focus { color: var(--black); }
+  .add-session-times {
+    display: flex; align-items: flex-start; gap: 0.6rem;
+  }
+  .add-session-time-field {
     display: flex; flex-direction: column; align-items: center;
   }
-  .add-session-digits {
-    display: flex; align-items: center; gap: 0;
+  .add-session-time {
+    font-size: 1.6rem; font-weight: 300; font-family: inherit;
+    color: var(--gray-400); background: none; border: none; outline: none;
+    text-align: center; width: 5.5ch; padding: 0;
   }
-  .add-session-digits input {
-    width: 3.2ch; font-size: 3.4rem; font-weight: 300; letter-spacing: -0.02em;
-    color: var(--gray-400); font-variant-numeric: tabular-nums; line-height: 1;
-    background: none; border: none; outline: none; text-align: center;
-    font-family: inherit; padding: 0;
-    -moz-appearance: textfield;
-  }
-  .add-session-digits input::-webkit-outer-spin-button,
-  .add-session-digits input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .add-session-digits input:focus { color: var(--black); }
-  .add-session-digits input.invalid { color: #e53e3e; animation: shake 0.3s ease; }
-  .add-session-colon {
-    font-size: 3.4rem; font-weight: 300; color: var(--gray-400); line-height: 1;
-    margin: 0 0.1rem; user-select: none;
+  .add-session-time:focus { color: var(--black); }
+  .add-session-time.invalid { color: #e53e3e; animation: shake 0.3s ease; }
+  .add-session-arrow {
+    font-size: 1.4rem; font-weight: 300; color: var(--gray-400); line-height: 1;
+    margin-top: 0.3rem; user-select: none;
   }
   .add-session-label {
-    font-size: 0.7rem; font-weight: 500; text-transform: uppercase;
-    letter-spacing: 0.1em; color: var(--gray-400); margin-top: 1.5rem;
+    font-size: 0.65rem; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--gray-400); margin-top: 0.3rem;
+  }
+  .add-session-duration-preview {
+    font-size: 0.75rem; font-weight: 500; color: var(--orange);
+    letter-spacing: 0.04em; min-height: 1.1em;
   }
 
   .add-session-tick {
@@ -2499,12 +2508,19 @@
       <div class="stopwatch-btn"></div>
       <div class="add-session-timer-body">
         <div class="add-session-time-display">
-          <div class="add-session-digits">
-            <input type="number" class="add-session-hh" id="addSessionHours" min="0" max="23" value="0">
-            <span class="add-session-colon">:</span>
-            <input type="number" class="add-session-mm" id="addSessionMinutes" min="0" max="59" value="25">
+          <input type="date" class="add-session-date" id="addSessionDate">
+          <div class="add-session-times">
+            <div class="add-session-time-field">
+              <input type="time" class="add-session-time" id="addSessionStart">
+              <div class="add-session-label">start</div>
+            </div>
+            <span class="add-session-arrow">→</span>
+            <div class="add-session-time-field">
+              <input type="time" class="add-session-time" id="addSessionEnd">
+              <div class="add-session-label">end</div>
+            </div>
           </div>
-          <div class="add-session-label">hours &nbsp;&nbsp;&nbsp; minutes</div>
+          <div class="add-session-duration-preview" id="addSessionDuration"></div>
         </div>
       </div>
     </div>
@@ -6265,19 +6281,46 @@
     const closeBtn = document.getElementById('addSessionClose');
     const submitBtn = document.getElementById('addSessionSubmit');
     const nameInput = document.getElementById('addSessionName');
-    const hoursInput = document.getElementById('addSessionHours');
-    const minutesInput = document.getElementById('addSessionMinutes');
+    const dateInput = document.getElementById('addSessionDate');
+    const startInput = document.getElementById('addSessionStart');
+    const endInput = document.getElementById('addSessionEnd');
+    const durationPreview = document.getElementById('addSessionDuration');
 
     let addSessionWorkType = 'deep';
     setupSessionSuggestions(nameInput, document.getElementById('addSessionSuggestions'), function() { return addSessionWorkType; });
     const addToggle = document.getElementById('addWorkTypeToggle');
     setupWorkTypeToggle(addToggle, (type) => { addSessionWorkType = type; });
 
-    function openOverlay() { screen.classList.add('active'); nameInput.focus(); }
+    function setDefaultTimes() {
+      const now = new Date();
+      dateInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      const endH = String(now.getHours()).padStart(2, '0');
+      const endM = String(now.getMinutes()).padStart(2, '0');
+      endInput.value = endH + ':' + endM;
+      const startDate = new Date(now.getTime() - 25 * 60000);
+      startInput.value = String(startDate.getHours()).padStart(2, '0') + ':' + String(startDate.getMinutes()).padStart(2, '0');
+      updateDurationPreview();
+    }
+
+    function updateDurationPreview() {
+      if (!startInput.value || !endInput.value) { durationPreview.textContent = ''; return; }
+      const [sh, sm] = startInput.value.split(':').map(Number);
+      const [eh, em] = endInput.value.split(':').map(Number);
+      let mins = (eh * 60 + em) - (sh * 60 + sm);
+      if (mins <= 0) { durationPreview.textContent = ''; return; }
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      durationPreview.textContent = (h > 0 ? h + 'h ' : '') + m + 'm';
+    }
+
+    startInput.addEventListener('input', updateDurationPreview);
+    endInput.addEventListener('input', updateDurationPreview);
+
+    function openOverlay() { setDefaultTimes(); screen.classList.add('active'); nameInput.focus(); }
     function closeOverlay() {
       screen.classList.remove('active');
-      nameInput.value = ''; hoursInput.value = 0; minutesInput.value = 25;
-      hoursInput.classList.remove('invalid'); minutesInput.classList.remove('invalid');
+      nameInput.value = '';
+      startInput.classList.remove('invalid'); endInput.classList.remove('invalid');
       addSessionWorkType = 'deep';
       addToggle.querySelectorAll('.work-type-btn').forEach(b => {
         b.className = 'work-type-btn' + (b.dataset.type === 'deep' ? ' active-deep' : '');
@@ -6288,19 +6331,25 @@
     closeBtn.addEventListener('click', closeOverlay);
 
     submitBtn.addEventListener('click', async function() {
-      const h = Math.max(0, parseInt(hoursInput.value, 10) || 0);
-      const m = Math.max(0, parseInt(minutesInput.value, 10) || 0);
-      const totalSeconds = h * 3600 + m * 60;
+      if (!startInput.value || !endInput.value) {
+        startInput.classList.add('invalid'); endInput.classList.add('invalid');
+        setTimeout(() => { startInput.classList.remove('invalid'); endInput.classList.remove('invalid'); }, 600);
+        return;
+      }
+      const [sh, sm] = startInput.value.split(':').map(Number);
+      const [eh, em] = endInput.value.split(':').map(Number);
+      const totalSeconds = ((eh * 60 + em) - (sh * 60 + sm)) * 60;
 
       if (totalSeconds < 60) {
-        hoursInput.classList.add('invalid'); minutesInput.classList.add('invalid');
-        setTimeout(() => { hoursInput.classList.remove('invalid'); minutesInput.classList.remove('invalid'); }, 600);
+        startInput.classList.add('invalid'); endInput.classList.add('invalid');
+        setTimeout(() => { startInput.classList.remove('invalid'); endInput.classList.remove('invalid'); }, 600);
         return;
       }
 
       submitBtn.disabled = true;
       const name = nameInput.value.trim() || t('deepWork');
-      const session = { name: name, duration: totalSeconds, date: new Date().toISOString(), manual: true, type: addSessionWorkType };
+      const endDate = new Date(dateInput.value + 'T' + endInput.value + ':00');
+      const session = { name: name, duration: totalSeconds, date: endDate.toISOString(), manual: true, type: addSessionWorkType };
       sessions.push(session);
       localStorage.setItem('et_sessions', JSON.stringify(sessions));
 
