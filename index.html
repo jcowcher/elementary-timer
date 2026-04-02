@@ -1940,7 +1940,8 @@
   .clock-date { text-align: right; }
   .clock-time { text-align: left;
   }
-  .landing-why-link {
+  .landing-nav-center { display: flex; gap: 24px; align-items: center; position: absolute; left: 50%; transform: translateX(-50%); }
+  .landing-nav-link {
     font-size: 14px;
     font-weight: 400;
     color: var(--black);
@@ -1948,7 +1949,7 @@
     text-decoration: none;
     transition: color 0.2s;
   }
-  .landing-why-link:hover { color: var(--black); text-decoration: underline; }
+  .landing-nav-link:hover { color: var(--black); text-decoration: underline; }
   .why-overlay {
     position: fixed;
     inset: 0;
@@ -2026,6 +2027,8 @@
     .landing-btn-ghost { font-size: 12px; padding: 5px 10px; }
     .landing-btn-primary { font-size: 12px; padding: 5px 10px; }
     .landing-nav-right { gap: 6px; }
+    .landing-nav-center { position: static; transform: none; gap: 16px; }
+    .landing-nav-link { font-size: 12px; }
     .landing-nav { padding: 10px 20px; }
     .landing-nav::after { left: 20px; right: 20px; }
     .landing-modes { padding: 8px 20px 24px; }
@@ -2221,9 +2224,11 @@
   <nav class="landing-nav">
     <div class="landing-nav-left">
       <div class="landing-logo">Gem<span>Timer</span></div>
-      <a class="landing-why-link" id="landingWhyLink">The Why</a>
     </div>
-    <div class="landing-clock" id="landingClock"></div>
+    <div class="landing-nav-center">
+      <a class="landing-nav-link" id="landingWhyLink">The Why</a>
+      <a class="landing-nav-link" id="landingWhatLink">The What</a>
+    </div>
     <div class="landing-nav-right">
       <button class="landing-btn-ghost" id="landingSignIn">Sign in</button>
       <button class="landing-btn-primary" id="landingGetStarted">Get started</button>
@@ -2303,6 +2308,14 @@
       <p>More placeholder text here. Replace this with the real content when ready.</p>
     </div>
     <button class="why-overlay-close" id="whyOverlayClose">&times;</button>
+  </div>
+
+  <div class="why-overlay" id="whatOverlay">
+    <div class="why-overlay-content">
+      <h2>The What</h2>
+      <p>Content coming soon.</p>
+    </div>
+    <button class="why-overlay-close" id="whatOverlayClose">&times;</button>
   </div>
 </div>
 
@@ -3587,6 +3600,15 @@
     if (whyLink && whyOverlay) {
       whyLink.addEventListener('click', function() { whyOverlay.classList.add('active'); });
       whyClose.addEventListener('click', function() { whyOverlay.classList.remove('active'); });
+    }
+
+    // "The What" overlay
+    var whatLink = document.getElementById('landingWhatLink');
+    var whatOverlay = document.getElementById('whatOverlay');
+    var whatClose = document.getElementById('whatOverlayClose');
+    if (whatLink && whatOverlay) {
+      whatLink.addEventListener('click', function() { whatOverlay.classList.add('active'); });
+      whatClose.addEventListener('click', function() { whatOverlay.classList.remove('active'); });
     }
   })();
 
