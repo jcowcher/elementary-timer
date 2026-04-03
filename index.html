@@ -1468,13 +1468,11 @@
   .screen-on-toggle {
     display: none;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 0.75rem;
+    gap: 0.35rem;
   }
   .screen-on-toggle.supported { display: flex; }
   .screen-on-label {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     color: var(--gray-400);
     user-select: none;
     cursor: pointer;
@@ -2419,14 +2417,6 @@
       </button>
     </div>
 
-    <div class="screen-on-toggle" id="screenOnToggle">
-      <label class="screen-on-switch">
-        <input type="checkbox" id="screenOnCheckbox">
-        <span class="screen-on-slider"></span>
-      </label>
-      <span class="screen-on-label">Keep screen on</span>
-    </div>
-
     <div class="theme-selector" id="themeSelector">
       <span class="theme-tooltip">Pick a film or TV show for quotes while you work</span>
       <button class="theme-toggle" id="themeToggle">
@@ -2457,6 +2447,13 @@
   <div class="stats-column">
     <div class="section-header">
       <span class="history-title">History</span>
+      <div class="screen-on-toggle" id="screenOnToggle">
+        <span class="screen-on-label">Screen on</span>
+        <label class="screen-on-switch">
+          <input type="checkbox" id="screenOnCheckbox">
+          <span class="screen-on-slider"></span>
+        </label>
+      </div>
     </div>
     <div class="daily-total">
       <div class="totals-row">
