@@ -1464,6 +1464,59 @@
     border: 1px solid rgba(255,102,0,0.15);
   }
   .pomodoro-link:hover .pomo-tooltip { display: block; }
+
+  .screen-on-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+  .screen-on-toggle.supported { display: flex; }
+  .screen-on-label {
+    font-size: 0.7rem;
+    color: var(--gray-400);
+    user-select: none;
+    cursor: pointer;
+  }
+  .screen-on-switch {
+    position: relative;
+    width: 32px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+  .screen-on-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    position: absolute;
+  }
+  .screen-on-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--gray-200);
+    border-radius: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .screen-on-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    left: 2px;
+    bottom: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .screen-on-switch input:checked + .screen-on-slider {
+    background: var(--orange);
+  }
+  .screen-on-switch input:checked + .screen-on-slider::before {
+    transform: translateX(14px);
+  }
+
   .add-session-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 18px; height: 18px; border-radius: 50%;
@@ -2364,6 +2417,14 @@
         <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
         <span>Finish Session</span>
       </button>
+    </div>
+
+    <div class="screen-on-toggle" id="screenOnToggle">
+      <label class="screen-on-switch">
+        <input type="checkbox" id="screenOnCheckbox">
+        <span class="screen-on-slider"></span>
+      </label>
+      <span class="screen-on-label">Keep screen on</span>
     </div>
 
     <div class="theme-selector" id="themeSelector">
@@ -4858,7 +4919,7 @@
   function tick() {
     const prev = elapsed;
     elapsed = elapsedBeforePause + Math.floor((Date.now() - startTime) / 1000);
-    if (elapsed > 86400) { elapsed = 0; elapsedBeforePause = 0; clearInterval(interval); running = false; return; }
+    if (elapsed > 86400) { elapsed = 0; elapsedBeforePause = 0; clearInterval(interval); running = false; if (typeof releaseWakeLock === 'function') releaseWakeLock(); return; }
     updateDisplay();
 
     // Pomodoro phase transitions
@@ -5015,6 +5076,7 @@
     clearInterval(interval);
     interval = null;
     running = false;
+    if (typeof releaseWakeLock === 'function') releaseWakeLock();
     pomodoroPhase = 'work';
     elapsed = 0;
     startTime = null;
@@ -5043,6 +5105,45 @@
       enterPomodoro();
     }
   });
+
+  // Wake Lock (Keep Screen On)
+  var wakeLockSentinel = null;
+  var screenOnToggle = document.getElementById('screenOnToggle');
+  var screenOnCheckbox = document.getElementById('screenOnCheckbox');
+
+  if ('wakeLock' in navigator) {
+    screenOnToggle.classList.add('supported');
+    var savedScreenOn = localStorage.getItem('et_screen_on');
+    if (savedScreenOn === 'true') screenOnCheckbox.checked = true;
+
+    async function acquireWakeLock() {
+      if (!screenOnCheckbox.checked || !running) return;
+      try {
+        wakeLockSentinel = await navigator.wakeLock.request('screen');
+        wakeLockSentinel.addEventListener('release', function() { wakeLockSentinel = null; });
+      } catch (e) { /* browser denied — low battery, background tab, etc. */ }
+    }
+
+    function releaseWakeLock() {
+      if (wakeLockSentinel) {
+        wakeLockSentinel.release();
+        wakeLockSentinel = null;
+      }
+    }
+
+    screenOnCheckbox.addEventListener('change', function() {
+      localStorage.setItem('et_screen_on', screenOnCheckbox.checked);
+      if (screenOnCheckbox.checked && running) {
+        acquireWakeLock();
+      } else {
+        releaseWakeLock();
+      }
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.visibilityState === 'visible') acquireWakeLock();
+    });
+  }
 
   // Re-create start/pause button to inject themed labels
   // Remove old listener and re-add with Easter eggs
@@ -5073,6 +5174,7 @@
       timerBody.classList.remove('running');
       timerWrap.classList.add('active');
       syncActiveTimer({ is_running: false, accumulated: elapsed });
+      if (typeof releaseWakeLock === 'function') releaseWakeLock();
     } else {
       running = true;
       startTime = Date.now();
@@ -5095,6 +5197,7 @@
         work_type: currentWorkType,
         pomodoro_mode: pomodoroMode, pomodoro_phase: pomodoroPhase
       });
+      if (typeof acquireWakeLock === 'function') acquireWakeLock();
     }
   });
 
@@ -5112,6 +5215,7 @@
     clearInterval(interval);
     interval = null;
     running = false;
+    if (typeof releaseWakeLock === 'function') releaseWakeLock();
     elapsed = 0;
     startTime = null;
     elapsedBeforePause = 0;
