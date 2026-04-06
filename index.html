@@ -2042,34 +2042,46 @@
   @media (max-width: 768px) {
     .landing-clock { display: none; }
     .landing-inner { padding: 0 20px; }
-    .landing-hero { grid-template-columns: 1fr; gap: 6px; padding: 20px 0 8px; }
-    .landing-hero-text { text-align: center; }
-    .landing-hero-text h1 { font-size: 16px; margin-bottom: 6px; line-height: 1.8; }
-    .landing-hero-text { order: 1; }
-    .landing-hero-visual { order: 2; grid-column: auto; grid-row: auto; }
-    .landing-hero-cta { justify-content: center; order: 3; grid-column: auto; margin-bottom: 4px; }
-    .landing-btn-large { font-size: 13px; padding: 8px 20px; border-radius: 8px; }
-    .landing-timer-preview { padding-top: 0; }
-    .landing-timer-wrap { width: 150px; height: 150px; }
-    .landing-time-digits { font-size: 1.6rem; }
-    .landing-wt-toggle { margin-bottom: 0.3rem; }
-    .landing-wt-btn { font-size: 0.65rem; padding: 0.25rem 0.6rem; }
-    .landing-modes-tagline { font-size: 14px; margin-bottom: 6px; }
-    .landing-modes-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .landing-btn-ghost { font-size: 12px; padding: 5px 10px; }
-    .landing-btn-primary { font-size: 12px; padding: 5px 10px; }
-    .landing-nav-right { gap: 6px; }
-    .landing-nav-left { gap: 12px; }
-    .landing-nav-link { font-size: 12px; }
-    .landing-nav { padding: 10px 20px; }
+
+    /* Nav */
+    .landing-nav { padding: 14px 20px 12px; }
     .landing-nav::after { left: 20px; right: 20px; }
-    .landing-modes { padding: 8px 20px 24px; }
+    .landing-logo { font-size: 17px; }
+    .landing-nav-left { gap: 6px; }
+    .landing-nav-link { font-size: 12.5px; padding: 6px 8px; }
+    .landing-nav-right { gap: 6px; }
+    .landing-btn-ghost { font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 100px; border-width: 1.5px; }
+    .landing-btn-primary { font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 100px; }
+
+    /* Hero */
+    .landing-hero { grid-template-columns: 1fr; gap: 0; padding: 32px 0 0; }
+    .landing-hero-text { text-align: center; order: 1; }
+    .landing-hero-text h1 { font-size: 16px; margin-bottom: 0; line-height: 1.8; }
+    .landing-hero-visual { order: 2; grid-column: auto; grid-row: auto; padding-top: 28px; }
+    .landing-hero-cta { justify-content: center; order: 3; grid-column: auto; padding-top: 28px; }
+
+    /* Timer */
+    .landing-timer-preview { padding-top: 0; }
+    .landing-timer-wrap { width: 200px; height: 200px; }
+    .landing-time-digits { font-size: 2rem; }
+    .landing-wt-toggle { margin-bottom: 20px; }
+    .landing-wt-btn { font-size: 0.7rem; padding: 0.3rem 0.75rem; }
+
+    /* CTA */
+    .landing-btn-large { font-size: 16px; padding: 14px 40px; border-radius: 100px; box-shadow: 0 2px 12px rgba(232,97,26,0.25); }
+
+    /* Mode cards */
+    .landing-modes { padding: 36px 20px 24px; }
+    .landing-modes-tagline { font-size: 16px; margin-bottom: 12px; }
+    .landing-modes-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .landing-mode-card { padding: 14px; }
+    .landing-mode-card h3 { font-size: 14px; margin-bottom: 4px; }
+    .landing-mode-card p { font-size: 12px; line-height: 1.45; }
+
+    /* Overlays & footer */
     .landing-footer::before { left: 20px; right: 20px; }
     .why-overlay { padding: 60px 20px 80px; }
     .why-overlay-content h2 { font-size: 26px; }
-    .landing-mode-card { padding: 12px; }
-    .landing-mode-card h3 { font-size: 13px; margin-bottom: 4px; }
-    .landing-mode-card p { font-size: 11px; line-height: 1.4; }
   }
 
   .site-footer {
@@ -2305,11 +2317,11 @@
     <div class="landing-modes-grid">
       <div class="landing-mode-card">
         <h3>Deep Work</h3>
-        <p>Intense, distraction-free focus on a cognitively demanding task — writing code, building a financial model, crafting a presentation.</p>
+        <p>Intense, distraction-free focus on cognitively demanding tasks.</p>
       </div>
       <div class="landing-mode-card">
         <h3>Sustaining</h3>
-        <p>Lower-intensity work that keeps things moving — email, Slack, meetings, admin, planning.</p>
+        <p>Lower-intensity work that keeps things moving — email, admin, planning.</p>
       </div>
     </div>
   </section>
