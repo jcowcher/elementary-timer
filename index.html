@@ -350,12 +350,18 @@
 
   .stopwatch-btn {
     position: absolute;
-    top: -10px;
+    top: -26px;
     left: 50%;
     transform: translateX(-50%);
     width: 20px;
     height: 14px;
-    background: var(--gray-300);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gray-300) 0px,
+      var(--gray-300) 2.5px,
+      var(--gray-400) 2.5px,
+      var(--gray-400) 3px
+    );
     border-radius: 4px 4px 2px 2px;
     z-index: 3;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -364,11 +370,11 @@
   .stopwatch-btn::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: -12px;
     left: 50%;
     transform: translateX(-50%);
     width: 12px;
-    height: 4px;
+    height: 12px;
     background: var(--gray-300);
     border-radius: 0 0 2px 2px;
   }
@@ -523,10 +529,13 @@
     display: flex;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
+    justify-content: center;
   }
 
   .btn {
     height: 44px;
+    min-width: 130px;
+    justify-content: center;
     padding: 0 1.75rem;
     border: none;
     border-radius: var(--radius);
@@ -1168,7 +1177,7 @@
     width: 100%;
     padding: 0.6rem 1rem;
     margin-top: 1rem;
-    background: none;
+    background: var(--gray-100);
     border: 1px solid var(--gray-200);
     border-radius: var(--radius);
     font-family: inherit;
@@ -1178,7 +1187,7 @@
     transition: all 0.15s;
   }
   .deep-dive-btn:hover { border-color: var(--orange); color: var(--orange); }
-  .deep-dive-btn svg { width: 14px; height: 14px; }
+  .deep-dive-btn svg { width: 20px; height: 20px; position: relative; top: 2px; }
 
   .deep-dive-panel {
     display: none;
@@ -1497,7 +1506,7 @@
 
   /* Carve Outs */
   .carveout-wrap {
-    margin-top: 0.5rem;
+    margin-top: 1.25rem;
   }
   .carveout-label {
     font-size: 0.85rem;
@@ -1868,7 +1877,7 @@
     width: 100%;
     box-sizing: border-box;
     margin: 0 auto;
-    padding: 24px 40px 16px;
+    padding: 72px 40px 16px;
     flex: 1;
     display: flex;
     align-items: center;
@@ -1894,10 +1903,10 @@
     font-size: 18px;
     line-height: 1.6;
     color: var(--gray-500);
-    margin-bottom: 36px;
+    margin-bottom: 16px;
     max-width: 420px;
   }
-  .landing-hero-cta { display: flex; gap: 14px; align-items: center; grid-column: 1; }
+  .landing-hero-cta { display: flex; gap: 14px; align-items: center; grid-column: 1; position: relative; top: -60px; }
   .landing-hero-visual { grid-column: 2; grid-row: 1 / 3; }
   .landing-btn-large {
     background: var(--orange);
@@ -1919,11 +1928,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 1.5rem;
+    padding-top: 2.5rem;
   }
   .landing-wt-toggle {
     display: flex;
     gap: 0.25rem;
+    margin-top: -20px;
     margin-bottom: 1rem;
   }
   .landing-wt-btn {
@@ -1938,17 +1948,24 @@
   .landing-wt-active { background: var(--orange); color: #fff; }
   .landing-timer-wrap {
     position: relative;
+    margin-top: 20px;
     width: 280px;
     height: 280px;
   }
   .landing-stopwatch-btn {
     position: absolute;
-    top: -10px;
+    top: -26px;
     left: 50%;
     transform: translateX(-50%);
     width: 20px;
     height: 14px;
-    background: var(--gray-300);
+    background: repeating-linear-gradient(
+      90deg,
+      var(--gray-300) 0px,
+      var(--gray-300) 2.5px,
+      var(--gray-400) 2.5px,
+      var(--gray-400) 3px
+    );
     border-radius: 4px 4px 2px 2px;
     z-index: 3;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1956,11 +1973,11 @@
   .landing-stopwatch-btn::after {
     content: '';
     position: absolute;
-    bottom: -4px;
+    bottom: -12px;
     left: 50%;
     transform: translateX(-50%);
     width: 12px;
-    height: 4px;
+    height: 12px;
     background: var(--gray-300);
     border-radius: 0 0 2px 2px;
   }
@@ -2112,9 +2129,9 @@
     transition: opacity 0.2s;
   }
   .why-overlay-close:hover { opacity: 0.7; }
-  .landing-modes { padding: 8px 40px 32px; max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-  .landing-modes-tagline { font-size: 16px; font-weight: 500; color: var(--black); text-align: center; margin-bottom: 10px; }
-  .landing-modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .landing-modes { padding: 50px 40px 32px; max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+  .landing-modes-tagline { font-size: 16px; font-weight: 500; color: var(--black); text-align: center; margin-bottom: 10px; position: relative; top: -20px; }
+  .landing-modes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 700px; margin: 0 auto; }
   .landing-mode-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
@@ -2358,6 +2375,7 @@
       <div class="landing-logo">Gem<span>Timer</span></div>
       <a class="landing-nav-link" id="landingWhyLink">The Why</a>
       <a class="landing-nav-link" id="landingWhatLink">The What</a>
+      <a class="landing-nav-link" id="landingHowLink">The How</a>
     </div>
     <div class="landing-clock" id="landingClock"></div>
     <div class="landing-nav-right">
@@ -2404,11 +2422,11 @@
     <div class="landing-modes-grid">
       <div class="landing-mode-card">
         <h3>Deep Work</h3>
-        <p>Intense, distraction-free focus on cognitively demanding tasks.</p>
+        <p>Intense, distraction-free focus on cognitively demanding tasks, such as writing, coding, analysis, and design.</p>
       </div>
       <div class="landing-mode-card">
         <h3>Sustaining</h3>
-        <p>Lower-intensity work that keeps things moving — email, admin, planning.</p>
+        <p>Lower-intensity work that keeps things moving, such as email, instant messaging, admin and planning.</p>
       </div>
     </div>
   </section>
@@ -2426,7 +2444,7 @@
     <div class="landing-footer-center">
       <a class="venture-badge" href="https://gemka.co" target="_blank" rel="noopener">A GemKa venture</a>
       <span class="landing-footer-sep">&middot;</span>
-      <span class="landing-footer-copy">&copy; 2026 Gemka</span>
+      <span class="landing-footer-copy">&copy; 2026 GemKa</span>
     </div>
     <div class="footer-right">
       <a href="/privacy.html" class="footer-link">Privacy Policy</a>
@@ -2446,9 +2464,17 @@
       <p>That timer is GemTimer. I've used it day after day and it works.</p>
       <p>While you don't completely control whether your efforts will be successful, you can control where your time goes. That especially matters if your work requires real focus.</p>
       <p>Try GemTimer and get more out of each day.</p>
-      <div class="why-signoff">Best of luck,<br>Jeremy</div>
+      <div class="why-signoff">Best of luck,<br><br>Jeremy</div>
     </div>
     <button class="why-overlay-close" id="whyOverlayClose">&times;</button>
+  </div>
+
+  <div class="why-overlay" id="howOverlay">
+    <div class="why-overlay-content">
+      <h2>The How</h2>
+      <p>Content coming soon.</p>
+    </div>
+    <button class="why-overlay-close" id="howOverlayClose">&times;</button>
   </div>
 
   <div class="why-overlay" id="whatOverlay">
@@ -2476,8 +2502,8 @@
 <div class="main" style="display:none">
   <div class="timer-section">
     <div class="work-type-toggle" id="mainWorkTypeToggle">
-      <button class="work-type-btn active-deep" data-type="deep">Deep Work<span class="wt-tooltip">Intense, distraction-free focus on a cognitively demanding task — writing code, building a financial model, crafting a presentation.</span></button>
-      <button class="work-type-btn" data-type="sustaining">Sustaining<span class="wt-tooltip">Lower-intensity work that keeps things moving, e.g., email, Slack messages, meetings, admin, planning</span></button>
+      <button class="work-type-btn active-deep" data-type="deep">Deep Work<span class="wt-tooltip">Intense, distraction-free focus on cognitively demanding tasks, such as writing, coding, analysis, and design.</span></button>
+      <button class="work-type-btn" data-type="sustaining">Sustaining<span class="wt-tooltip">Lower-intensity work that keeps things moving, such as email, instant messaging, admin and planning</span></button>
     </div>
     <div class="session-input-wrap">
       <input type="text" class="timer-heading-input" id="sessionInput" placeholder="What are you working on?" maxlength="60" autocomplete="off">
@@ -2504,9 +2530,9 @@
         <svg id="playIcon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         <span id="btnText">Start</span>
       </button>
-      <button class="btn btn-secondary" id="resetBtn">
+      <button class="btn btn-secondary" id="resetBtn" style="display:none">
         <svg viewBox="0 0 24 24"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-        <span>Finish Session</span>
+        <span>Finish</span>
       </button>
     </div>
 
@@ -2570,7 +2596,7 @@
     </div>
 
     <button class="deep-dive-btn" id="deepDiveBtn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <svg viewBox="0 0 16 20" width="20" height="20"><rect x="3" y="0" width="10" height="8" rx="2" ry="2" fill="#ccc"/><line x1="5.5" y1="1" x2="5.5" y2="7" stroke="#aaa" stroke-width="0.8"/><line x1="8" y1="1" x2="8" y2="7" stroke="#aaa" stroke-width="0.8"/><line x1="10.5" y1="1" x2="10.5" y2="7" stroke="#aaa" stroke-width="0.8"/><rect x="5" y="8" width="6" height="6" rx="1" ry="1" fill="#ccc"/></svg>
       Deep dive
     </button>
 
@@ -2735,7 +2761,7 @@
   // ── i18n Translations ─────────────────────────────
   const TRANSLATIONS = {
     en: { label: 'English', flag: '🇺🇸',
-      start: 'Start', pause: 'Pause', resume: 'Resume', finishSession: 'Finish Session',
+      start: 'Start', pause: 'Pause', resume: 'Resume', finishSession: 'Finish',
       todaysSessions: "Today's breakdown", today: 'Today', dailyAvg: 'Daily avg',
       weekTotal: 'Week total', history: 'History', byActivity: 'By activity',
       signIn: 'Sign in', signOut: 'Sign out', thisWeek: 'This Week', lastWeek: 'Last Week',
@@ -3371,9 +3397,11 @@
       statusLabel.textContent = activeRunningLabels[Math.floor(Math.random() * activeRunningLabels.length)];
       statusLabel.className = 'time-label running-label';
       timerBody.classList.add('running');
+      resetBtn.style.display = 'flex';
     } else {
       running = false;
       startTime = null;
+      resetBtn.style.display = 'flex';
       if (bText) bText.textContent = t('resume');
       if (bIcon) bIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
       if (spBtn) spBtn.className = 'btn btn-primary' + (currentWorkType === 'sustaining' ? ' sustaining' : '');
@@ -3756,6 +3784,15 @@
     if (whyLink && whyOverlay) {
       whyLink.addEventListener('click', function() { whyOverlay.classList.add('active'); });
       whyClose.addEventListener('click', function() { whyOverlay.classList.remove('active'); });
+    }
+
+    // "The How" overlay
+    var howLink = document.getElementById('landingHowLink');
+    var howOverlay = document.getElementById('howOverlay');
+    var howClose = document.getElementById('howOverlayClose');
+    if (howLink && howOverlay) {
+      howLink.addEventListener('click', function() { howOverlay.classList.add('active'); });
+      howClose.addEventListener('click', function() { howOverlay.classList.remove('active'); });
     }
 
     // "The What" overlay
@@ -5425,6 +5462,7 @@
     } else {
       running = true;
       startTime = Date.now();
+      newResetBtn.style.display = 'flex';
       btnTextNew.textContent = t('pause');
       playIconNew.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       if (pomodoroMode) {
@@ -5488,6 +5526,7 @@
         }
       }
       pomodoroPhase = 'work';
+      newResetBtn.style.display = 'none';
       btnTextNew.textContent = t('start');
       playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
       startPauseBtnNew.className = 'btn btn-primary' + (currentWorkType === 'sustaining' ? ' sustaining' : '');
@@ -5523,6 +5562,7 @@
       }
     }
 
+    newResetBtn.style.display = 'none';
     btnTextNew.textContent = t('start');
     playIconNew.innerHTML = '<path d="M8 5v14l11-7z"/>';
     startPauseBtnNew.className = 'btn btn-primary';
