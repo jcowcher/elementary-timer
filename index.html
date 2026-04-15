@@ -413,7 +413,6 @@
     transform: scale(0.88);
   }
 
-  /* Hide old SVG elements */
   .timer-wrap svg { display: none; }
   .dot { display: none; }
 
@@ -2765,7 +2764,6 @@
 </div>
 
 <script>
-  // Elements
   const display = document.getElementById('display');
   const timerWrap = document.getElementById('timerWrap');
   const timerBody = document.getElementById('timerBody');
@@ -2885,12 +2883,10 @@
     currentLang = langCode;
     localStorage.setItem('et_language', langCode);
 
-    // Update lang labels in footers
     document.getElementById('langLabel').textContent = TRANSLATIONS[langCode].label;
     var landingLangLabel = document.getElementById('landingLangLabel');
     if (landingLangLabel) landingLangLabel.textContent = TRANSLATIONS[langCode].label;
 
-    // Update static UI elements
     sessionInput.placeholder = t('whatWorking');
     document.querySelector('.section-title').textContent = t('todaysSessions');
     document.querySelector('.history-title').textContent = t('history');
@@ -2902,11 +2898,9 @@
     document.getElementById('weekPrev').title = t('previousWeek');
     document.getElementById('weekNext').title = t('nextWeek');
 
-    // Update Pomodoro button
     const pomoBtn = document.getElementById('pomodoroBtn');
     if (pomoBtn) pomoBtn.childNodes[0].textContent = pomodoroMode ? t('exitPomodoro') : t('pomodoro');
 
-    // Update work type toggle labels
     document.querySelectorAll('.work-type-toggle').forEach(toggle => {
       toggle.querySelectorAll('.work-type-btn').forEach(btn => {
         const text = btn.dataset.type === 'deep' ? t('deepWork') : btn.dataset.type === 'sustaining' ? t('sustainingWork') : null;
@@ -2914,7 +2908,6 @@
       });
     });
 
-    // Update button text based on timer state
     const currentBtnText = document.querySelector('#startPauseBtn span') ||
       document.querySelector('.btn-primary span');
     if (currentBtnText) {
@@ -2924,22 +2917,18 @@
       else if (running) currentBtnText.textContent = t('pause');
     }
 
-    // Update finish session button
     const resetSpan = document.querySelector('.btn-secondary span');
     if (resetSpan) resetSpan.textContent = t('finishSession');
 
-    // Mark active language in dropdowns
     document.querySelectorAll('#langDropdown button, #landingLangDropdown button').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.lang === langCode);
     });
 
-    // Re-render dynamic content
     renderSessions();
     renderHistory();
     updateAuthUI();
   }
 
-  // Build language dropdown
   (function initLangPicker() {
     const dropdown = document.getElementById('langDropdown');
     const btn = document.getElementById('langPickerBtn');
@@ -2967,7 +2956,6 @@
       if (ld) ld.classList.remove('open');
     });
 
-    // Wire up landing footer lang picker
     var landingDropdown = document.getElementById('landingLangDropdown');
     var landingBtn = document.getElementById('landingLangPickerBtn');
     if (landingDropdown && landingBtn) {
@@ -2985,7 +2973,6 @@
       });
     }
 
-    // Restore saved language
     const saved = localStorage.getItem('et_language');
     if (saved && TRANSLATIONS[saved]) {
       currentLang = saved;
@@ -2995,12 +2982,10 @@
     }
   })();
 
-  // Constants
-  const ONE_HOUR = 3600; // seconds
+  const ONE_HOUR = 3600;
   const SUPABASE_URL = 'https://mrphkxragldfngrkkuqs.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_C9Xjj5FztinEUw_ZVmFSnQ_qg09jxeE';
 
-  // State
   let elapsed = 0;
   let interval = null;
   let running = false;
@@ -3075,7 +3060,6 @@
     } catch (e) { /* AudioContext not available */ }
   }
 
-  // Work type toggle helper
   function setupWorkTypeToggle(toggleEl, onChange) {
     toggleEl.addEventListener('click', (e) => {
       const btn = e.target.closest('.work-type-btn');
@@ -3088,12 +3072,10 @@
     });
   }
 
-  // Main timer toggle
   setupWorkTypeToggle(document.getElementById('mainWorkTypeToggle'), (type) => {
     currentWorkType = type;
     if (pomodoroMode) updateDiscFill(Math.max((pomodoroPhase === 'work' ? POMO_WORK : POMO_BREAK) - elapsed, 0) / (pomodoroPhase === 'work' ? POMO_WORK : POMO_BREAK));
     else if (elapsed > 0) updateDiscFill(Math.min(elapsed / ONE_HOUR, 1));
-    // Update start/pause button color
     const spBtn = document.getElementById('startPauseBtn') || document.querySelector('.btn-primary');
     if (spBtn) {
       spBtn.classList.toggle('sustaining', type === 'sustaining');
@@ -3119,7 +3101,6 @@
       window.Clerk.addListener(async ({ user }) => {
         currentUser = user;
         updateAuthUI();
-        // Auto-close sign-in overlay on successful auth
         if (user) {
           const overlay = document.getElementById('clerkOverlay');
           if (overlay.style.display !== 'none') {
@@ -3163,7 +3144,6 @@
     const appFooter = document.querySelector('.site-footer');
     if (!authArea) return;
     if (currentUser) {
-      // Show app, hide landing
       if (landing) landing.style.display = 'none';
       if (appNav) appNav.style.display = '';
       if (appMain) appMain.style.display = '';
@@ -3178,7 +3158,6 @@
       });
       document.getElementById('signOutBtn').addEventListener('click', handleSignOut);
     } else {
-      // Show landing, hide app
       if (landing) landing.style.display = 'block';
       if (appNav) appNav.style.display = 'none';
       if (appMain) appMain.style.display = 'none';
@@ -3307,7 +3286,6 @@
       const merged = [...new Set([...localNames, ...cloudNames])];
       hiddenNames = merged;
       localStorage.setItem('et_hidden_names', JSON.stringify(merged));
-      // Upload any local-only hidden names to cloud
       const localOnly = localNames.filter(n => !cloudNames.includes(n));
       if (localOnly.length > 0) {
         await supabaseClient.from('hidden_activities').upsert(
@@ -3408,7 +3386,6 @@
     completedLaps = Math.floor(elapsed / ONE_HOUR);
     chime60Played = elapsed >= 3600;
 
-    // Update work type toggle UI
     var mainToggle = document.getElementById('mainWorkTypeToggle');
     mainToggle.querySelectorAll('.work-type-btn').forEach(function(b) {
       b.className = 'work-type-btn' + (b.dataset.type === currentWorkType
@@ -3452,10 +3429,8 @@
   function resumePomodoroFromSync(data, currentElapsed) {
     var target = (data.pomodoro_phase === 'break') ? POMO_BREAK : POMO_WORK;
 
-    // Phase expired while away
     if (currentElapsed >= target) {
       if (data.pomodoro_phase !== 'break') {
-        // Work phase completed — save session and start break
         pomodoroMode = true;
         pomodoroPhase = 'work';
         currentWorkType = data.work_type || 'deep';
@@ -3465,7 +3440,6 @@
         running = true;
         startTime = Date.now();
         interval = setInterval(tick, 1000);
-        // finishPomodoroWork will save session and transition to break
         finishPomodoroWork();
         syncActiveTimer({
           is_running: true, started_at: new Date().toISOString(),
@@ -3473,20 +3447,17 @@
           activity_name: data.activity_name || '', work_type: data.work_type || 'deep'
         });
       } else {
-        // Break completed — stop timer
         pomodoroMode = true;
         pomodoroPhase = 'break';
         finishPomodoroBreak();
         deleteActiveTimer();
       }
-      // Activate pomodoro UI
       pomodoroBtn.childNodes[0].textContent = t('exitPomodoro');
       pomodoroBtn.classList.add('active');
       syncPomoPillColor();
       return;
     }
 
-    // Phase still in progress — restore
     pomodoroMode = true;
     pomodoroPhase = data.pomodoro_phase || 'work';
     currentWorkType = data.work_type || 'deep';
@@ -3585,7 +3556,6 @@
       resetSignInForm();
       document.getElementById('clerkOverlay').style.display = 'flex';
       document.getElementById('signInEmail').focus();
-      // Render OAuth buttons if available
       renderOAuthButtons();
     } else {
       pendingSignIn = true;
@@ -3655,7 +3625,6 @@
             await window.Clerk.setActive({ session: signUpAttempt.createdSessionId });
             return;
           }
-          // Needs email verification
           if (signUpAttempt.status === 'missing_requirements') {
             const needsPassword = signUpAttempt.requiredFields && signUpAttempt.requiredFields.includes('password');
             if (needsPassword && !password) {
@@ -3692,10 +3661,8 @@
         if (password) params.password = password;
         signInAttempt = await window.Clerk.client.signIn.create(params);
       } else if (code) {
-        // Verify OTP code
         signInAttempt = await signInAttempt.attemptFirstFactor({ strategy: 'email_code', code: code });
       } else if (password) {
-        // Submit password for first factor
         signInAttempt = await signInAttempt.attemptFirstFactor({ strategy: 'password', password: password });
       }
 
@@ -3704,7 +3671,6 @@
         return;
       }
 
-      // Needs first factor
       if (signInAttempt.status === 'needs_first_factor') {
         const factors = signInAttempt.supportedFirstFactors || [];
         const hasEmailCode = factors.some(f => f.strategy === 'email_code');
@@ -3762,7 +3728,6 @@
   const earlySignInBtn = document.getElementById('signInBtn');
   if (earlySignInBtn) earlySignInBtn.addEventListener('click', openSignIn);
 
-  // Init auth when Clerk script loads
   if (document.querySelector('script[data-clerk-publishable-key]')) {
     let clerkAttempts = 0;
     const checkClerk = setInterval(() => {
@@ -3778,7 +3743,6 @@
     }, 100);
   }
 
-  // Close sign-in overlay
   document.getElementById('clerkClose').addEventListener('click', () => {
     document.getElementById('clerkOverlay').style.display = 'none';
     resetSignInForm();
@@ -3790,7 +3754,6 @@
     }
   });
 
-  // Landing page buttons
   (function initLanding() {
     var btn = document.getElementById('landingSignIn');
     if (!btn) return;
@@ -4000,7 +3963,6 @@
       setState('decor');
     }
 
-    // Work type toggle
     wtToggle.querySelectorAll('.work-type-btn').forEach(function(btn) {
       btn.addEventListener('click', function(e) {
         e.stopPropagation();
@@ -4013,7 +3975,6 @@
             : (b.dataset.type === 'sustaining' && t === 'sustaining' ? ' active-sustaining' : ''));
         });
         root.classList.toggle('sustaining-ready', workType === 'sustaining');
-        // Repaint ring in current state
         if (state === 'running' || state === 'paused') {
           var frac = (elapsed % ONE_HOUR) / ONE_HOUR;
           setRingFromFraction(frac);
@@ -4026,7 +3987,6 @@
       });
     });
 
-    // Timer wrap interactions
     if (hoverCapable) {
       wrap.addEventListener('mouseenter', function() {
         if (state === 'decor') setState('ready');
@@ -4051,10 +4011,8 @@
       }
     });
 
-    // Prevent name-input clicks from bubbling to wrap (they're outside wrap anyway but just in case)
     nameInput.addEventListener('click', function(e) { e.stopPropagation(); });
 
-    // Start / Pause / Resume button
     startBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (state === 'naming') { startRunning(); return; }
@@ -4062,13 +4020,11 @@
       if (state === 'paused') { resumeRunning(); return; }
     });
 
-    // Finish button
     finishBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (state === 'running' || state === 'paused') finishRunning();
     });
 
-    // Initial state: CTA if user already hit 3 sessions, else decor
     if (getSessionCount() >= MIN_SESSIONS_FOR_CTA) {
       setState('cta');
     } else {
@@ -4076,7 +4032,6 @@
     }
   })();
 
-  // Init disc fill
   function updateDiscFill(fraction, color) {
     const degrees = fraction * 360;
     if (!color) color = currentWorkType === 'sustaining' ? 'var(--gray-900)' : 'var(--orange)';
@@ -4086,7 +4041,6 @@
   }
   updateDiscFill(0);
 
-  // Set live date + time in nav
   var ddNavDate=document.getElementById('ddNavDate');
   function tickNav(){
     var d=new Date();
@@ -4098,7 +4052,6 @@
   }
   tickNav();setInterval(tickNav,1000);
 
-  // Format helpers
   function fmt(s) {
     const h = Math.floor(s / 3600);
     const m = Math.floor((s % 3600) / 60);
@@ -4155,13 +4108,9 @@
 
     display.textContent = fmt(elapsed);
 
-    // Lap-based ring: resets each 60 minutes
     const fraction = (elapsed % ONE_HOUR) / ONE_HOUR;
-
-    // Update disc fill
     updateDiscFill(fraction);
 
-    // Update lap badge
     const laps = Math.floor(elapsed / ONE_HOUR);
     const lapBadge = document.getElementById('lapBadge');
     if (laps >= 1) {
@@ -4171,7 +4120,6 @@
       lapBadge.classList.remove('visible');
     }
 
-    // Toggle digit styling based on fill
     if (elapsed > 0) {
       display.classList.remove('idle');
       display.classList.add('visible');
@@ -4180,7 +4128,6 @@
       display.classList.remove('visible');
     }
 
-    // Title
     document.title = running
       ? fmt(elapsed) + ' \u2014 GemTimer'
       : 'GemTimer';
@@ -5210,7 +5157,6 @@
     },
   };
 
-  // Active theme variables (mutable)
   let activeThemeKey = 'sherlock';
   let activeQuotes = QUOTE_THEMES.sherlock.quotes;
   let activeEmptyQuotes = QUOTE_THEMES.sherlock.emptyQuotes;
@@ -5219,8 +5165,7 @@
   let activeTimeTriggers = QUOTE_THEMES.sherlock.timeTriggers;
   let activeEasterEggs = QUOTE_THEMES.sherlock.easterEggs;
 
-  // Fetch quotes from Supabase for a given theme, returns array of {text, attr}
-  // Fetches a batch of 10 and caches them; falls back to hardcoded quotes on error
+  // Fetch a batch of 10 quotes for a theme, cache by theme name, fall back to hardcoded on error.
   const _quoteCache = {};
   async function fetchQuotesForTheme(themeName) {
     if (_quoteCache[themeName] && _quoteCache[themeName].length > 0) {
@@ -5319,16 +5264,13 @@
     }
   });
 
-  // (Easter eggs patched below via cloneNode)
-
-  // Override tick to check for time triggers
+  // Redefines tick() — adds time triggers, bell chime, and lap flash on top of the base loop.
   function tick() {
     const prev = elapsed;
     elapsed = elapsedBeforePause + Math.floor((Date.now() - startTime) / 1000);
     if (elapsed > 86400) { elapsed = 0; elapsedBeforePause = 0; clearInterval(interval); running = false; if (typeof releaseWakeLock === 'function') releaseWakeLock(); return; }
     updateDisplay();
 
-    // Pomodoro phase transitions
     if (pomodoroMode) {
       const target = pomodoroPhase === 'work' ? POMO_WORK : POMO_BREAK;
       if (elapsed >= target) {
@@ -5341,7 +5283,7 @@
       return;
     }
 
-    // Check time-based Easter eggs (only trigger once per second crossed)
+    // Walk each second crossed so time-triggered quotes fire exactly once even if the tab lagged.
     for (let s = prev + 1; s <= elapsed; s++) {
       if (activeTimeTriggers[s]) {
         statusLabel.textContent = activeTimeTriggers[s];
@@ -5349,13 +5291,11 @@
       }
     }
 
-    // Soft bell chime at 60 minutes
     if (!chime60Played && prev < 3600 && elapsed >= 3600) {
       chime60Played = true;
       playSoftBell();
     }
 
-    // Lap completion flash
     const prevLaps = Math.floor(prev / ONE_HOUR);
     const curLaps = Math.floor(elapsed / ONE_HOUR);
     if (curLaps > prevLaps && curLaps >= 1) {
@@ -5374,15 +5314,12 @@
   // ── Pomodoro Functions ───────────────────────────────
   const pomodoroBtn = document.getElementById('pomodoroBtn');
 
-  function syncPomoPillColor() {
-    // no-op: toggle switch uses .active class only
-  }
+  function syncPomoPillColor() { /* no-op: toggle switch uses .active class only */ }
 
   function enterPomodoro() {
     pomodoroMode = true;
     pomodoroPhase = 'work';
 
-    // Stop any running timer and reset
     clearInterval(interval);
     interval = null;
     running = false;
@@ -5391,12 +5328,10 @@
     elapsedBeforePause = 0;
     completedLaps = 0;
 
-    // Update button
     pomodoroBtn.childNodes[0].textContent = t('exitPomodoro');
     pomodoroBtn.classList.add('active');
     syncPomoPillColor();
 
-    // Show 25:00 countdown
     updateDisplay();
     display.classList.remove('idle');
     display.classList.add('visible');
@@ -5409,7 +5344,6 @@
     pomodoroMode = false;
     pomodoroPhase = 'work';
 
-    // Stop timer and reset
     clearInterval(interval);
     interval = null;
     running = false;
@@ -5418,11 +5352,9 @@
     elapsedBeforePause = 0;
     completedLaps = 0;
 
-    // Update button
     pomodoroBtn.childNodes[0].textContent = t('pomodoro');
     pomodoroBtn.classList.remove('active');
 
-    // Reset display to normal count-up mode
     updateDisplay();
     display.classList.add('idle');
     display.classList.remove('visible');
@@ -5438,7 +5370,6 @@
     const savedName = sessionInput.value.trim() || t('deepWork');
     const savedType = currentWorkType;
 
-    // Save work session
     if (savedElapsed >= 5) {
       const session = { duration: savedElapsed, date: new Date().toISOString(), name: savedName, type: savedType };
       sessions.push(session);
@@ -5456,7 +5387,6 @@
 
     playSoftBell();
 
-    // Start break phase
     pomodoroPhase = 'break';
     elapsed = 0;
     elapsedBeforePause = 0;
@@ -5475,7 +5405,6 @@
   function finishPomodoroBreak() {
     playSoftBell();
 
-    // Stop timer and reset to ready state
     clearInterval(interval);
     interval = null;
     running = false;
@@ -5487,7 +5416,6 @@
     completedLaps = 0;
     deleteActiveTimer();
 
-    // Reset UI to ready-for-next-round state
     const currentBtn = document.querySelector('.btn-primary span');
     if (currentBtn) currentBtn.textContent = t('start');
     const currentIcon = document.querySelector('.btn-primary svg');
@@ -5562,19 +5490,14 @@
   }
   showCarveout(savedCarveoutIndex);
 
-  // Wake Lock (Keep screen unlocked)
-  // Uses native Wake Lock API when available, falls back to silent video loop (NoSleep-style)
+  // Wake Lock: native API when available, silent-video (NoSleep.js) fallback for iOS.
   var wakeLockSentinel = null;
   var screenOnBtn = document.getElementById('screenOnBtn');
   var screenOnActive = localStorage.getItem('et_screen_on') === 'true';
   var hasNativeWakeLock = 'wakeLock' in navigator;
   var noSleepVideo = null;
 
-  if (hasNativeWakeLock) {
-    console.log('[WakeLock] native API available');
-  } else {
-    console.log('[WakeLock] native API not available — using silent video fallback');
-    // Create a tiny silent video element (NoSleep.js technique)
+  if (!hasNativeWakeLock) {
     noSleepVideo = document.createElement('video');
     noSleepVideo.setAttribute('playsinline', '');
     noSleepVideo.setAttribute('muted', '');
@@ -5586,7 +5509,7 @@
     noSleepVideo.style.width = '1px';
     noSleepVideo.style.height = '1px';
     noSleepVideo.style.opacity = '0.01';
-    // Minimal silent MP4 (base64) — ~1KB, plays as a short silent loop
+    // Minimal silent MP4 (~1KB) — plays as a short silent loop to keep iOS from sleeping.
     var silentMp4 = 'data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAA' +
       'OhtZGF0AAACrgYF//+q3EXpvebZSLeWLNgg2SPu73gyNjQgLSBjb3JlIDE1NyByMjkzNSBhOTRhYTcyIC0gSC4' +
       'yNjQvTVBFRy00IEFWQyBjb2RlYyAtIENvcHlsZWZ0IDIwMDMtMjAxOCAtIGh0dHA6Ly93d3cudmlkZW9sYW4ub' +
@@ -5613,11 +5536,9 @@
 
   if (screenOnActive) screenOnBtn.classList.add('active');
 
-  // Play silent video synchronously — MUST be called directly from a user gesture (click/tap)
-  // on iOS, or the browser will reject .play(). Do not wrap in async or call from a callback.
+  // iOS requires .play() to be called directly from the same synchronous user gesture — no await/setTimeout.
   function playNoSleepVideo() {
     if (!noSleepVideo || !noSleepVideo.paused) return;
-    console.log('[WakeLock] playing silent video (from user gesture)...');
     try {
       var playPromise = noSleepVideo.play();
       if (playPromise) playPromise.catch(function(e) {
@@ -5629,36 +5550,20 @@
   }
 
   function stopNoSleepVideo() {
-    if (noSleepVideo && !noSleepVideo.paused) {
-      console.log('[WakeLock] stopping silent video');
-      noSleepVideo.pause();
-    }
+    if (noSleepVideo && !noSleepVideo.paused) noSleepVideo.pause();
   }
 
   async function acquireWakeLock() {
-    if (!screenOnActive || !running) {
-      console.log('[WakeLock] skip acquire — toggle:', screenOnActive, 'running:', running);
-      return;
-    }
+    if (!screenOnActive || !running) return;
     if (!hasNativeWakeLock) {
-      // For the video fallback, acquireWakeLock is only used from non-gesture contexts
-      // (visibilitychange, page load). iOS may reject this — that's OK, the video
-      // will already be playing if it was started from a user gesture.
+      // Non-gesture contexts (visibilitychange, load) — iOS may reject, but the video started from the gesture is still playing.
       playNoSleepVideo();
       return;
     }
-    if (wakeLockSentinel) {
-      console.log('[WakeLock] skip acquire — already held');
-      return;
-    }
-    console.log('[WakeLock] requesting native lock...');
+    if (wakeLockSentinel) return;
     try {
       wakeLockSentinel = await navigator.wakeLock.request('screen');
-      console.log('[WakeLock] native lock acquired');
-      wakeLockSentinel.addEventListener('release', function() {
-        console.log('[WakeLock] native lock released by browser');
-        wakeLockSentinel = null;
-      });
+      wakeLockSentinel.addEventListener('release', function() { wakeLockSentinel = null; });
     } catch (e) {
       console.error('[WakeLock] native request denied:', e.name, e.message);
     }
@@ -5667,7 +5572,6 @@
   function releaseWakeLock() {
     if (hasNativeWakeLock) {
       if (wakeLockSentinel) {
-        console.log('[WakeLock] releasing native lock');
         wakeLockSentinel.release();
         wakeLockSentinel = null;
       }
@@ -5676,16 +5580,15 @@
     }
   }
 
-  // Acquire on load if toggle is on and timer is already running (e.g. restored from sync)
+  // Re-acquire if toggle is on and a running timer was restored from cross-device sync.
   if (screenOnActive && running) acquireWakeLock();
 
   screenOnBtn.addEventListener('click', function() {
     screenOnActive = !screenOnActive;
     screenOnBtn.classList.toggle('active', screenOnActive);
     localStorage.setItem('et_screen_on', screenOnActive);
-    console.log('[WakeLock] toggle:', screenOnActive ? 'ON' : 'OFF');
     if (screenOnActive && running) {
-      // Start video directly from this tap — iOS requires user gesture
+      // iOS requires user gesture — start video directly in this tap handler.
       if (!hasNativeWakeLock) playNoSleepVideo();
       acquireWakeLock();
     } else {
@@ -5694,18 +5597,13 @@
   });
 
   document.addEventListener('visibilitychange', function() {
-    if (document.visibilityState === 'visible' && screenOnActive && running) {
-      console.log('[WakeLock] tab visible — re-acquiring');
-      acquireWakeLock();
-    }
+    if (document.visibilityState === 'visible' && screenOnActive && running) acquireWakeLock();
   });
 
-  // Re-create start/pause button to inject themed labels
-  // Remove old listener and re-add with Easter eggs
+  // Replace start/pause button with a clone to detach the earlier listener; rebind with Easter egg labels below.
   const newStartPauseBtn = startPauseBtn.cloneNode(true);
   startPauseBtn.parentNode.replaceChild(newStartPauseBtn, startPauseBtn);
 
-  // Re-grab references
   const startPauseBtnNew = newStartPauseBtn;
   const playIconNew = startPauseBtnNew.querySelector('svg');
   const btnTextNew = startPauseBtnNew.querySelector('span');
@@ -5753,15 +5651,14 @@
         work_type: currentWorkType,
         pomodoro_mode: pomodoroMode, pomodoro_phase: pomodoroPhase
       });
-      // Start video directly from this tap — iOS requires user gesture
+      // iOS requires the user gesture — start the silent video in this click handler directly.
       if (screenOnActive && !hasNativeWakeLock && typeof playNoSleepVideo === 'function') playNoSleepVideo();
       if (typeof acquireWakeLock === 'function') acquireWakeLock();
-      // Rotate carve out on new session start (not resume)
+      // Rotate carve out on new session start only (not on resume from pause).
       if (elapsedBeforePause === 0 && typeof rotateCarveout === 'function') rotateCarveout();
     }
   });
 
-  // Patch reset button too
   const newResetBtn = resetBtn.cloneNode(true);
   resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
 
@@ -5771,7 +5668,7 @@
     const savedType = currentWorkType;
     deleteActiveTimer();
 
-    // Stop timer immediately before any async work
+    // Stop the timer synchronously before any async save, so it can't tick past this reset.
     clearInterval(interval);
     interval = null;
     running = false;
@@ -5783,7 +5680,6 @@
     chime60Played = false;
 
     if (pomodoroMode) {
-      // In Pomodoro: save work phase if enough time, reset to 25:00 ready
       if (pomodoroPhase === 'work' && savedElapsed >= 5) {
         const session = { duration: savedElapsed, date: new Date().toISOString(), name: savedName, type: savedType };
         sessions.push(session);
@@ -5813,7 +5709,6 @@
 
     sessionInput.value = '';
 
-    // Reset work type toggle to Deep Work
     currentWorkType = 'deep';
     const mainToggle = document.getElementById('mainWorkTypeToggle');
     mainToggle.querySelectorAll('.work-type-btn').forEach(b => {
@@ -5886,28 +5781,24 @@
     return match ? match.duration : 0;
   }
 
-  // Easter egg 5: Themed empty state messages
   function updateStreak() {
     const badge = document.getElementById('streakBadge');
     const countEl = document.getElementById('streakCount');
     if (!badge || !countEl) return;
 
-    // Get unique days with sessions (using splits for midnight-crossing sessions)
     const daysWithSessions = new Set();
     sessions.forEach(s => splitSessionByDay(s).forEach(sp => daysWithSessions.add(sp.dateStr)));
 
-    // Count consecutive days ending today (or yesterday if no session today yet)
     let streak = 0;
     const now = new Date();
     const check = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    // Start from today and go backwards
     while (true) {
       if (daysWithSessions.has(toDateKey(check))) {
         streak++;
         check.setDate(check.getDate() - 1);
       } else if (streak === 0) {
-        // No session today — check if yesterday starts a streak
+        // No session today yet — peek at yesterday so an active streak still shows.
         check.setDate(check.getDate() - 1);
         if (daysWithSessions.has(toDateKey(check))) {
           streak++;
@@ -5966,11 +5857,9 @@
     const totalSec = todaySessions.reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     totalTimeEl.textContent = fmtTotal(totalSec);
 
-    // Daily average is updated by renderHistory()
-
-    // Name totals breakdown (case-insensitive grouping, grouped by name+type)
+    // Name totals: group case-insensitively by name+type, but keep first-seen casing for display.
     const nameMap = {};
-    const nameDisplay = {}; // preserve first-seen casing for display
+    const nameDisplay = {};
     todaySessions.forEach(s => {
       const n = s.name || t('deepWork');
       const sType = s.type || 'deep';
@@ -5998,7 +5887,6 @@
       nameTotalsEl.innerHTML = '';
     }
 
-    // Work type breakdown (deep vs sustaining) — rendered in timer column
     const deepSec = todaySessions.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     const sustainingSec = todaySessions.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + getSessionDurationForDay(s, todayKey), 0);
     var wtBreakdown = document.getElementById('workTypeBreakdown');
@@ -6013,7 +5901,6 @@
       }
     }
 
-    // Wire delete buttons
     sessionList.querySelectorAll('.session-delete').forEach(btn => {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
@@ -6031,7 +5918,6 @@
       });
     });
 
-    // Easter egg: Show a quote when reaching certain session counts
     if (todaySessions.length === 3) {
       statusLabel.textContent = 'Three-pipe problem';
       statusLabel.className = 'time-label';
@@ -6041,7 +5927,7 @@
       statusLabel.className = 'time-label';
     }
 
-    // Shrink session list as sessions accumulate to keep totals visible
+    // Cap the session list height once it fills up so the totals below stay on-screen.
     const count = todaySessions.length;
     if (count <= 5) sessionList.style.maxHeight = '';
     else if (count <= 8) sessionList.style.maxHeight = '260px';
@@ -6100,14 +5986,11 @@
     const days = getWeekDays(weekOffset);
     const today = new Date().toDateString();
 
-    // Week label
     weekLabel.textContent = fmtWeekLabel(weekOffset);
 
-    // Disable next if on current week
     weekNext.disabled = weekOffset >= 0;
     weekNext.style.opacity = weekOffset >= 0 ? '0.3' : '1';
 
-    // Build per-day totals (split by type, with midnight-crossing splits)
     const dayData = days.map(d => {
       const dk = toDateKey(d);
       let deep = 0, sustaining = 0;
@@ -6143,7 +6026,6 @@
       '</div>';
     }).join('');
 
-    // Render date groups (only days with sessions, excluding today)
     const groupDays = days
       .filter(d => d.toDateString() !== today)
       .reverse();
@@ -6189,14 +6071,12 @@
 
     historyGroups.innerHTML = groupsHtml;
 
-    // Wire collapsible groups
     historyGroups.querySelectorAll('.history-group-header').forEach(header => {
       header.addEventListener('click', () => {
         header.parentElement.classList.toggle('expanded');
       });
     });
 
-    // Update totals for the viewed week (using midnight splits)
     let viewedTotalSec = 0;
     const viewedDaySet = new Set();
     days.forEach(d => {
@@ -6210,19 +6090,16 @@
     weeklyTotalEl.textContent = fmtTotal(Math.round(viewedTotalSec / viewedDays));
 
     if (weekOffset === 0) {
-      // Current week: show today's total
       totalLabelEl.textContent = t('today');
       const todayDk = toDateKey(new Date());
       const todaySec = sessions.reduce((sum, s) => sum + getSessionDurationForDay(s, todayDk), 0);
       totalTimeEl.textContent = fmtTotal(todaySec);
     } else {
-      // Past week: show week total instead
       totalLabelEl.textContent = t('weekTotal');
       totalTimeEl.textContent = fmtTotal(viewedTotalSec);
     }
   }
 
-  // Week navigation
   weekPrev.addEventListener('click', () => {
     weekOffset--;
     renderHistory();
@@ -6335,7 +6212,6 @@
   }
 
   function buildHeatmapHTML(filtered, range) {
-    // Build daily totals map (using midnight splits)
     const dailyMap = {};
     filtered.forEach(s => {
       splitSessionByDay(s).forEach(sp => {
@@ -6343,12 +6219,10 @@
       });
     });
 
-    // Determine date range — weeks start on Monday
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // If Jan 1 of the current year is less than 9 months ago, show calendar-year view;
-    // otherwise switch to rolling 12-month view
+    // Calendar-year view if Jan 1 is within the last 9 months; otherwise rolling 12-month.
     const jan1 = new Date(today.getFullYear(), 0, 1);
     const nineMonthsAgo = new Date(today);
     nineMonthsAgo.setMonth(nineMonthsAgo.getMonth() - 9);
@@ -6357,21 +6231,18 @@
 
     let startDate;
     if (calendarYear) {
-      // Calendar-year view (Jan 1 → Dec 31)
       startDate = new Date(jan1);
     } else {
-      // Rolling 1-year view
       startDate = new Date(today);
       startDate.setFullYear(startDate.getFullYear() - 1);
       startDate.setDate(startDate.getDate() + 1);
     }
 
-    // Rewind startDate to nearest Monday (ISO week start)
+    // Rewind start to the nearest Monday so every grid column is a full ISO week.
     const startDay = startDate.getDay();
     const rewind = startDay === 0 ? 6 : startDay - 1; // Mon=0 rewind
     startDate.setDate(startDate.getDate() - rewind);
 
-    // End date: full year (Dec 31) for calendar-year view, current week for rolling
     let endDate;
     if (calendarYear) {
       endDate = new Date(today.getFullYear(), 11, 31);
@@ -6381,7 +6252,6 @@
     const endDay = endDate.getDay();
     if (endDay !== 0) endDate.setDate(endDate.getDate() + (7 - endDay));
 
-    // Build weeks array
     const weeks = [];
     const cur = new Date(startDate);
     while (cur <= endDate) {
@@ -6399,7 +6269,7 @@
       weeks.push(week);
     }
 
-    // Determine intensity levels (quartiles of non-zero values)
+    // Quartiles of non-zero day totals. `|| 1` prevents all-zero buckets when data is sparse.
     const nonZero = [];
     weeks.forEach(w => w.forEach(d => { if (d.secs > 0) nonZero.push(d.secs); }));
     nonZero.sort((a, b) => a - b);
@@ -6415,8 +6285,7 @@
       return 4;
     }
 
-    // Month labels — place at the first week containing a day in that month
-    // Skip the partial starting month (week 0 is always a rewind artifact)
+    // Seed lastMonth with week 0's month so the rewind-artifact partial month is treated as "already seen".
     const months = [];
     let lastMonth = weeks[0] ? weeks[0][0].date.getMonth() : -1;
     weeks.forEach((w, wi) => {
@@ -6430,11 +6299,10 @@
       }
     });
 
-    // Build HTML
     let html = '<div class="dd-heatmap-card dd-heatmap-fixed">';
     html += '<div class="dd-heatmap-header"><span class="dd-heatmap-title">Activity</span></div>';
 
-    // Month labels row — skip labels that would overlap (need ≥3 columns gap)
+    // Collision detection: skip labels less than 3 columns from the previous one.
     const minGap = 3;
     let lastLabelIdx = -minGap;
     const visibleMonths = [];
@@ -6457,13 +6325,11 @@
     html += '</div>';
 
     html += '<div class="dd-heatmap-body">';
-    // Day labels — Mon–Sun (ISO order)
     html += '<div class="dd-heatmap-days">';
     const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     dayNames.forEach(n => { html += '<span>' + n + '</span>'; });
     html += '</div>';
 
-    // Grid
     html += '<div class="dd-heatmap-grid">';
     weeks.forEach(w => {
       html += '<div class="dd-heatmap-col">';
@@ -6483,7 +6349,6 @@
     });
     html += '</div></div>';
 
-    // Legend
     html += '<div class="dd-heatmap-legend">Less ';
     for (let l = 0; l <= 4; l++) html += '<div class="dd-heatmap-cell" data-level="' + l + '"></div>';
     html += ' More</div>';
@@ -6504,18 +6369,16 @@
     const todGroups = aggregateByTimeOfDay(hourBuckets);
     const trend = getDailyTrend(hourlyMap);
 
-    // Overall stats
     const totalFocusSec = filtered.reduce((sum, s) => sum + s.duration, 0);
     const dailyAvgSec = trend.length > 0 ? Math.round(trend.reduce((sum, t) => sum + t.secs, 0) / trend.length) : 0;
     const bestDaySec = trend.length > 0 ? Math.max(...trend.map(t => t.secs)) : 0;
     const peakHour = hourBuckets.reduce((best, b) => b.totalSec > best.totalSec ? b : best, hourBuckets[0]);
     const peakLabel = ((peakHour.hour % 12) || 12) + (peakHour.hour < 12 ? 'am' : 'pm');
 
-    // Max for scaling
     const maxTodSec = Math.max(...todGroups.map(g => g.totalSec), 1);
     const maxTrendSec = Math.max(...trend.map(t => t.secs), 1);
 
-    // === ROW 1 LEFT: Stats ===
+    // Row 1 left: stat cards
     var r1Left = '';
     r1Left += '<div class="dd-stats">';
     r1Left += '<div class="dd-stat-card"><div class="dd-stat-label">Total Focus</div><div class="dd-stat-value">' + fmtTotal(totalFocusSec) + '</div></div>';
@@ -6528,7 +6391,7 @@
       heatmapHTML = buildHeatmapHTML(filtered, ddRange);
     }
 
-    // === ROW 1 RIGHT: Work Type ===
+    // Row 1 right: work type split
     const deepTotal = filtered.filter(s => (s.type || 'deep') === 'deep').reduce((sum, s) => sum + s.duration, 0);
     const sustainTotal = filtered.filter(s => (s.type || 'deep') === 'sustaining').reduce((sum, s) => sum + s.duration, 0);
     const deepPct = totalFocusSec > 0 ? Math.round(deepTotal / totalFocusSec * 100) : 0;
@@ -6549,7 +6412,7 @@
       '<span class="dd-type-pct">' + sustainPct + '%</span></div>';
     r1Right += '</div>';
 
-    // === ROW 2 LEFT: Time of Day + By Activity ===
+    // Row 2 left: time of day + activity breakdown
     var r2Left = '';
     r2Left += '<div class="dd-section-title">Time of day</div>';
     r2Left += '<div class="dd-tod-grid">';
@@ -6564,7 +6427,6 @@
     });
     r2Left += '</div>';
 
-    // By Activity (appended to same cell)
     var activityMap = {};
     filtered.forEach(function(s) {
       var name = s.name || 'Unnamed';
@@ -6595,7 +6457,7 @@
     });
     r2Left += '</div>';
 
-    // === ROW 2 RIGHT: Hour by Hour (single stacked bar per hour) ===
+    // Row 2 right: hour-by-hour stacked bars
     var r2Right = '';
     r2Right += '<div class="dd-section-title">Hour by hour</div>';
     r2Right += '<div class="dd-hour-grid">';
@@ -6617,7 +6479,7 @@
     }
     r2Right += '</div>';
 
-    // === ROW 3 RIGHT: Daily Trend (compact) ===
+    // Row 3: compact daily trend line chart
     var r3Right = '';
     if (trend.length > 1) {
       var avgSec = trend.reduce(function(s, t) { return s + t.secs; }, 0) / trend.length;
@@ -6685,17 +6547,14 @@
       r3Right += '</div></div>';
     }
 
-    // === ASSEMBLE ===
     var html = '<div class="dd-overlay-body">';
     if (ddRange === '1y') {
-      // All view: heatmap full width, stats+worktype left, hour-by-hour right, trend bottom
       if (heatmapHTML) html += '<div class="dd-heatmap-top">' + heatmapHTML + '</div>';
       html += '<div class="dd-overlay-grid">';
       html += '<div class="dd-overlay-cell">' + r1Left + r1Right + '</div>';
       html += '<div class="dd-overlay-cell">' + r2Right + '</div>';
       html += '</div>';
     } else {
-      // Week/7d/30d: standard 4-cell grid
       html += '<div class="dd-overlay-grid">';
       html += '<div class="dd-overlay-cell">' + r1Left + '</div>';
       html += '<div class="dd-overlay-cell">' + r1Right + '</div>';
@@ -6708,7 +6567,6 @@
 
     deepDiveContent.innerHTML = html;
 
-    // Tooltip interaction for trend dots
     if (trend.length > 1) {
       var chart = deepDiveContent.querySelector('.dd-trend-chart');
       var tip = document.getElementById('ddTrendTip');
@@ -6764,11 +6622,9 @@
     renderDeepDive();
   });
 
-  // Catch up when tab/app regains focus
+  // When the tab regains focus, resync elapsed from wall clock immediately.
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && running) {
-      tick(); // immediately sync elapsed from wall clock
-    }
+    if (!document.hidden && running) tick();
   });
 
   // ── Theme Switcher ──────────────────────────────────
@@ -6895,7 +6751,6 @@
     }
   });
 
-  // Init — restore theme from localStorage
   const savedTheme = localStorage.getItem('et_quote_theme');
   if (savedTheme && QUOTE_THEMES[savedTheme]) {
     activeThemeKey = savedTheme;
@@ -6915,7 +6770,7 @@
   statusLabel.textContent = getRandomIdleQuote();
   updateDisplay();
 
-  // Apply saved language (must run after all elements exist)
+  // Must run after all elements exist, because setLanguage() reaches into the DOM.
   const savedLang = localStorage.getItem('et_language');
   if (savedLang && TRANSLATIONS[savedLang]) {
     setLanguage(savedLang);
@@ -6924,7 +6779,6 @@
     renderHistory();
   }
 
-  // Session name suggestions (shared helper)
   function getVisibleNames(workType) {
     var filtered = workType ? sessions.filter(s => (s.type || 'deep') === workType) : sessions;
     const all = [...new Set(filtered.map(s => s.name || t('deepWork')))];
@@ -6975,8 +6829,7 @@
   setupSessionSuggestions(sessionInput, document.getElementById('mainSessionSuggestions'), function() { return currentWorkType; });
   sessionInput.addEventListener('input', function() { syncActivityName(this.value.trim()); });
 
-  // Add Session overlay
-  (function() {
+  (function initAddSessionOverlay() {
     const btn = document.getElementById('addSessionBtn');
     const screen = document.getElementById('addSessionScreen');
     const closeBtn = document.getElementById('addSessionClose');
@@ -7069,7 +6922,6 @@
     });
   })();
 
-  // Feedback submission
   async function submitFeedback() {
     const textarea = document.getElementById('feedbackText');
     const message = textarea.value.trim().slice(0, 2000);
